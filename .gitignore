@@ -36,3 +36,19 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+# env
+.env
+.env.local
+.env.development
+.env.production
+
+# Native builds
+android/
+ios/
+
+# Editor
+.vscode/
+.idea/
+
+# Testing
+coverage/

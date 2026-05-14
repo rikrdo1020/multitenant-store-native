@@ -1,50 +1,55 @@
-# Welcome to your Expo app 👋
+# MultiTenant Store — Native App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+React Native application built with Expo SDK 52. Supports iOS, Android, and Web.
 
-## Get started
+## Tech Stack
 
-1. Install dependencies
+- Expo SDK 52 + React Native 0.76
+- Expo Router v4 (file-based routing)
+- TypeScript 5
+- NativeWind v4 (Tailwind CSS for RN)
+- TanStack React Query v5
+- Zustand v5
+- React Hook Form + Zod
+- Axios
+- Expo SecureStore / AsyncStorage
 
-   ```bash
-   npm install
-   ```
+## Project Structure
 
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+app/                    # Expo Router routes
+  (auth)/               # Login, register, forgot-password
+  (storefront)/         # Public store (tabs)
+    [tenantSlug]/       # Tenant-specific routes
+  (admin)/              # Admin panel
+  (owner)/              # Store owner onboarding
+components/
+  ui/                   # Primitive UI components
+  store/                # Storefront-specific components
+  admin/                # Admin panel components
+  forms/                # Form wrappers
+  shared/               # Cross-cutting components
+hooks/
+  api/                  # React Query hooks
+stores/                 # Zustand stores
+services/               # API service modules
+lib/                    # Utilities, constants, validators
+ types/                  # Domain TypeScript types
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+```bash
+npm install
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Environment Variables
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Copy `.env.example` to `.env` and configure:
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+EXPO_PUBLIC_API_URL=http://localhost:3001/api/v1
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+EXPO_PUBLIC_APP_NAME=MultiTenant Store
+```
