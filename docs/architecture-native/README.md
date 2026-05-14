@@ -12,5 +12,6 @@
 | [08-payments.md](./08-payments.md) | Payment integration, in-app browser, deep link callbacks |
 | [09-business-rules.md](./09-business-rules.md) | Cart, checkout, shipping, catalog, store management rules |
 | [10-code-conventions.md](./10-code-conventions.md) | File conventions, component/form/data patterns, naming |
+| [11-api-contracts.md](./11-api-contracts.md) | Full API contract: endpoints, request/response bodies, shared models |
 
 Last updated: 2026-05-13

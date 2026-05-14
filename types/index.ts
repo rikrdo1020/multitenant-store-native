@@ -14,7 +14,7 @@ export interface Tenant {
   description?: string;
   primaryColor?: string;
   currency?: string;
-  provider?: 'stripe' | 'yappy';
+  provider?: 'yappy';
 }
 
 export interface Product {
