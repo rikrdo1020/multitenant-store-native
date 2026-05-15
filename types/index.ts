@@ -137,12 +137,14 @@ export interface ProductFilters {
   maxPrice?: number;
   search?: string;
   sort?: 'price_asc' | 'price_desc' | 'newest';
+  page?: number;
+  pageSize?: number;
 }
 
 export interface PaginationMeta {
   page: number;
   pageSize: number;
-  pageCount: number;
+  totalPages: number;
   total: number;
 }
 
