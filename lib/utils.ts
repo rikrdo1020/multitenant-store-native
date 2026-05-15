@@ -27,5 +27,13 @@ export function generateItemKey(
   if (!selectedOptions || Object.keys(selectedOptions).length === 0) {
     return documentId;
   }
-  return `${documentId}:${JSON.stringify(selectedOptions)}`;
+
+  const sortedOptions = Object.keys(selectedOptions)
+    .sort()
+    .reduce<Record<string, string>>((acc, key) => {
+      acc[key] = selectedOptions[key];
+      return acc;
+    }, {});
+
+  return `${documentId}:${JSON.stringify(sortedOptions)}`;
 }

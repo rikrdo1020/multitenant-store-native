@@ -25,12 +25,32 @@ export interface Product {
   discountPrice?: number;
   stock: number;
   images: string[];
-  description?: string;
+  description?: ProductDescription;
   category?: Category;
   brand?: Brand;
-  options?: ProductOption[];
+  tags?: Tag[];
+  options?: ProductOption[] | Record<string, unknown>;
+  type?: string;
   isFeatured?: boolean;
   featuredOrder?: number;
+}
+
+export type ProductDescription =
+  | string
+  | {
+      type?: string;
+      content?: string | ProductDescriptionBlock[];
+      text?: string;
+      [key: string]: unknown;
+    }
+  | ProductDescriptionBlock[];
+
+export interface ProductDescriptionBlock {
+  type?: string;
+  text?: string;
+  content?: string | ProductDescriptionBlock[];
+  children?: ProductDescriptionBlock[];
+  [key: string]: unknown;
 }
 
 export interface ProductOption {

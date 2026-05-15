@@ -1,14 +1,20 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CartItem, Product } from '@/types';
-import { getItem, setItem, removeItem } from '@/lib/storage';
-import { generateItemKey } from '@/lib/utils';
+import { STORAGE_KEYS } from '@/lib/constants';
+import { getItem, removeItem, setItem } from '@/lib/storage';
 import { calculateCartPricing } from '@/lib/pricing';
+import {
+  removeCartItem,
+  updateCartItemQuantity,
+  upsertCartItem,
+} from '@/lib/cart';
 import { useTenantStore } from './use-tenant-store';
 
 interface CartStore {
+  tenantKey: string | null;
   items: CartItem[];
-  addItem: (product: Product, options?: Record<string, string>) => void;
+  setTenantScope: (tenantKey: string | null) => Promise<void>;
+  addItem: (product: Product, options?: Record<string, string>, tenantKey?: string) => void;
   removeItem: (documentId: string, options?: Record<string, string>) => void;
   updateQuantity: (documentId: string, quantity: number, options?: Record<string, string>) => void;
   clearCart: () => void;
@@ -16,72 +22,82 @@ interface CartStore {
   getTotalPrice: () => number;
 }
 
-export const useCartStore = create<CartStore>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      addItem: (product, options) => {
-        const items = [...get().items];
-        const key = generateItemKey(product.documentId, options);
-        const existingIndex = items.findIndex(
-          (i) => generateItemKey(i.documentId, i.selectedOptions) === key
-        );
-
-        if (existingIndex >= 0) {
-          const newQty = Math.min(items[existingIndex].quantity + 1, product.stock);
-          items[existingIndex] = { ...items[existingIndex], quantity: newQty };
-        } else {
-          items.push({
-            documentId: product.documentId,
-            name: product.name,
-            price: product.discountPrice ?? product.price,
-            quantity: 1,
-            selectedOptions: options,
-            image: product.images[0],
-            stock: product.stock,
-          });
-        }
-        set({ items });
-      },
-      removeItem: (documentId, options) => {
-        const key = generateItemKey(documentId, options);
-        set((state) => ({
-          items: state.items.filter(
-            (i) => generateItemKey(i.documentId, i.selectedOptions) !== key
-          ),
-        }));
-      },
-      updateQuantity: (documentId, quantity, options) => {
-        if (quantity <= 0) {
-          get().removeItem(documentId, options);
-          return;
-        }
-        const key = generateItemKey(documentId, options);
-        set((state) => ({
-          items: state.items.map((i) =>
-            generateItemKey(i.documentId, i.selectedOptions) === key
-              ? { ...i, quantity: Math.min(quantity, i.stock) }
-              : i
-          ),
-        }));
-      },
-      clearCart: () => set({ items: [] }),
-      getTotalItems: () => {
-        return get().items.reduce((sum, i) => sum + i.quantity, 0);
-      },
-      getTotalPrice: () => {
-        const result = calculateCartPricing(get().items);
-        return result.total;
-      },
-    }),
-    {
-      name: 'mt:cart:temp',
-      storage: createJSONStorage(() => ({
-        getItem: async (name: string) => getItem(name),
-        setItem: async (name: string, value: string) => setItem(name, value),
-        removeItem: async (name: string) => removeItem(name),
-      })),
-      partialize: (state) => ({ items: state.items }),
+export const useCartStore = create<CartStore>()((set, get) => ({
+  tenantKey: null,
+  items: [],
+  setTenantScope: async (tenantKey) => {
+    if (!tenantKey) {
+      set({ tenantKey: null, items: [] });
+      return;
     }
-  )
-);
+
+    if (get().tenantKey === tenantKey) return;
+
+    const items = await readTenantCart(tenantKey);
+    set({ tenantKey, items });
+  },
+  addItem: (product, options, tenantKeyOverride) => {
+    const tenantKey = resolveTenantKey(tenantKeyOverride, get().tenantKey);
+    const currentItems = getScopedItems(get(), tenantKey);
+    const items = upsertCartItem(currentItems, product, options);
+
+    set({ tenantKey, items });
+    persistTenantCart(tenantKey, items);
+  },
+  removeItem: (documentId, options) => {
+    const { tenantKey, items } = get();
+    if (!tenantKey) return;
+
+    const nextItems = removeCartItem(items, documentId, options);
+    set({ items: nextItems });
+    persistTenantCart(tenantKey, nextItems);
+  },
+  updateQuantity: (documentId, quantity, options) => {
+    const { tenantKey, items } = get();
+    if (!tenantKey) return;
+
+    const nextItems = updateCartItemQuantity(items, documentId, quantity, options);
+    set({ items: nextItems });
+    persistTenantCart(tenantKey, nextItems);
+  },
+  clearCart: () => {
+    const { tenantKey } = get();
+    set({ items: [] });
+    if (tenantKey) {
+      void removeItem(STORAGE_KEYS.CART(tenantKey));
+    }
+  },
+  getTotalItems: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
+  getTotalPrice: () => calculateCartPricing(get().items).total,
+}));
+
+function resolveTenantKey(tenantKeyOverride?: string, currentTenantKey?: string | null): string {
+  const activeTenant = useTenantStore.getState().tenant;
+  const tenantKey = tenantKeyOverride ?? currentTenantKey ?? activeTenant?.slug;
+
+  if (!tenantKey) {
+    throw new Error('Cart tenant scope is required before adding items.');
+  }
+
+  return tenantKey;
+}
+
+function getScopedItems(state: CartStore, tenantKey: string): CartItem[] {
+  return state.tenantKey === tenantKey ? state.items : [];
+}
+
+async function readTenantCart(tenantKey: string): Promise<CartItem[]> {
+  const rawCart = await getItem(STORAGE_KEYS.CART(tenantKey));
+  if (!rawCart) return [];
+
+  try {
+    const parsed = JSON.parse(rawCart);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistTenantCart(tenantKey: string, items: CartItem[]): void {
+  void setItem(STORAGE_KEYS.CART(tenantKey), JSON.stringify(items));
+}
