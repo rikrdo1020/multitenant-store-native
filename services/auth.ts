@@ -1,19 +1,24 @@
 import api from './api';
 import { setSecureItem, removeSecureItem, getSecureItem } from '@/lib/storage';
 import { useAuthStore } from '@/stores/use-auth-store';
-import type { User, ApiResponse } from '@/types';
+import { useTenantStore } from '@/stores/use-tenant-store';
+import type { User, Tenant, ApiResponse } from '@/types';
 
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
+  tenant?: Tenant;
 }
 
 export async function login(email: string, password: string): Promise<User> {
   const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', { email, password });
-  const { accessToken, refreshToken, user } = response.data.data;
+  const { accessToken, refreshToken, user, tenant } = response.data.data;
   await saveTokens(accessToken, refreshToken);
   useAuthStore.getState().setAuth(user, accessToken, refreshToken);
+  if (tenant) {
+    useTenantStore.getState().setTenant(tenant);
+  }
   return user;
 }
 

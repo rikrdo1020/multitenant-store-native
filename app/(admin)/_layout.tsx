@@ -1,22 +1,31 @@
-import { Stack } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
+import { AdminDrawerContent } from '@/components/admin/AdminDrawerContent';
 
 export default function AdminLayout() {
   return (
-    <Stack screenOptions={{ headerShown: true, headerTitle: 'Panel de Administración' }}>
-      <Stack.Screen name="dashboard" options={{ title: 'Dashboard' }} />
-      <Stack.Screen name="products/index" options={{ title: 'Productos' }} />
-      <Stack.Screen name="products/[id]" options={{ title: 'Editar Producto' }} />
-      <Stack.Screen name="orders/index" options={{ title: 'Pedidos' }} />
-      <Stack.Screen name="orders/[id]" options={{ title: 'Detalle del Pedido' }} />
-      <Stack.Screen name="categories" options={{ title: 'Categorías' }} />
-      <Stack.Screen name="brands" options={{ title: 'Marcas' }} />
-      <Stack.Screen name="tags" options={{ title: 'Etiquetas' }} />
-      <Stack.Screen name="product-types" options={{ title: 'Tipos de Producto' }} />
-      <Stack.Screen name="shipping-methods" options={{ title: 'Métodos de Envío' }} />
-      <Stack.Screen name="combos" options={{ title: 'Combos' }} />
-      <Stack.Screen name="customers" options={{ title: 'Clientes' }} />
-      <Stack.Screen name="settings" options={{ title: 'Configuración' }} />
-      <Stack.Screen name="members" options={{ title: 'Miembros' }} />
-    </Stack>
+    <Drawer
+      drawerContent={(props) => <AdminDrawerContent {...props} />}
+      screenOptions={{
+        headerShown: true,
+        drawerType: 'front',
+        swipeEnabled: true,
+        overlayColor: 'rgba(0,0,0,0.5)',
+      }}
+    >
+      <Drawer.Screen name="dashboard" options={{ title: 'Dashboard' }} />
+      <Drawer.Screen name="products/index" options={{ title: 'Productos', drawerItemStyle: { display: 'none' } }} />
+      <Drawer.Screen name="products/[id]" options={{ title: 'Editar Producto', drawerItemStyle: { display: 'none' } }} />
+      <Drawer.Screen name="orders/index" options={{ title: 'Pedidos', drawerItemStyle: { display: 'none' } }} />
+      <Drawer.Screen name="orders/[id]" options={{ title: 'Detalle del Pedido', drawerItemStyle: { display: 'none' } }} />
+      <Drawer.Screen name="categories" options={{ title: 'Categorías' }} />
+      <Drawer.Screen name="brands" options={{ title: 'Marcas' }} />
+      <Drawer.Screen name="tags" options={{ title: 'Etiquetas' }} />
+      <Drawer.Screen name="product-types" options={{ title: 'Tipos de Producto' }} />
+      <Drawer.Screen name="shipping-methods" options={{ title: 'Métodos de Envío' }} />
+      <Drawer.Screen name="combos" options={{ title: 'Combos' }} />
+      <Drawer.Screen name="customers" options={{ title: 'Clientes' }} />
+      <Drawer.Screen name="settings" options={{ title: 'Configuración' }} />
+      <Drawer.Screen name="members" options={{ title: 'Miembros' }} />
+    </Drawer>
   );
 }

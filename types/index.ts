@@ -17,6 +17,8 @@ export interface Tenant {
   provider?: 'yappy';
 }
 
+export type ProductStatus = 'draft' | 'published' | 'archived';
+
 export interface Product {
   documentId: string;
   name: string;
@@ -33,6 +35,13 @@ export interface Product {
   type?: string;
   isFeatured?: boolean;
   featuredOrder?: number;
+  dku?: string;
+  productStatus?: ProductStatus;
+  volume?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type ProductDescription =
@@ -195,6 +204,39 @@ export interface PricingResult {
   originalTotal: number;
   savings: number;
   lines: PricingLine[];
+}
+
+export interface CreateProductPayload {
+  name: string;
+  slug: string;
+  description?: ProductDescription;
+  price: number;
+  discountPrice?: number;
+  dku: string;
+  stock?: number;
+  productStatus?: ProductStatus;
+  type?: string;
+  volume?: string;
+  options?: ProductOption[] | Record<string, unknown>;
+  images?: string[];
+  isFeatured?: boolean;
+  featuredOrder?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  categoryId?: string;
+  brandId?: string;
+  tagIds?: string[];
+}
+
+export type UpdateProductPayload = Partial<CreateProductPayload>;
+
+export interface UploadResult {
+  url: string;
+  publicId: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
 }
 
 export interface CreateOrderPayload {
