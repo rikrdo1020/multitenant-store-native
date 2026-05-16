@@ -16,14 +16,14 @@ export default function AdminLayout() {
       <Drawer.Screen name="products" options={{ title: 'Productos' }} />
       <Drawer.Screen name="orders/index" options={{ title: 'Pedidos', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="orders/[id]" options={{ title: 'Detalle del Pedido', drawerItemStyle: { display: 'none' } }} />
-      <Drawer.Screen name="categories" options={{ title: 'Categorías' }} />
+      <Drawer.Screen name="categories" options={{ title: 'Categorias' }} />
       <Drawer.Screen name="brands" options={{ title: 'Marcas' }} />
       <Drawer.Screen name="tags" options={{ title: 'Etiquetas' }} />
       <Drawer.Screen name="product-types" options={{ title: 'Tipos de Producto' }} />
-      <Drawer.Screen name="shipping-methods" options={{ title: 'Métodos de Envío' }} />
+      <Drawer.Screen name="shipping-methods" options={{ title: 'Metodos de Envio' }} />
       <Drawer.Screen name="combos" options={{ title: 'Combos' }} />
       <Drawer.Screen name="customers" options={{ title: 'Clientes' }} />
-      <Drawer.Screen name="settings" options={{ title: 'Configuración' }} />
+      <Drawer.Screen name="settings" options={{ title: 'Configuracion' }} />
       <Drawer.Screen name="members" options={{ title: 'Miembros' }} />
     </Drawer>
   );

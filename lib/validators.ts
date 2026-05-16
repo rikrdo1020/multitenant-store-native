@@ -17,6 +17,20 @@ export const resetPasswordSchema = z.object({
   message: 'Las contrasenas no coinciden',
 });
 
+export const inviteMemberSchema = z.object({
+  email: z.string().email('Correo electronico invalido'),
+  role: z.enum(['admin', 'manager']),
+});
+
+export const inviteRegistrationSchema = z.object({
+  name: z.string().min(2, 'Minimo 2 caracteres').max(100, 'Maximo 100 caracteres'),
+  password: z.string().min(8, 'Minimo 8 caracteres').max(72, 'Maximo 72 caracteres'),
+  confirmPassword: z.string().min(8, 'Minimo 8 caracteres').max(72, 'Maximo 72 caracteres'),
+}).refine((data) => data.password === data.confirmPassword, {
+  path: ['confirmPassword'],
+  message: 'Las contrasenas no coinciden',
+});
+
 export const registerSchema = z.object({
   name: z.string().min(3, 'Minimo 3 caracteres'),
   email: z.string().email('Correo electronico invalido'),
@@ -50,6 +64,8 @@ export const createStoreSchema = z.object({
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type InviteMemberFormData = z.infer<typeof inviteMemberSchema>;
+export type InviteRegistrationFormData = z.infer<typeof inviteRegistrationSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type CustomerFormData = z.infer<typeof customerFormSchema>;
 export type ShippingAddressData = z.infer<typeof shippingAddressSchema>;
