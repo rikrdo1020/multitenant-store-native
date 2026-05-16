@@ -2,7 +2,9 @@ import { describe, expect, it } from '@jest/globals';
 import {
   checkoutFormSchema,
   createStoreSchema,
+  forgotPasswordSchema,
   loginSchema,
+  resetPasswordSchema,
 } from './validators';
 
 describe('validators', () => {
@@ -42,6 +44,27 @@ describe('validators', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toBe('Solo letras, numeros y guiones');
+    }
+  });
+
+  it('GIVEN invalid forgot password email WHEN validating SHOULD return readable text', () => {
+    const result = forgotPasswordSchema.safeParse({ email: 'not-email' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('Email invalido');
+    }
+  });
+
+  it('GIVEN mismatched reset passwords WHEN validating SHOULD explain the mismatch', () => {
+    const result = resetPasswordSchema.safeParse({
+      password: 'newsecure123',
+      confirmPassword: 'different123',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('Las contrasenas no coinciden');
     }
   });
 });

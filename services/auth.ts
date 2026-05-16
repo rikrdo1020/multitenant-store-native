@@ -1,12 +1,16 @@
 import api from './api';
 import { setSecureItem, removeSecureItem, getSecureItem } from '@/lib/storage';
 import { useAuthStore } from '@/stores/use-auth-store';
-import type { User, ApiResponse } from '@/types';
+import type { User, ApiError, ApiResponse } from '@/types';
 
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
+}
+
+interface AuthMessageResponse {
+  message: string;
 }
 
 export async function login(email: string, password: string): Promise<User> {
@@ -44,6 +48,33 @@ export async function logout(): Promise<void> {
   }
   await clearTokens();
   useAuthStore.getState().clearAuth();
+}
+
+export async function requestPasswordReset(email: string): Promise<string> {
+  const response = await api.post<ApiResponse<AuthMessageResponse>>('/auth/forgot-password', { email });
+  return response.data.data.message;
+}
+
+export async function resetPassword(token: string, password: string): Promise<string> {
+  const response = await api.post<ApiResponse<AuthMessageResponse>>('/auth/reset-password', { token, password });
+  return response.data.data.message;
+}
+
+export function getAuthErrorMessage(error: unknown, fallback: string): string {
+  const apiError = error as Partial<ApiError>;
+
+  switch (apiError.code) {
+    case 'PASSWORD_RESET_EMAIL_NOT_FOUND':
+      return 'No encontramos una cuenta con ese correo.';
+    case 'INVALID_RESET_TOKEN':
+      return 'El enlace no es valido. Solicita uno nuevo.';
+    case 'EXPIRED_RESET_TOKEN':
+      return 'El enlace expiro. Solicita uno nuevo.';
+    case 'PASSWORD_RESET_EMAIL_DELIVERY_FAILED':
+      return 'No pudimos enviar el correo de recuperacion. Intenta de nuevo mas tarde.';
+    default:
+      return apiError.message || fallback;
+  }
 }
 
 async function saveTokens(accessToken: string, refreshToken: string): Promise<void> {
