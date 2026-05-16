@@ -38,9 +38,9 @@ export function CheckoutCustomerForm({ control, errors, isWide }: CheckoutCustom
             name="email"
             render={({ field: { onChange, value } }) => (
               <CheckoutTextField
-                label="Email"
+                label="Correo"
                 value={value}
-                placeholder="cliente@email.com"
+                placeholder="cliente@correo.com"
                 error={errors.email?.message}
                 keyboardType="email-address"
                 onChangeText={onChange}
