@@ -70,22 +70,22 @@ export async function logout(): Promise<void> {
 }
 
 export async function requestPasswordReset(email: string): Promise<string> {
-  const response = await api.post<ApiResponse<AuthMessageResponse>>(
+  await api.post<ApiResponse<AuthMessageResponse>>(
     "/auth/forgot-password",
     { email },
   );
-  return response.data.data.message;
+  return "Te enviamos un enlace de recuperacion.";
 }
 
 export async function resetPassword(
   token: string,
   password: string,
 ): Promise<string> {
-  const response = await api.post<ApiResponse<AuthMessageResponse>>(
+  await api.post<ApiResponse<AuthMessageResponse>>(
     "/auth/reset-password",
     { token, password },
   );
-  return response.data.data.message;
+  return "Contrasena actualizada correctamente.";
 }
 
 export function getAuthErrorMessage(error: unknown, fallback: string): string {
@@ -101,7 +101,7 @@ export function getAuthErrorMessage(error: unknown, fallback: string): string {
     case "PASSWORD_RESET_EMAIL_DELIVERY_FAILED":
       return "No pudimos enviar el correo de recuperacion. Intenta de nuevo mas tarde.";
     default:
-      return apiError.message || fallback;
+      return fallback;
   }
 }
 

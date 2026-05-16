@@ -49,7 +49,7 @@ describe('auth recovery service flow', () => {
     expect(postMock).toHaveBeenCalledWith('/auth/forgot-password', {
       email: 'owner@example.com',
     });
-    expect(message).toBe('Password reset email sent.');
+    expect(message).toBe('Te enviamos un enlace de recuperacion.');
   });
 
   it('GIVEN token and password WHEN resetting password SHOULD call reset endpoint with the token payload', async () => {
@@ -63,7 +63,7 @@ describe('auth recovery service flow', () => {
       token: 'raw-token',
       password: 'newsecure123',
     });
-    expect(message).toBe('Password updated successfully.');
+    expect(message).toBe('Contrasena actualizada correctamente.');
   });
 
   it('GIVEN backend reset error codes WHEN mapping messages SHOULD return actionable user text', () => {
@@ -79,11 +79,11 @@ describe('auth recovery service flow', () => {
       .toBe('No pudimos enviar el correo de recuperacion. Intenta de nuevo mas tarde.');
   });
 
-  it('GIVEN an unknown API error WHEN mapping messages SHOULD prefer backend message before fallback', () => {
+  it('GIVEN an unknown API error WHEN mapping messages SHOULD keep user-facing text in Spanish', () => {
     expect(getAuthErrorMessage(
-      { code: 'UNKNOWN_ERROR', message: 'Servicio no disponible' },
+      { code: 'UNKNOWN_ERROR', message: 'An unexpected error occurred' },
       'fallback',
-    )).toBe('Servicio no disponible');
+    )).toBe('fallback');
     expect(getAuthErrorMessage({}, 'fallback')).toBe('fallback');
   });
 });
