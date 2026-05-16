@@ -22,12 +22,21 @@ export default function Index() {
       return;
     }
 
+    // Admin, manager y superadmin van al panel de administración
+    const isAdmin = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'superadmin';
+
+    if (isAdmin) {
+      router.replace('/(admin)/dashboard');
+      return;
+    }
+
+    // Customers van al storefront
     if (tenant) {
       router.replace(`/(storefront)/${tenant.slug}`);
       return;
     }
 
-    // Superadmin fallback
+    // Fallback
     router.replace('/(admin)/dashboard');
   }, [isLoading, isAuthenticated, tenant, user, router]);
 

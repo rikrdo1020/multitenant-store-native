@@ -1,7 +1,7 @@
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import { AlertTriangle } from 'lucide-react-native';
-import { Button } from './Button';
-import { Text } from './Text';
+import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { AlertTriangle } from "lucide-react-native";
+import { Button } from "./Button";
+import { Text } from "./Text";
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -10,6 +10,7 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   cancelLabel?: string;
   destructive?: boolean;
+  loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -19,19 +20,28 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
-  cancelLabel = 'Cancelar',
+  cancelLabel = "Cancelar",
   destructive = false,
+  loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <View className="flex-1 items-center justify-center px-4" style={styles.overlay}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
+      <View
+        className="flex-1 items-center justify-center px-4"
+        style={styles.overlay}
+      >
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={cancelLabel}
           style={StyleSheet.absoluteFill}
-          onPress={onCancel}
+          onPress={loading ? undefined : onCancel}
         />
 
         <View className="w-full max-w-md gap-5 rounded-lg border border-border bg-background p-5">
@@ -50,12 +60,13 @@ export function ConfirmDialog({
           </View>
 
           <View className="flex-row gap-3">
-            <Button variant="outline" className="flex-1" onPress={onCancel}>
+            <Button variant="outline" className="flex-1" disabled={loading} onPress={onCancel}>
               {cancelLabel}
             </Button>
             <Button
-              variant={destructive ? 'destructive' : 'default'}
+              variant={destructive ? "destructive" : "default"}
               className="flex-1"
+              loading={loading}
               onPress={onConfirm}
             >
               {confirmLabel}
@@ -69,6 +80,6 @@ export function ConfirmDialog({
 
 const styles = StyleSheet.create({
   overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
 });
