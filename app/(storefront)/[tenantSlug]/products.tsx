@@ -10,7 +10,9 @@ import { ProductCard } from '@/components/storefront/ProductCard';
 import { SearchBar } from '@/components/storefront/SearchBar';
 import { CategoryTabs } from '@/components/storefront/CategoryTabs';
 import { FilterSheet } from '@/components/storefront/FilterSheet';
+import { CartIconButton } from '@/components/storefront/CartIconButton';
 import { useCatalog } from '@/hooks/use-catalog';
+import { useCartCount } from '@/hooks/use-cart-count';
 import { useTenantStore } from '@/stores/use-tenant-store';
 
 export default function ProductsScreen() {
@@ -19,6 +21,7 @@ export default function ProductsScreen() {
   const { tenant } = useTenantStore();
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [filterVisible, setFilterVisible] = useState(false);
+  const cartItemCount = useCartCount(tenantSlug);
 
   const {
     search,
@@ -59,6 +62,10 @@ export default function ProductsScreen() {
           {isFetching && !isLoading && (
             <ActivityIndicator size="small" color="#737373" />
           )}
+          <CartIconButton
+            count={cartItemCount}
+            onPress={() => router.push(`/(storefront)/${tenantSlug}/cart` as never)}
+          />
           <Pressable
             onPress={() => setLayout((l) => (l === 'grid' ? 'list' : 'grid'))}
             hitSlop={8}

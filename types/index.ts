@@ -86,14 +86,17 @@ export interface ShippingMethod {
   documentId: string;
   name: string;
   type: 'pickup_point' | 'delivery_zone' | 'third_party';
-  cost: number;
-  locations?: ShippingLocation[];
+  basePrice?: number | null;
+  requiresDetails?: boolean;
+  disclaimer?: string | null;
+  logistics?: ShippingLocation[];
 }
 
 export interface ShippingLocation {
   documentId: string;
-  name: string;
-  address?: string;
+  key: string;
+  label: string;
+  extraPrice?: number | null;
 }
 
 export interface ComboDefinition {
@@ -134,17 +137,21 @@ export interface ReceiverFormData {
 export interface ShippingAddressData {
   address: string;
   reference?: string;
-  city?: string;
+  city: string;
 }
 
 export interface Order {
   documentId: string;
   orderId: string;
   orderStatus: 'pending' | 'paid' | 'failed' | 'cancelled' | 'dispatched';
-  items: CartItem[];
+  items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
-  shippingMethod: ShippingMethod;
-  shippingAddress?: ShippingAddressData;
+  shippingData?: Record<string, unknown>;
+  shippingMethod?: ShippingMethod;
+  shippingMethodId?: string;
+  shippingLocationId?: string;
+  shippingCost?: number;
+  paymentMethod?: string;
   total: number;
   createdAt: string;
 }
@@ -197,11 +204,22 @@ export interface PricingResult {
   lines: PricingLine[];
 }
 
+export interface CreateOrderItemPayload {
+  productId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  imageUrl?: string;
+  selectedOptions?: Record<string, string>;
+}
+
 export interface CreateOrderPayload {
-  items: CartItem[];
+  items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
-  receiverData?: ReceiverFormData;
-  shippingAddress?: ShippingAddressData;
-  shippingMethodId: string;
+  shippingData: Record<string, unknown>;
+  shippingMethodId?: string;
   shippingLocationId?: string;
+  shippingCost: number;
+  paymentMethod: string;
+  customerId?: string;
 }

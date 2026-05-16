@@ -5,6 +5,7 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { ProductImageCarousel } from '@/components/storefront/ProductImageCarousel';
 import { ProductOptionSelector } from '@/components/storefront/ProductOptionSelector';
+import { CartIconButton } from '@/components/storefront/CartIconButton';
 import { formatPrice } from '@/lib/utils';
 import { getProductDescriptionText } from '@/lib/product-detail';
 import type { Product, ProductOption } from '@/types';
@@ -19,6 +20,8 @@ interface ProductDetailViewProps {
   onSelectOption: (optionName: string, value: string) => void;
   onAddToCart: () => void;
   onBack: () => void;
+  onCartPress: () => void;
+  cartItemCount: number;
 }
 
 export function ProductDetailView({
@@ -31,6 +34,8 @@ export function ProductDetailView({
   onSelectOption,
   onAddToCart,
   onBack,
+  onCartPress,
+  cartItemCount,
 }: ProductDetailViewProps) {
   const hasDiscount = product.discountPrice != null && product.discountPrice < product.price;
   const displayPrice = hasDiscount ? product.discountPrice! : product.price;
@@ -46,11 +51,18 @@ export function ProductDetailView({
           <ProductImageCarousel images={product.images} productName={product.name} />
           <Pressable
             onPress={onBack}
+            accessibilityRole="button"
+            accessibilityLabel="Volver"
             hitSlop={8}
             className="absolute left-4 top-4 h-10 w-10 items-center justify-center rounded-full bg-background"
           >
             <ArrowLeft size={21} color="#0a0a0a" />
           </Pressable>
+          <CartIconButton
+            count={cartItemCount}
+            onPress={onCartPress}
+            className="absolute right-4 top-4"
+          />
         </View>
 
         <View className="gap-6 px-4 py-5">

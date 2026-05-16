@@ -5,11 +5,14 @@ import {
   getSelectedOptionsForCart,
   normalizeProductOptions,
 } from '@/lib/product-detail';
+import { showToast } from '@/lib/toast';
+import { generateItemKey } from '@/lib/utils';
 import { useCartStore } from '@/stores/use-cart-store';
 
 export function useProductDetail(product: Product | undefined, tenantSlug?: string) {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isCartScopeReady, setIsCartScopeReady] = useState(false);
+  const cartItems = useCartStore((state) => state.items);
   const addItem = useCartStore((state) => state.addItem);
   const setTenantScope = useCartStore((state) => state.setTenantScope);
 
@@ -27,6 +30,16 @@ export function useProductDetail(product: Product | undefined, tenantSlug?: stri
     () => getSelectedOptionsForCart(optionGroups, selectedOptions),
     [optionGroups, selectedOptions],
   );
+  const selectedCartQuantity = useMemo(() => {
+    if (!product) return 0;
+
+    const selectedKey = generateItemKey(product.documentId, selectedOptionsForCart);
+    const currentItem = cartItems.find(
+      (item) => generateItemKey(item.documentId, item.selectedOptions) === selectedKey,
+    );
+
+    return currentItem?.quantity ?? 0;
+  }, [cartItems, product, selectedOptionsForCart]);
 
   const isOutOfStock = !product || product.stock <= 0;
   const canAddToCart = !!product && isCartScopeReady && !isOutOfStock && missingOptionNames.length === 0;
@@ -61,8 +74,26 @@ export function useProductDetail(product: Product | undefined, tenantSlug?: stri
 
   const addToCart = useCallback(() => {
     if (!product || !tenantSlug || !canAddToCart) return;
+
+    if (selectedCartQuantity >= product.stock) {
+      showToast(
+        'Stock maximo alcanzado',
+        'info',
+        `${product.name} tiene ${product.stock} disponible${product.stock === 1 ? '' : 's'}.`,
+      );
+      return;
+    }
+
     addItem(product, selectedOptionsForCart, tenantSlug);
-  }, [addItem, canAddToCart, product, selectedOptionsForCart, tenantSlug]);
+    showToast('Producto agregado al carrito', 'success', product.name);
+  }, [
+    addItem,
+    canAddToCart,
+    product,
+    selectedCartQuantity,
+    selectedOptionsForCart,
+    tenantSlug,
+  ]);
 
   return {
     optionGroups,

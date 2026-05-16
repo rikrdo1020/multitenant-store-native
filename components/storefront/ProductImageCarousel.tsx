@@ -50,7 +50,7 @@ export function ProductImageCarousel({ images, productName }: ProductImageCarous
               source={{ uri: item }}
               accessibilityLabel={productName}
               className="h-full w-full"
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </View>
         )}

@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { queryClient } from '@/lib/query-client';
 import { useAuthStore } from '@/stores/use-auth-store';
+import { AppToast } from '@/components/ui/AppToast';
 import '@/global.css';
 
 export default function RootLayout() {
@@ -27,6 +28,7 @@ export default function RootLayout() {
             <Stack.Screen name="(admin)" />
             <Stack.Screen name="(owner)" />
           </Stack>
+          <AppToast />
           <StatusBar style="auto" />
         </QueryClientProvider>
       </SafeAreaProvider>
