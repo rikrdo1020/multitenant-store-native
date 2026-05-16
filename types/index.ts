@@ -2,7 +2,7 @@ export interface User {
   documentId: string;
   email: string;
   name: string;
-  role: 'superadmin' | 'admin' | 'manager' | 'customer';
+  role: "superadmin" | "admin" | "manager" | "customer";
   phone?: string;
 }
 
@@ -14,8 +14,10 @@ export interface Tenant {
   description?: string;
   primaryColor?: string;
   currency?: string;
-  provider?: 'yappy';
+  provider?: "yappy";
 }
+
+export type ProductStatus = "draft" | "published" | "archived";
 
 export interface Product {
   documentId: string;
@@ -33,6 +35,13 @@ export interface Product {
   type?: string;
   isFeatured?: boolean;
   featuredOrder?: number;
+  dku?: string;
+  productStatus?: ProductStatus;
+  volume?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type ProductDescription =
@@ -85,7 +94,7 @@ export interface ProductType {
 export interface ShippingMethod {
   documentId: string;
   name: string;
-  type: 'pickup_point' | 'delivery_zone' | 'third_party';
+  type: "pickup_point" | "delivery_zone" | "third_party";
   basePrice?: number | null;
   requiresDetails?: boolean;
   disclaimer?: string | null;
@@ -104,7 +113,7 @@ export interface ComboDefinition {
   name: string;
   conditions: ComboCondition[];
   discount: number;
-  discountType: 'percentage' | 'fixed';
+  discountType: "percentage" | "fixed";
 }
 
 export interface ComboCondition {
@@ -143,7 +152,7 @@ export interface ShippingAddressData {
 export interface Order {
   documentId: string;
   orderId: string;
-  orderStatus: 'pending' | 'paid' | 'failed' | 'cancelled' | 'dispatched';
+  orderStatus: "pending" | "paid" | "failed" | "cancelled" | "dispatched";
   items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
   shippingData?: Record<string, unknown>;
@@ -163,7 +172,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   search?: string;
-  sort?: 'price_asc' | 'price_desc' | 'newest';
+  sort?: "price_asc" | "price_desc" | "newest" | "name_asc" | "name_desc";
   page?: number;
   pageSize?: number;
 }
@@ -211,6 +220,39 @@ export interface CreateOrderItemPayload {
   unitPrice: number;
   imageUrl?: string;
   selectedOptions?: Record<string, string>;
+}
+
+export interface CreateProductPayload {
+  name: string;
+  slug: string;
+  description?: ProductDescription;
+  price: number;
+  discountPrice?: number;
+  dku: string;
+  stock?: number;
+  productStatus?: ProductStatus;
+  type?: string;
+  volume?: string;
+  options?: ProductOption[] | Record<string, unknown>;
+  images?: string[];
+  isFeatured?: boolean;
+  featuredOrder?: number;
+  seoTitle?: string;
+  seoDescription?: string;
+  categoryId?: string;
+  brandId?: string;
+  tagIds?: string[];
+}
+
+export type UpdateProductPayload = Partial<CreateProductPayload>;
+
+export interface UploadResult {
+  url: string;
+  publicId: string;
+  width: number;
+  height: number;
+  format: string;
+  bytes: number;
 }
 
 export interface CreateOrderPayload {
