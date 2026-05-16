@@ -3,6 +3,8 @@ import {
   checkoutFormSchema,
   createStoreSchema,
   forgotPasswordSchema,
+  inviteMemberSchema,
+  inviteRegistrationSchema,
   loginSchema,
   resetPasswordSchema,
 } from './validators';
@@ -58,6 +60,31 @@ describe('validators', () => {
 
   it('GIVEN mismatched reset passwords WHEN validating SHOULD explain the mismatch', () => {
     const result = resetPasswordSchema.safeParse({
+      password: 'newsecure123',
+      confirmPassword: 'different123',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('Las contrasenas no coinciden');
+    }
+  });
+
+  it('GIVEN invalid invite member email WHEN validating SHOULD return readable text', () => {
+    const result = inviteMemberSchema.safeParse({
+      email: 'bad-email',
+      role: 'manager',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('Correo electronico invalido');
+    }
+  });
+
+  it('GIVEN mismatched invite registration passwords WHEN validating SHOULD explain the mismatch', () => {
+    const result = inviteRegistrationSchema.safeParse({
+      name: 'Ana Perez',
       password: 'newsecure123',
       confirmPassword: 'different123',
     });

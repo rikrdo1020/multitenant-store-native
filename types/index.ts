@@ -6,6 +6,8 @@ export interface User {
   phone?: string;
 }
 
+export type TeamRole = "admin" | "manager";
+
 export interface Tenant {
   documentId: string;
   slug: string;
@@ -15,6 +17,43 @@ export interface Tenant {
   primaryColor?: string;
   currency?: string;
   provider?: "yappy";
+}
+
+export interface TenantMember {
+  documentId: string;
+  role: TeamRole | "superadmin";
+  createdAt?: string;
+  user: {
+    documentId: string;
+    email: string;
+    name?: string | null;
+    isActive?: boolean;
+  };
+}
+
+export interface MemberInvitation {
+  documentId: string;
+  email: string;
+  role: TeamRole;
+  tenantId: string;
+  expiresAt: string;
+  usedAt?: string | null;
+  createdAt?: string;
+}
+
+export interface InviteVerification {
+  email: string;
+  role: TeamRole;
+  isExistingUser: boolean;
+  expiresAt: string;
+  tenant: Tenant;
+}
+
+export interface InviteRegistrationResult {
+  message: string;
+  existingUser: boolean;
+  user: Pick<User, "documentId" | "email" | "name" | "role">;
+  tenant: Pick<Tenant, "documentId" | "slug" | "name">;
 }
 
 export type ProductStatus = "draft" | "published" | "archived";
@@ -194,7 +233,7 @@ export interface ApiError {
   code: string;
   message: string;
   statusCode: number;
-  details?: Array<{ field: string; message: string }>;
+  details?: { field: string; message: string }[];
 }
 
 export interface PricingLine {

@@ -3,6 +3,7 @@ import { setSecureItem, removeSecureItem, getSecureItem } from "@/lib/storage";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useTenantStore } from "@/stores/use-tenant-store";
 import type { User, Tenant, ApiError, ApiResponse } from "@/types";
+import type { InviteRegistrationResult, InviteVerification } from "@/types";
 
 interface LoginResponse {
   accessToken: string;
@@ -88,6 +89,25 @@ export async function resetPassword(
   return "Contrasena actualizada correctamente.";
 }
 
+export async function verifyInvite(token: string): Promise<InviteVerification> {
+  const response = await api.get<ApiResponse<InviteVerification>>(
+    `/auth/verify-invite/${encodeURIComponent(token)}`,
+  );
+  return response.data.data;
+}
+
+export async function registerInvite(data: {
+  token: string;
+  name?: string;
+  password?: string;
+}): Promise<InviteRegistrationResult> {
+  const response = await api.post<ApiResponse<InviteRegistrationResult>>(
+    "/auth/register-invite",
+    data,
+  );
+  return response.data.data;
+}
+
 export function getAuthErrorMessage(error: unknown, fallback: string): string {
   const apiError = error as Partial<ApiError>;
 
@@ -100,6 +120,16 @@ export function getAuthErrorMessage(error: unknown, fallback: string): string {
       return "El enlace expiro. Solicita uno nuevo.";
     case "PASSWORD_RESET_EMAIL_DELIVERY_FAILED":
       return "No pudimos enviar el correo de recuperacion. Intenta de nuevo mas tarde.";
+    case "INVALID_INVITE_TOKEN":
+      return "La invitacion no es valida. Solicita una nueva.";
+    case "EXPIRED_INVITE_TOKEN":
+      return "La invitacion expiro. Solicita una nueva.";
+    case "INVITE_REGISTRATION_DETAILS_REQUIRED":
+      return "Completa tu nombre y contrasena para aceptar la invitacion.";
+    case "INVITED_USER_INACTIVE":
+      return "Esta cuenta esta inactiva. Contacta al administrador de la tienda.";
+    case "MEMBER_EXISTS":
+      return "Esta cuenta ya pertenece a la tienda.";
     default:
       return fallback;
   }
