@@ -109,6 +109,31 @@ export default function AdminProductEditScreen() {
   const nameValue = watch('name');
 
   useEffect(() => {
+    if (isNew) {
+      reset({
+        name: '',
+        slug: '',
+        description: '',
+        price: 0,
+        discountPrice: undefined,
+        dku: '',
+        stock: 0,
+        productStatus: 'draft',
+        type: '',
+        volume: '',
+        categoryId: '',
+        brandId: '',
+        tagIds: [],
+        images: [],
+        isFeatured: false,
+        featuredOrder: 9999,
+        seoTitle: '',
+        seoDescription: '',
+      });
+      setOptions([]);
+      return;
+    }
+
     if (!isNew && existingProduct) {
       const p = existingProduct;
       const descriptionText =
@@ -197,6 +222,7 @@ export default function AdminProductEditScreen() {
       description: values.description
         ? { html: values.description }
         : undefined,
+      discountPrice: values.discountPrice || undefined,
       options: options.length > 0 ? options : undefined,
     };
 
@@ -206,7 +232,7 @@ export default function AdminProductEditScreen() {
       });
     } else {
       updateProduct.mutate(
-        { id, payload },
+        { id: existingProduct!.documentId, payload },
         { onSuccess: () => router.back() }
       );
     }

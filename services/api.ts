@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_URL } from "@/lib/constants";
-import { getSecureItem } from "@/lib/storage";
+import { getSecureItem, setSecureItem } from "@/lib/storage";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useTenantStore } from "@/stores/use-tenant-store";
 import type { ApiError } from "@/types";
@@ -41,7 +41,12 @@ api.interceptors.response.use(
         const response = await axios.post(`${API_URL}/auth/refresh`, {
           refreshToken,
         });
-        const { accessToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+
+        await Promise.all([
+          setSecureItem("mt:auth-token", accessToken),
+          setSecureItem("mt:refresh-token", newRefreshToken),
+        ]);
 
         const { setAccessToken } = useAuthStore.getState();
         setAccessToken(accessToken);

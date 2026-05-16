@@ -5,6 +5,7 @@ import {
   RefreshControl,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { ScreenWrapper } from "@/components/shared/ScreenWrapper";
@@ -15,13 +16,26 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useAdminProducts } from "@/hooks/api/use-admin-products";
 import { useDeleteProduct } from "@/hooks/api/use-delete-product";
 import { useTenantStore } from "@/stores/use-tenant-store";
-import type { Product } from "@/types";
+import type { Product, ProductFilters } from "@/types";
 import { Plus } from "lucide-react-native";
+
+type SortOption = NonNullable<ProductFilters["sort"]>;
+
+const SORT_OPTIONS: { label: string; value: SortOption }[] = [
+  { label: "Nombre A-Z", value: "name_asc" },
+  { label: "Nombre Z-A", value: "name_desc" },
+  { label: "Precio ↑", value: "price_asc" },
+  { label: "Precio ↓", value: "price_desc" },
+  { label: "Más nuevos", value: "newest" },
+];
 
 export default function AdminProductsScreen() {
   const router = useRouter();
   const { tenant } = useTenantStore();
-  const { data, isLoading, isRefetching, refetch, error } = useAdminProducts();
+  const [sort, setSort] = useState<SortOption>("name_asc");
+  const { data, isLoading, isRefetching, refetch, error } = useAdminProducts({
+    sort,
+  });
   const deleteProduct = useDeleteProduct();
 
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -114,6 +128,28 @@ export default function AdminProductsScreen() {
             <Plus size={20} className="text-primary-foreground" />
           </TouchableOpacity>
         </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="mb-3 -mx-1 min-h-10"
+          contentContainerStyle={{ paddingHorizontal: 4, gap: 6 }}
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <TouchableOpacity
+              key={opt.value}
+              onPress={() => setSort(opt.value)}
+              className={`rounded-full border px-4 py-2.5 ${sort === opt.value ? "border-primary bg-primary" : "border-border bg-background"}`}
+            >
+              <Text
+                variant="body"
+                className={`text-sm font-medium ${sort === opt.value ? "text-primary-foreground" : "text-foreground"}`}
+              >
+                {opt.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         <FlatList
           data={products}
