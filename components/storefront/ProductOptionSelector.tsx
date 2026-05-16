@@ -28,6 +28,9 @@ export function ProductOptionSelector({
           return (
             <Pressable
               key={`${option.name}-${value}`}
+              accessibilityRole="button"
+              accessibilityLabel={`${option.name}: ${value}`}
+              accessibilityState={{ selected: isSelected }}
               onPress={() => onSelect(option.name, value)}
               className={cn(
                 'min-h-11 flex-row items-center gap-2 rounded-md border px-3 py-2',
