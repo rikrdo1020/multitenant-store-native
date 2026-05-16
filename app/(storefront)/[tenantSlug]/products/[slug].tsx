@@ -6,6 +6,7 @@ import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { useProduct } from '@/hooks/api/use-product';
+import { useCartCount } from '@/hooks/use-cart-count';
 import { useProductDetail } from '@/hooks/use-product-detail';
 import { useTenantStore } from '@/stores/use-tenant-store';
 
@@ -15,6 +16,7 @@ export default function ProductDetailScreen() {
   const { tenant } = useTenantStore();
   const productQuery = useProduct(tenantSlug, slug);
   const detail = useProductDetail(productQuery.data, tenantSlug);
+  const cartItemCount = useCartCount(tenantSlug);
 
   if (productQuery.isLoading) return <LoadingScreen />;
 
@@ -42,6 +44,8 @@ export default function ProductDetailScreen() {
       onSelectOption={detail.selectOption}
       onAddToCart={detail.addToCart}
       onBack={() => router.back()}
+      onCartPress={() => router.push(`/(storefront)/${tenantSlug}/cart` as never)}
+      cartItemCount={cartItemCount}
     />
   );
 }

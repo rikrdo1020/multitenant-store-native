@@ -1,50 +1,72 @@
-import { Modal, View } from 'react-native';
-import { Text } from './Text';
-import { Button } from './Button';
+import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { AlertTriangle } from "lucide-react-native";
+import { Button } from "./Button";
+import { Text } from "./Text";
 
 interface ConfirmDialogProps {
   visible: boolean;
   title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
+  description: string;
+  confirmLabel: string;
+  cancelLabel?: string;
+  destructive?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  loading?: boolean;
 }
 
 export function ConfirmDialog({
   visible,
   title,
-  message,
-  confirmText = 'Confirmar',
-  cancelText = 'Cancelar',
+  description,
+  confirmLabel,
+  cancelLabel = "Cancelar",
+  destructive = false,
   onConfirm,
   onCancel,
-  loading,
 }: ConfirmDialogProps) {
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 items-center justify-center bg-black/50 px-6">
-        <View className="w-full rounded-xl bg-background p-6 shadow-lg">
-          <Text variant="h3" className="mb-2 text-center">
-            {title}
-          </Text>
-          <Text variant="body" className="mb-6 text-center text-muted-foreground">
-            {message}
-          </Text>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onCancel}
+    >
+      <View
+        className="flex-1 items-center justify-center px-4"
+        style={styles.overlay}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={cancelLabel}
+          style={StyleSheet.absoluteFill}
+          onPress={onCancel}
+        />
+
+        <View className="w-full max-w-md gap-5 rounded-lg border border-border bg-background p-5">
+          <View className="flex-row items-start gap-3">
+            {destructive && (
+              <View className="h-9 w-9 items-center justify-center rounded-full bg-secondary">
+                <AlertTriangle size={18} color="#dc2626" />
+              </View>
+            )}
+            <View className="min-w-0 flex-1 gap-1">
+              <Text variant="h3">{title}</Text>
+              <Text variant="small" className="leading-5">
+                {description}
+              </Text>
+            </View>
+          </View>
+
           <View className="flex-row gap-3">
-            <Button testID="confirm-cancel" variant="outline" className="flex-1" onPress={onCancel} disabled={loading}>
-              {cancelText}
+            <Button variant="outline" className="flex-1" onPress={onCancel}>
+              {cancelLabel}
             </Button>
             <Button
-              testID="confirm-confirm"
-              variant="destructive"
+              variant={destructive ? "destructive" : "default"}
               className="flex-1"
               onPress={onConfirm}
-              loading={loading}
             >
-              {confirmText}
+              {confirmLabel}
             </Button>
           </View>
         </View>
@@ -52,3 +74,9 @@ export function ConfirmDialog({
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+  },
+});

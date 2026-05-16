@@ -2,7 +2,7 @@ export interface User {
   documentId: string;
   email: string;
   name: string;
-  role: 'superadmin' | 'admin' | 'manager' | 'customer';
+  role: "superadmin" | "admin" | "manager" | "customer";
   phone?: string;
 }
 
@@ -14,10 +14,10 @@ export interface Tenant {
   description?: string;
   primaryColor?: string;
   currency?: string;
-  provider?: 'yappy';
+  provider?: "yappy";
 }
 
-export type ProductStatus = 'draft' | 'published' | 'archived';
+export type ProductStatus = "draft" | "published" | "archived";
 
 export interface Product {
   documentId: string;
@@ -94,15 +94,18 @@ export interface ProductType {
 export interface ShippingMethod {
   documentId: string;
   name: string;
-  type: 'pickup_point' | 'delivery_zone' | 'third_party';
-  cost: number;
-  locations?: ShippingLocation[];
+  type: "pickup_point" | "delivery_zone" | "third_party";
+  basePrice?: number | null;
+  requiresDetails?: boolean;
+  disclaimer?: string | null;
+  logistics?: ShippingLocation[];
 }
 
 export interface ShippingLocation {
   documentId: string;
-  name: string;
-  address?: string;
+  key: string;
+  label: string;
+  extraPrice?: number | null;
 }
 
 export interface ComboDefinition {
@@ -110,7 +113,7 @@ export interface ComboDefinition {
   name: string;
   conditions: ComboCondition[];
   discount: number;
-  discountType: 'percentage' | 'fixed';
+  discountType: "percentage" | "fixed";
 }
 
 export interface ComboCondition {
@@ -143,17 +146,21 @@ export interface ReceiverFormData {
 export interface ShippingAddressData {
   address: string;
   reference?: string;
-  city?: string;
+  city: string;
 }
 
 export interface Order {
   documentId: string;
   orderId: string;
-  orderStatus: 'pending' | 'paid' | 'failed' | 'cancelled' | 'dispatched';
-  items: CartItem[];
+  orderStatus: "pending" | "paid" | "failed" | "cancelled" | "dispatched";
+  items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
-  shippingMethod: ShippingMethod;
-  shippingAddress?: ShippingAddressData;
+  shippingData?: Record<string, unknown>;
+  shippingMethod?: ShippingMethod;
+  shippingMethodId?: string;
+  shippingLocationId?: string;
+  shippingCost?: number;
+  paymentMethod?: string;
   total: number;
   createdAt: string;
 }
@@ -165,7 +172,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   search?: string;
-  sort?: 'price_asc' | 'price_desc' | 'newest';
+  sort?: "price_asc" | "price_desc" | "newest";
   page?: number;
   pageSize?: number;
 }
@@ -206,6 +213,15 @@ export interface PricingResult {
   lines: PricingLine[];
 }
 
+export interface CreateOrderItemPayload {
+  productId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  imageUrl?: string;
+  selectedOptions?: Record<string, string>;
+}
+
 export interface CreateProductPayload {
   name: string;
   slug: string;
@@ -240,10 +256,12 @@ export interface UploadResult {
 }
 
 export interface CreateOrderPayload {
-  items: CartItem[];
+  items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
-  receiverData?: ReceiverFormData;
-  shippingAddress?: ShippingAddressData;
-  shippingMethodId: string;
+  shippingData: Record<string, unknown>;
+  shippingMethodId?: string;
   shippingLocationId?: string;
+  shippingCost: number;
+  paymentMethod: string;
+  customerId?: string;
 }

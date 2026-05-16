@@ -1,14 +1,8 @@
-import { View } from 'react-native';
-import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
+import { useLocalSearchParams } from 'expo-router';
+import { CartScreenContent } from '@/components/storefront/CartScreenContent';
 
 export default function CartScreen() {
-  return (
-    <ScreenWrapper>
-      <View className="p-4">
-        <Text variant="h1">Carrito</Text>
-        <Text variant="body">Tus productos seleccionados</Text>
-      </View>
-    </ScreenWrapper>
-  );
+  const { tenantSlug } = useLocalSearchParams<{ tenantSlug: string }>();
+
+  return <CartScreenContent tenantSlug={tenantSlug} />;
 }
