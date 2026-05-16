@@ -10,6 +10,7 @@ interface ConfirmDialogProps {
   confirmLabel: string;
   cancelLabel?: string;
   destructive?: boolean;
+  loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -21,6 +22,7 @@ export function ConfirmDialog({
   confirmLabel,
   cancelLabel = "Cancelar",
   destructive = false,
+  loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -39,7 +41,7 @@ export function ConfirmDialog({
           accessibilityRole="button"
           accessibilityLabel={cancelLabel}
           style={StyleSheet.absoluteFill}
-          onPress={onCancel}
+          onPress={loading ? undefined : onCancel}
         />
 
         <View className="w-full max-w-md gap-5 rounded-lg border border-border bg-background p-5">
@@ -58,12 +60,13 @@ export function ConfirmDialog({
           </View>
 
           <View className="flex-row gap-3">
-            <Button variant="outline" className="flex-1" onPress={onCancel}>
+            <Button variant="outline" className="flex-1" disabled={loading} onPress={onCancel}>
               {cancelLabel}
             </Button>
             <Button
               variant={destructive ? "destructive" : "default"}
               className="flex-1"
+              loading={loading}
               onPress={onConfirm}
             >
               {confirmLabel}

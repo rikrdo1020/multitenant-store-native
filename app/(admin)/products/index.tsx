@@ -1,16 +1,22 @@
-import { useState, useCallback } from 'react';
-import { View, FlatList, RefreshControl, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
-import { ProductListItem } from '@/components/admin/ProductListItem';
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { useAdminProducts } from '@/hooks/api/use-admin-products';
-import { useDeleteProduct } from '@/hooks/api/use-delete-product';
-import { useTenantStore } from '@/stores/use-tenant-store';
-import type { Product } from '@/types';
-import { Plus } from 'lucide-react-native';
+import { useState, useCallback } from "react";
+import {
+  View,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { ScreenWrapper } from "@/components/shared/ScreenWrapper";
+import { Text } from "@/components/ui/Text";
+import { Button } from "@/components/ui/Button";
+import { ProductListItem } from "@/components/admin/ProductListItem";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useAdminProducts } from "@/hooks/api/use-admin-products";
+import { useDeleteProduct } from "@/hooks/api/use-delete-product";
+import { useTenantStore } from "@/stores/use-tenant-store";
+import type { Product } from "@/types";
+import { Plus } from "lucide-react-native";
 
 export default function AdminProductsScreen() {
   const router = useRouter();
@@ -48,10 +54,13 @@ export default function AdminProductsScreen() {
           <Text variant="h2" className="mb-2 text-center">
             No hay tienda seleccionada
           </Text>
-          <Text variant="body" className="mb-6 text-center text-muted-foreground">
+          <Text
+            variant="body"
+            className="mb-6 text-center text-muted-foreground"
+          >
             Necesitas seleccionar o crear una tienda para gestionar productos.
           </Text>
-          <Button onPress={() => router.push('/(owner)/create-store')}>
+          <Button onPress={() => router.push("/(owner)/create-store")}>
             Crear tienda
           </Button>
         </View>
@@ -79,8 +88,13 @@ export default function AdminProductsScreen() {
           <Text variant="h2" className="mb-2 text-center text-destructive">
             Error al cargar
           </Text>
-          <Text variant="body" className="mb-6 text-center text-muted-foreground">
-            {error instanceof Error ? error.message : 'Ocurrió un error inesperado'}
+          <Text
+            variant="body"
+            className="mb-6 text-center text-muted-foreground"
+          >
+            {error instanceof Error
+              ? error.message
+              : "Ocurrió un error inesperado"}
           </Text>
           <Button onPress={() => refetch()}>Reintentar</Button>
         </View>
@@ -94,7 +108,7 @@ export default function AdminProductsScreen() {
         <View className="mb-4 flex-row items-center justify-between">
           <Text variant="h1">Productos</Text>
           <TouchableOpacity
-            onPress={() => router.push('/(admin)/products/new')}
+            onPress={() => router.push("/(admin)/products/new")}
             className="rounded-full bg-primary p-2"
           >
             <Plus size={20} className="text-primary-foreground" />
@@ -113,7 +127,10 @@ export default function AdminProductsScreen() {
           )}
           ItemSeparatorComponent={() => <View className="h-2" />}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+            />
           }
           ListEmptyComponent={
             <View className="mt-12 items-center">
@@ -122,7 +139,7 @@ export default function AdminProductsScreen() {
               </Text>
               <Button
                 className="mt-4"
-                onPress={() => router.push('/(admin)/products/new')}
+                onPress={() => router.push("/(admin)/products/new")}
               >
                 Crear producto
               </Button>
@@ -134,8 +151,8 @@ export default function AdminProductsScreen() {
       <ConfirmDialog
         visible={!!productToDelete}
         title="Eliminar producto"
-        message={`¿Estás seguro de eliminar "${productToDelete?.name}"? Esta acción no se puede deshacer.`}
-        confirmText="Eliminar"
+        description={`¿Estás seguro de eliminar "${productToDelete?.name}"? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
         onConfirm={confirmDelete}
         onCancel={() => setProductToDelete(null)}
         loading={deleteProduct.isPending}
