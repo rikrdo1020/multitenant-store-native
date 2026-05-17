@@ -1,48 +1,101 @@
-import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuthStore } from '@/stores/use-auth-store';
-import { useTenantStore } from '@/stores/use-tenant-store';
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { Link } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const { width } = Dimensions.get('window');
 
 export default function Index() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading, user } = useAuthStore();
-  const { tenant } = useTenantStore();
-
-  useEffect(() => {
-    if (isLoading) return;
-
-    if (!isAuthenticated) {
-      router.replace('/(auth)/login');
-      return;
-    }
-
-    if (!tenant && user?.role !== 'superadmin') {
-      router.replace('/(owner)/create-store');
-      return;
-    }
-
-    // Admin, manager y superadmin van al panel de administración
-    const isAdmin = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'superadmin';
-
-    if (isAdmin) {
-      router.replace('/(admin)/dashboard');
-      return;
-    }
-
-    // Customers van al storefront
-    if (tenant) {
-      router.replace(`/(storefront)/${tenant.slug}`);
-      return;
-    }
-
-    // Fallback
-    router.replace('/(admin)/dashboard');
-  }, [isLoading, isAuthenticated, tenant, user, router]);
-
   return (
-    <View className="flex-1 items-center justify-center bg-background">
-      <ActivityIndicator size="large" className="text-primary" />
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
+      <View style={{ flex: 1, paddingHorizontal: 28, paddingTop: 60, paddingBottom: 40 }}>
+
+        {/* Top badge */}
+        <View style={{
+          alignSelf: 'flex-start',
+          backgroundColor: '#1a1a1a',
+          borderRadius: 20,
+          paddingHorizontal: 14,
+          paddingVertical: 6,
+          borderWidth: 1,
+          borderColor: '#2a2a2a',
+        }}>
+          <Text style={{ color: '#737373', fontSize: 11, letterSpacing: 2, textTransform: 'uppercase' }}>
+            Multitenant Store
+          </Text>
+        </View>
+
+        {/* Headline */}
+        <View style={{ marginTop: 48 }}>
+          <Text style={{
+            color: '#ffffff',
+            fontSize: 52,
+            fontWeight: '800',
+            lineHeight: 54,
+            letterSpacing: -1.5,
+          }}>
+            Tu tienda,{'\n'}tu mercado.
+          </Text>
+          <View style={{ width: 48, height: 3, backgroundColor: '#ffffff', marginTop: 20 }} />
+          <Text style={{
+            color: '#737373',
+            fontSize: 15,
+            lineHeight: 24,
+            marginTop: 16,
+            maxWidth: width * 0.72,
+          }}>
+            Vende, descubre y compra en cientos de tiendas independientes en un solo lugar.
+          </Text>
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        {/* Buttons */}
+        <View style={{ gap: 12 }}>
+          <Link href="/marketplace" asChild>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: 14,
+                paddingVertical: 18,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: '#0a0a0a', fontSize: 15, fontWeight: '700', letterSpacing: 0.2 }}>
+                Explorar marketplace
+              </Text>
+            </TouchableOpacity>
+          </Link>
+
+          <Link href="/(auth)/login" asChild>
+            <TouchableOpacity
+              activeOpacity={0.75}
+              style={{
+                borderRadius: 14,
+                paddingVertical: 18,
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#2a2a2a',
+              }}
+            >
+              <Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '600', letterSpacing: 0.2 }}>
+                Iniciar sesión
+              </Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+
+        <Text style={{
+          color: '#404040',
+          fontSize: 11,
+          textAlign: 'center',
+          marginTop: 24,
+          letterSpacing: 0.3,
+        }}>
+          ¿Tienes una tienda? Inicia sesión para gestionarla.
+        </Text>
+
+      </View>
+    </SafeAreaView>
   );
 }
