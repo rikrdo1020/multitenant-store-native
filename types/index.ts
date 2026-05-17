@@ -131,6 +131,7 @@ export interface Brand {
   documentId: string;
   slug: string;
   name: string;
+  logo?: string;
 }
 
 export interface Tag {
@@ -164,15 +165,57 @@ export interface ShippingLocation {
 export interface ComboDefinition {
   documentId: string;
   name: string;
+  description?: string;
   conditions: ComboCondition[];
   discount: number;
   discountType: "percentage" | "fixed";
+  products?: Pick<Product, "documentId" | "name">[];
 }
 
 export interface ComboCondition {
   productType?: string;
   minQuantity?: number;
 }
+
+// --- Catalog CRUD payloads ---
+
+export interface CreateCategoryPayload {
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export type UpdateCategoryPayload = Partial<CreateCategoryPayload>;
+
+export interface CreateBrandPayload {
+  name: string;
+  logo?: string;
+}
+
+export type UpdateBrandPayload = Partial<CreateBrandPayload>;
+
+export interface CreateTagPayload {
+  name: string;
+}
+
+export type UpdateTagPayload = Partial<CreateTagPayload>;
+
+export interface CreateProductTypePayload {
+  name: string;
+}
+
+export type UpdateProductTypePayload = Partial<CreateProductTypePayload>;
+
+export interface CreateComboPayload {
+  name: string;
+  description?: string;
+  discount: number;
+  discountType: "percentage" | "fixed";
+  productIds?: string[];
+  conditions?: ComboCondition[];
+}
+
+export type UpdateComboPayload = Partial<CreateComboPayload>;
 
 export interface CartItem {
   documentId: string;
