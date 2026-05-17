@@ -3,6 +3,7 @@ import type {
   CartItem,
   CreateOrderPayload,
   CustomerFormData,
+  PaymentProviderType,
   ShippingAddressData,
   ShippingMethod,
 } from '@/types';
@@ -15,6 +16,7 @@ interface BuildCreateOrderPayloadParams {
   shippingAddress: ShippingAddressData;
   shippingMethod: ShippingMethod;
   selectedLocationId?: string | null;
+  paymentMethod?: PaymentProviderType | 'pending';
 }
 
 export function buildCreateOrderPayload({
@@ -23,6 +25,7 @@ export function buildCreateOrderPayload({
   shippingAddress,
   shippingMethod,
   selectedLocationId,
+  paymentMethod = PENDING_PAYMENT_METHOD,
 }: BuildCreateOrderPayloadParams): CreateOrderPayload {
   const selectedLocation = getSelectedShippingLocation(shippingMethod, selectedLocationId);
 
@@ -60,7 +63,7 @@ export function buildCreateOrderPayload({
     shippingMethodId: shippingMethod.documentId,
     ...(selectedLocation ? { shippingLocationId: selectedLocation.documentId } : {}),
     shippingCost: getShippingCost(shippingMethod, selectedLocation?.documentId),
-    paymentMethod: PENDING_PAYMENT_METHOD,
+    paymentMethod,
   };
 }
 

@@ -32,9 +32,9 @@ export function ShippingMethodCard({
 
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole="radio"
       accessibilityLabel={`Metodo de envio ${method.name}`}
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, checked: selected }}
       onPress={() => onSelect(method)}
       className={cn(
         'gap-3 rounded-lg border p-4',

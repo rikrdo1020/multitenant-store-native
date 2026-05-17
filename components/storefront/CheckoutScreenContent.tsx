@@ -2,7 +2,6 @@ import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LoadingScreen } from '@/components/shared/LoadingScreen';
 import { CheckoutAddressForm } from '@/components/storefront/CheckoutAddressForm';
-import { CheckoutCreatedOrderNotice } from '@/components/storefront/CheckoutCreatedOrderNotice';
 import { CheckoutCustomerForm } from '@/components/storefront/CheckoutCustomerForm';
 import { CheckoutEmptyState } from '@/components/storefront/CheckoutEmptyState';
 import { CheckoutHeader } from '@/components/storefront/CheckoutHeader';
@@ -39,10 +38,6 @@ export function CheckoutScreenContent({ tenantSlug }: CheckoutScreenContentProps
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
         <View className={isWide ? 'flex-row items-start gap-5' : 'gap-5'}>
           <View className="min-w-0 flex-1 gap-4">
-            {checkout.createdOrder && (
-              <CheckoutCreatedOrderNotice order={checkout.createdOrder} />
-            )}
-
             <CheckoutCustomerForm
               control={checkout.control}
               errors={checkout.errors}
@@ -78,8 +73,7 @@ export function CheckoutScreenContent({ tenantSlug }: CheckoutScreenContentProps
               currency={checkout.currency}
               selectedMethod={checkout.selectedMethod}
               shippingCost={checkout.shippingCost}
-              createdOrder={checkout.createdOrder}
-              isSubmitting={checkout.createOrderMutation.isPending}
+              isSubmitting={false}
               isShippingLoading={checkout.shippingQuery.isLoading}
               hasShippingMethods={checkout.shippingMethods.length > 0}
               submitError={checkout.submitError}
