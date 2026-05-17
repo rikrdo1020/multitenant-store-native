@@ -1,5 +1,10 @@
-import { CatalogScreen } from '@/components/admin/catalog/CatalogScreen';
+import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
+import { CategoriesTab } from '@/components/admin/catalog/CategoriesTab';
 
 export default function CategoriesScreen() {
-  return <CatalogScreen />;
+  return (
+    <ScreenWrapper safeArea={false}>
+      <CategoriesTab />
+    </ScreenWrapper>
+  );
 }

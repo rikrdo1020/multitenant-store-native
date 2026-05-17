@@ -1,5 +1,10 @@
-import { CatalogScreen } from '@/components/admin/catalog/CatalogScreen';
+import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
+import { BrandsTab } from '@/components/admin/catalog/BrandsTab';
 
 export default function BrandsScreen() {
-  return <CatalogScreen />;
+  return (
+    <ScreenWrapper safeArea={false}>
+      <BrandsTab />
+    </ScreenWrapper>
+  );
 }

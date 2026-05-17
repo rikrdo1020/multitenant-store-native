@@ -143,6 +143,7 @@ export interface Tag {
 export interface ProductType {
   documentId: string;
   name: string;
+  slug: string;
 }
 
 export interface ShippingMethod {
@@ -165,16 +166,14 @@ export interface ShippingLocation {
 export interface ComboDefinition {
   documentId: string;
   name: string;
-  description?: string;
-  conditions: ComboCondition[];
-  discount: number;
-  discountType: "percentage" | "fixed";
-  products?: Pick<Product, "documentId" | "name">[];
+  price: number;
+  isActive: boolean;
+  rules: ComboRule[];
 }
 
-export interface ComboCondition {
-  productType?: string;
-  minQuantity?: number;
+export interface ComboRule {
+  productType: string;
+  quantity: number;
 }
 
 // --- Catalog CRUD payloads ---
@@ -208,11 +207,9 @@ export type UpdateProductTypePayload = Partial<CreateProductTypePayload>;
 
 export interface CreateComboPayload {
   name: string;
-  description?: string;
-  discount: number;
-  discountType: "percentage" | "fixed";
-  productIds?: string[];
-  conditions?: ComboCondition[];
+  price: number;
+  rules: ComboRule[];
+  isActive?: boolean;
 }
 
 export type UpdateComboPayload = Partial<CreateComboPayload>;

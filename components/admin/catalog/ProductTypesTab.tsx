@@ -1,3 +1,4 @@
+import Toast from 'react-native-toast-message';
 import {
   useCatalogProductTypes,
   useCreateProductType,
@@ -5,6 +6,7 @@ import {
   useDeleteProductType,
 } from '@/hooks/api/use-catalog-product-types';
 import { SimpleNameTab } from './SimpleNameTab';
+import type { ApiError } from '@/types';
 
 export function ProductTypesTab() {
   const { data: productTypes = [], isLoading, isRefetching, refetch, error } = useCatalogProductTypes();
@@ -34,7 +36,18 @@ export function ProductTypesTab() {
         updateProductType.mutate({ id, payload: { name } }, { onSuccess: onDone });
       }}
       onDelete={(id, onDone) => {
-        deleteProductType.mutate(id, { onSuccess: onDone });
+        deleteProductType.mutate(id, {
+          onSuccess: onDone,
+          onError: (err) => {
+            onDone();
+            const msg = (err as ApiError).message;
+            Toast.show({
+              type: 'error',
+              text1: 'No se puede eliminar',
+              text2: typeof msg === 'string' ? msg : 'Este tipo está siendo usado en uno o más combos.',
+            });
+          },
+        });
       }}
     />
   );

@@ -1,5 +1,10 @@
-import { CatalogScreen } from '@/components/admin/catalog/CatalogScreen';
+import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
+import { ProductTypesCombosScreen } from '@/components/admin/catalog/ProductTypesCombosScreen';
 
 export default function CombosScreen() {
-  return <CatalogScreen />;
+  return (
+    <ScreenWrapper safeArea={false}>
+      <ProductTypesCombosScreen />
+    </ScreenWrapper>
+  );
 }

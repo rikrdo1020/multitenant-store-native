@@ -5,7 +5,7 @@ import {
   RefreshControl,
   TouchableOpacity,
   ActivityIndicator,
-  ScrollView,
+  Switch,
 } from 'react-native';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +14,6 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { MultiSelect } from '@/components/ui/MultiSelect';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import {
   useCatalogCombos,
@@ -22,39 +21,30 @@ import {
   useUpdateCombo,
   useDeleteCombo,
 } from '@/hooks/api/use-catalog-combos';
-import { useAdminProducts } from '@/hooks/api/use-admin-products';
+import { useCatalogProductTypes } from '@/hooks/api/use-catalog-product-types';
 import type { ComboDefinition } from '@/types';
 import { Plus, Pencil, Trash2, X } from 'lucide-react-native';
 
-const conditionSchema = z.object({
-  productType: z.string().optional(),
-  minQuantity: z.coerce.number().optional(),
+const ruleSchema = z.object({
+  productType: z.string().min(1, 'Selecciona un tipo'),
+  quantity: z.coerce.number().int().min(1, 'Mínimo 1'),
 });
 
 const comboSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
-  description: z.string().optional(),
-  discount: z.coerce.number().min(0.01, 'El descuento es requerido'),
-  discountType: z.enum(['percentage', 'fixed']),
-  productIds: z.array(z.string()).optional(),
-  conditions: z.array(conditionSchema).optional(),
+  price: z.coerce.number().positive('El precio debe ser mayor a 0'),
+  isActive: z.boolean(),
+  rules: z.array(ruleSchema).min(1, 'Agrega al menos una regla'),
 });
 
 type ComboFormValues = z.infer<typeof comboSchema>;
 
-const DISCOUNT_TYPE_OPTIONS = [
-  { label: 'Porcentaje (%)', value: 'percentage' },
-  { label: 'Monto fijo', value: 'fixed' },
-];
-
 interface ComboFormProps {
   initial?: Partial<{
     name: string;
-    description: string;
-    discount: number;
-    discountType: 'percentage' | 'fixed';
-    productIds: string[];
-    conditions: { productType?: string; minQuantity?: number }[];
+    price: number;
+    isActive: boolean;
+    rules: { productType: string; quantity: number }[];
   }>;
   onSubmit: (values: ComboFormValues) => void;
   onCancel: () => void;
@@ -62,169 +52,128 @@ interface ComboFormProps {
 }
 
 function ComboForm({ initial, onSubmit, onCancel, submitting }: ComboFormProps) {
-  const { data: productsData } = useAdminProducts();
-  const products = productsData?.data ?? [];
+  const { data: productTypes = [] } = useCatalogProductTypes();
+  const productTypeOptions = productTypes.map((pt) => ({ label: pt.name, value: pt.slug }));
 
-  const productOptions = products.map((p) => ({
-    label: p.name,
-    value: p.documentId,
-  }));
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ComboFormValues>({
+  const { control, handleSubmit, formState: { errors } } = useForm<ComboFormValues>({
     resolver: zodResolver(comboSchema),
     defaultValues: {
       name: initial?.name ?? '',
-      description: initial?.description ?? '',
-      discount: initial?.discount ?? ('' as unknown as number),
-      discountType: initial?.discountType ?? 'percentage',
-      productIds: initial?.productIds ?? [],
-      conditions: initial?.conditions?.map((c) => ({
-        productType: c.productType ?? '',
-        minQuantity: c.minQuantity ?? undefined,
-      })) ?? [],
+      price: initial?.price ?? ('' as unknown as number),
+      isActive: initial?.isActive ?? true,
+      rules: initial?.rules?.length ? initial.rules : [{ productType: '', quantity: 1 }],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'conditions',
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: 'rules' });
 
   return (
-    <ScrollView className="rounded-xl border border-border bg-background p-4" showsVerticalScrollIndicator={false}>
+    <View className="rounded-xl border border-border bg-background p-4">
+      {/* Active toggle */}
+      <View className="mb-3 flex-row items-center justify-between">
+        <Text variant="small" className="font-medium text-foreground">Activo</Text>
+        <Controller
+          control={control}
+          name="isActive"
+          render={({ field }) => (
+            <Switch value={field.value} onValueChange={field.onChange} />
+          )}
+        />
+      </View>
+
       <Controller
         control={control}
         name="name"
         render={({ field }) => (
           <Input
-            label="Nombre"
-            placeholder="Ej: Combo 2x1"
+            label="Nombre del combo"
+            placeholder="Ej: Combo 3 Minoxidil + Dermaroller"
             value={field.value}
             onChangeText={field.onChange}
             error={errors.name?.message}
           />
         )}
       />
+
       <Controller
         control={control}
-        name="description"
+        name="price"
         render={({ field }) => (
           <Input
-            label="Descripción (opcional)"
-            placeholder="Descripción del combo"
-            value={field.value}
+            label="Precio del combo"
+            placeholder="30.00"
+            value={field.value != null && field.value !== ('' as unknown as number) ? String(field.value) : ''}
             onChangeText={field.onChange}
-            multiline
-            numberOfLines={2}
-            error={errors.description?.message}
-          />
-        )}
-      />
-      <View className="flex-row gap-3">
-        <View className="flex-1">
-          <Controller
-            control={control}
-            name="discount"
-            render={({ field }) => (
-              <Input
-                label="Descuento"
-                placeholder="10"
-                value={field.value != null && field.value !== ('' as unknown as number) ? String(field.value) : ''}
-                onChangeText={field.onChange}
-                keyboardType="numeric"
-                error={errors.discount?.message}
-              />
-            )}
-          />
-        </View>
-        <View className="flex-1">
-          <Controller
-            control={control}
-            name="discountType"
-            render={({ field }) => (
-              <Select
-                label="Tipo"
-                value={field.value}
-                options={DISCOUNT_TYPE_OPTIONS}
-                onValueChange={field.onChange}
-                error={errors.discountType?.message}
-              />
-            )}
-          />
-        </View>
-      </View>
-
-      <Controller
-        control={control}
-        name="productIds"
-        render={({ field }) => (
-          <MultiSelect
-            label="Productos del combo"
-            values={field.value ?? []}
-            options={productOptions}
-            onChange={field.onChange}
-            placeholder="Seleccionar productos..."
+            keyboardType="decimal-pad"
+            error={errors.price?.message}
           />
         )}
       />
 
-      <View className="mb-3">
+      {/* Rules */}
+      <View className="mt-1">
         <View className="mb-2 flex-row items-center justify-between">
-          <Text variant="small" className="font-medium text-foreground">Condiciones mínimas</Text>
+          <Text variant="small" className="font-medium text-foreground">Reglas del combo</Text>
           <TouchableOpacity
-            onPress={() => append({ productType: '', minQuantity: undefined })}
+            onPress={() => append({ productType: '', quantity: 1 })}
             className="flex-row items-center gap-1 rounded-lg bg-muted px-2 py-1"
           >
-            <Plus size={14} className="text-foreground" />
+            <Plus size={13} color="#374151" />
             <Text variant="xs">Agregar</Text>
           </TouchableOpacity>
         </View>
+
+        {typeof errors.rules?.root?.message === 'string' && (
+          <Text variant="xs" className="mb-2 text-destructive">{errors.rules.root.message}</Text>
+        )}
+
         {fields.map((field, index) => (
-          <View key={field.id} className="mb-2 rounded-lg border border-border p-3">
-            <View className="flex-row items-start gap-2">
-              <View className="flex-1">
-                <Controller
-                  control={control}
-                  name={`conditions.${index}.productType`}
-                  render={({ field: f }) => (
-                    <Input
-                      label="Tipo de producto"
-                      placeholder="Ej: bebida"
-                      value={f.value ?? ''}
-                      onChangeText={f.onChange}
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name={`conditions.${index}.minQuantity`}
-                  render={({ field: f }) => (
-                    <Input
-                      label="Cantidad mínima"
-                      placeholder="2"
-                      value={f.value != null ? String(f.value) : ''}
-                      onChangeText={f.onChange}
-                      keyboardType="numeric"
-                    />
-                  )}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={() => remove(index)}
-                className="mt-6 rounded-lg border border-destructive/30 bg-destructive/5 p-2"
-              >
-                <X size={16} color="#dc2626" />
-              </TouchableOpacity>
+          <View key={field.id} className="mb-2 flex-row items-end gap-2">
+            <View className="flex-1">
+              <Controller
+                control={control}
+                name={`rules.${index}.productType`}
+                render={({ field: f }) => (
+                  <Select
+                    label="Tipo de producto"
+                    value={f.value}
+                    options={productTypeOptions}
+                    onValueChange={f.onChange}
+                    placeholder="Seleccionar..."
+                    error={errors.rules?.[index]?.productType?.message}
+                  />
+                )}
+              />
             </View>
+            <View style={{ width: 80 }}>
+              <Controller
+                control={control}
+                name={`rules.${index}.quantity`}
+                render={({ field: f }) => (
+                  <Input
+                    label="Cant."
+                    placeholder="1"
+                    value={f.value != null && f.value !== ('' as unknown as number) ? String(f.value) : ''}
+                    onChangeText={f.onChange}
+                    keyboardType="number-pad"
+                    error={errors.rules?.[index]?.quantity?.message}
+                  />
+                )}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => remove(index)}
+              className="mb-1 rounded-lg border border-destructive/30 bg-destructive/5 p-2"
+              disabled={fields.length === 1}
+              style={{ opacity: fields.length === 1 ? 0.4 : 1 }}
+            >
+              <X size={16} color="#dc2626" />
+            </TouchableOpacity>
           </View>
         ))}
       </View>
 
-      <View className="flex-row gap-3 pt-1">
+      <View className="flex-row gap-3 pt-2">
         <Button variant="outline" className="flex-1" onPress={onCancel} disabled={submitting}>
           Cancelar
         </Button>
@@ -232,7 +181,7 @@ function ComboForm({ initial, onSubmit, onCancel, submitting }: ComboFormProps) 
           Guardar
         </Button>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -247,26 +196,6 @@ export function CombosTab() {
   const [toDelete, setToDelete] = useState<ComboDefinition | null>(null);
 
   const handleRefresh = useCallback(() => { refetch(); }, [refetch]);
-
-  const handleCreate = (values: ComboFormValues) => {
-    createCombo.mutate(values, {
-      onSuccess: () => setShowForm(false),
-    });
-  };
-
-  const handleUpdate = (values: ComboFormValues) => {
-    if (!editing) return;
-    updateCombo.mutate({ id: editing.documentId, payload: values }, {
-      onSuccess: () => setEditing(null),
-    });
-  };
-
-  const handleConfirmDelete = () => {
-    if (!toDelete) return;
-    deleteCombo.mutate(toDelete.documentId, {
-      onSuccess: () => setToDelete(null),
-    });
-  };
 
   if (isLoading) {
     return (
@@ -300,9 +229,9 @@ export function CombosTab() {
       </View>
 
       {showForm && !editing && (
-        <View className="px-4 pb-3" style={{ maxHeight: 520 }}>
+        <View className="px-4 pb-3">
           <ComboForm
-            onSubmit={handleCreate}
+            onSubmit={(values) => createCombo.mutate(values, { onSuccess: () => setShowForm(false) })}
             onCancel={() => setShowForm(false)}
             submitting={createCombo.isPending}
           />
@@ -317,17 +246,15 @@ export function CombosTab() {
         renderItem={({ item }) => (
           <>
             {editing?.documentId === item.documentId ? (
-              <View className="mb-1" style={{ maxHeight: 520 }}>
+              <View className="mb-1">
                 <ComboForm
                   initial={{
                     name: item.name,
-                    description: item.description,
-                    discount: item.discount,
-                    discountType: item.discountType,
-                    productIds: item.products?.map((p) => p.documentId),
-                    conditions: item.conditions,
+                    price: item.price,
+                    isActive: item.isActive,
+                    rules: item.rules,
                   }}
-                  onSubmit={handleUpdate}
+                  onSubmit={(values) => updateCombo.mutate({ id: item.documentId, payload: values }, { onSuccess: () => setEditing(null) })}
                   onCancel={() => setEditing(null)}
                   submitting={updateCombo.isPending}
                 />
@@ -336,33 +263,32 @@ export function CombosTab() {
               <View className="rounded-xl border border-border bg-background px-4 py-3">
                 <View className="flex-row items-start justify-between">
                   <View className="flex-1 min-w-0 mr-3">
-                    <Text variant="body" className="font-medium" numberOfLines={1}>{item.name}</Text>
-                    <View className="mt-1 flex-row items-center gap-2">
-                      <View className="rounded-full bg-primary/10 px-2 py-0.5">
-                        <Text variant="xs" className="font-semibold text-primary">
-                          {item.discountType === 'percentage'
-                            ? `${item.discount}% dto.`
-                            : `$${item.discount} dto.`}
+                    <View className="flex-row items-center gap-2">
+                      <Text variant="body" className="font-medium flex-1" numberOfLines={1}>{item.name}</Text>
+                      <View className={`rounded-full px-2 py-0.5 ${item.isActive ? 'bg-green-100' : 'bg-muted'}`}>
+                        <Text variant="xs" className={`font-semibold ${item.isActive ? 'text-green-700' : 'text-muted-foreground'}`}>
+                          {item.isActive ? 'Activo' : 'Inactivo'}
                         </Text>
                       </View>
-                      {item.products && item.products.length > 0 && (
-                        <Text variant="xs" className="text-muted-foreground">
-                          {item.products.length} producto{item.products.length !== 1 ? 's' : ''}
-                        </Text>
-                      )}
                     </View>
-                    {item.description ? (
-                      <Text variant="xs" className="mt-1 text-muted-foreground" numberOfLines={2}>
-                        {item.description}
-                      </Text>
-                    ) : null}
+                    <Text variant="small" className="mt-0.5 font-semibold text-primary">${item.price}</Text>
+                    <View className="mt-2 gap-1">
+                      {item.rules.map((rule, i) => (
+                        <View key={i} className="flex-row items-center gap-1.5">
+                          <View className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                          <Text variant="xs" className="text-muted-foreground">
+                            {rule.quantity}x {rule.productType}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
                   </View>
                   <View className="flex-row gap-2">
                     <TouchableOpacity
                       onPress={() => { setEditing(item); setShowForm(false); }}
                       className="rounded-lg border border-border p-2"
                     >
-                      <Pencil size={16} className="text-foreground" />
+                      <Pencil size={16} color="#374151" />
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setToDelete(item)}
@@ -390,7 +316,10 @@ export function CombosTab() {
         confirmLabel="Eliminar"
         destructive
         loading={deleteCombo.isPending}
-        onConfirm={handleConfirmDelete}
+        onConfirm={() => {
+          if (!toDelete) return;
+          deleteCombo.mutate(toDelete.documentId, { onSuccess: () => setToDelete(null) });
+        }}
         onCancel={() => setToDelete(null)}
       />
     </View>
