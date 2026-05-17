@@ -8,14 +8,15 @@ describe('ConfirmDialog', () => {
       <ConfirmDialog
         visible={true}
         title="Eliminar?"
-        message="Esta acción no se puede deshacer"
+        description="Esta accion no se puede deshacer"
+        confirmLabel="Confirmar"
         onConfirm={jest.fn()}
         onCancel={jest.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Eliminar?')).toBeTruthy();
-    expect(screen.getByText('Esta acción no se puede deshacer')).toBeTruthy();
+    expect(screen.getByText('Esta accion no se puede deshacer')).toBeTruthy();
   });
 
   it('SHOULD call onCancel when cancel button pressed', () => {
@@ -24,10 +25,11 @@ describe('ConfirmDialog', () => {
       <ConfirmDialog
         visible={true}
         title="Eliminar?"
-        message="Esta acción no se puede deshacer"
+        description="Esta accion no se puede deshacer"
+        confirmLabel="Confirmar"
         onConfirm={jest.fn()}
         onCancel={onCancel}
-      />
+      />,
     );
 
     fireEvent.press(screen.getByText('Cancelar'));
@@ -40,10 +42,11 @@ describe('ConfirmDialog', () => {
       <ConfirmDialog
         visible={true}
         title="Eliminar?"
-        message="Esta acción no se puede deshacer"
+        description="Esta accion no se puede deshacer"
+        confirmLabel="Confirmar"
         onConfirm={onConfirm}
         onCancel={jest.fn()}
-      />
+      />,
     );
 
     fireEvent.press(screen.getByText('Confirmar'));
@@ -56,11 +59,12 @@ describe('ConfirmDialog', () => {
       <ConfirmDialog
         visible={true}
         title="Eliminar?"
-        message="Esta acción no se puede deshacer"
+        description="Esta accion no se puede deshacer"
+        confirmLabel="Confirmar"
         onConfirm={jest.fn()}
         onCancel={onCancel}
         loading={true}
-      />
+      />,
     );
 
     const cancelButton = screen.getByTestId('confirm-cancel');

@@ -1,13 +1,5 @@
-import { View } from 'react-native';
-import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
+import { MembersScreen } from '@/components/admin/MembersScreen';
 
-export default function MembersScreen() {
-  return (
-    <ScreenWrapper>
-      <View className="p-4">
-        <Text variant="h1">Miembros</Text>
-      </View>
-    </ScreenWrapper>
-  );
+export default function MembersRoute() {
+  return <MembersScreen />;
 }

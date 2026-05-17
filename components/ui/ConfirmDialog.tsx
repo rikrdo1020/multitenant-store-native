@@ -60,10 +60,17 @@ export function ConfirmDialog({
           </View>
 
           <View className="flex-row gap-3">
-            <Button variant="outline" className="flex-1" disabled={loading} onPress={onCancel}>
+            <Button
+              testID="confirm-cancel"
+              variant="outline"
+              className="flex-1"
+              disabled={loading}
+              onPress={onCancel}
+            >
               {cancelLabel}
             </Button>
             <Button
+              testID="confirm-action"
               variant={destructive ? "destructive" : "default"}
               className="flex-1"
               loading={loading}

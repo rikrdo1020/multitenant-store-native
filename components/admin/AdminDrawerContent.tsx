@@ -26,15 +26,15 @@ const menuItems = [
   { label: 'Dashboard', href: '/(admin)/dashboard', icon: LayoutDashboard },
   { label: 'Productos', href: '/(admin)/products', icon: Package },
   { label: 'Pedidos', href: '/(admin)/orders', icon: ShoppingCart },
-  { label: 'Categorías', href: '/(admin)/categories', icon: Grid3X3 },
+  { label: 'Categorias', href: '/(admin)/categories', icon: Grid3X3 },
   { label: 'Marcas', href: '/(admin)/brands', icon: Building2 },
   { label: 'Tags', href: '/(admin)/tags', icon: Tags },
   { label: 'Tipos de Producto', href: '/(admin)/product-types', icon: Type },
-  { label: 'Envíos', href: '/(admin)/shipping-methods', icon: Truck },
+  { label: 'Envios', href: '/(admin)/shipping-methods', icon: Truck },
   { label: 'Combos', href: '/(admin)/combos', icon: Grid3X3 },
   { label: 'Clientes', href: '/(admin)/customers', icon: Users },
   { label: 'Miembros', href: '/(admin)/members', icon: Users },
-  { label: 'Configuración', href: '/(admin)/settings', icon: Settings },
+  { label: 'Configuracion', href: '/(admin)/settings', icon: Settings },
 ];
 
 export function AdminDrawerContent(props: DrawerContentComponentProps) {
@@ -129,7 +129,7 @@ export function AdminDrawerContent(props: DrawerContentComponentProps) {
         >
           <LogOut size={18} className="text-destructive" />
           <Text variant="body" className="font-medium text-destructive">
-            Cerrar sesión
+            Cerrar sesion
           </Text>
         </TouchableOpacity>
       </View>

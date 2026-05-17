@@ -41,7 +41,8 @@ api.interceptors.response.use(
         const response = await axios.post(`${API_URL}/auth/refresh`, {
           refreshToken,
         });
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        const { accessToken, refreshToken: newRefreshToken } =
+          response.data.data;
 
         await Promise.all([
           setSecureItem("mt:auth-token", accessToken),
@@ -61,7 +62,7 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status >= 500) {
-      // Server error toast will be handled by UI
+      // Server error toast will be handled by UI.
     }
 
     return Promise.reject(normalizeError(error));
@@ -71,17 +72,21 @@ api.interceptors.response.use(
 function normalizeError(error: unknown): ApiError {
   if (axios.isAxiosError(error) && error.response?.data) {
     const data = error.response.data;
+    const body = data.error ?? data;
+    const message =
+      typeof body.message === "string" ? body.message : "Error desconocido";
+
     return {
-      code: data.code || "UNKNOWN_ERROR",
-      message: data.message || "Error desconocido",
+      code: body.code || "UNKNOWN_ERROR",
+      message,
       statusCode: error.response.status,
-      details: data.details,
+      details: body.details,
     };
   }
 
   return {
     code: "UNKNOWN_ERROR",
-    message: "Error de red. Verifica tu conexión.",
+    message: "Error de red. Verifica tu conexion.",
     statusCode: 0,
   };
 }
