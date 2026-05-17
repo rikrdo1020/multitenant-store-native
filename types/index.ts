@@ -8,6 +8,20 @@ export interface User {
 
 export type TeamRole = "admin" | "manager";
 
+export type PaymentProviderType = "yappy" | "cash";
+
+export interface PaymentMethod {
+  id: PaymentProviderType;
+  label: string;
+  description: string;
+}
+
+export interface CreatePaymentResult {
+  success: boolean;
+  transactionId?: string;
+  documentName?: string;
+}
+
 export interface Tenant {
   documentId: string;
   slug: string;
@@ -16,7 +30,7 @@ export interface Tenant {
   description?: string;
   primaryColor?: string;
   currency?: string;
-  provider?: "yappy";
+  provider?: string;
 }
 
 export interface TenantMember {
