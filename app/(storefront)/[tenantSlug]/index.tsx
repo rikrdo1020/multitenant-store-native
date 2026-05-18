@@ -1,12 +1,14 @@
-import { View, FlatList } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
 import { LoadingScreen } from '@/components/shared/LoadingScreen';
 import { Text } from '@/components/ui/Text';
+import { Button } from '@/components/ui/Button';
 import { useTenant } from '@/hooks/api/use-tenant';
 
 export default function StoreHomeScreen() {
   const { tenantSlug } = useLocalSearchParams<{ tenantSlug: string }>();
+  const router = useRouter();
   const { data: tenant, isLoading } = useTenant(tenantSlug);
 
   if (isLoading) return <LoadingScreen />;
@@ -17,7 +19,12 @@ export default function StoreHomeScreen() {
         <Text variant="h1">{tenant?.name || 'Tienda'}</Text>
         <Text variant="body">Bienvenido a nuestro catálogo</Text>
 
-        {/* TODO: Featured products, categories grid */}
+        <Button
+          size="lg"
+          onPress={() => router.push(`/(storefront)/${tenantSlug}/products` as never)}
+        >
+          Ver productos
+        </Button>
       </View>
     </ScreenWrapper>
   );

@@ -55,7 +55,14 @@ export default function ProductsScreen() {
       {/* Header */}
       <View className="px-4 pt-2 pb-3 gap-3">
         <View className="flex-row items-center gap-3">
-          <Pressable onPress={() => router.back()} hitSlop={8}>
+          <Pressable
+            onPress={() =>
+              router.canGoBack()
+                ? router.back()
+                : router.replace(`/(storefront)/${tenantSlug}` as never)
+            }
+            hitSlop={8}
+          >
             <ArrowLeft size={22} color="#0a0a0a" />
           </Pressable>
           <Text variant="h2" className="flex-1">Catálogo</Text>

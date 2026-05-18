@@ -3,9 +3,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { CheckCircle2 } from "lucide-react-native";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
 import { CheckoutHeader } from "@/components/storefront/CheckoutHeader";
+import { YappyWebViewModal } from "@/components/storefront/YappyWebViewModal";
 import { usePaymentScreen } from "@/hooks/use-payment-screen";
 import { cn } from "@/lib/utils";
 import type { PaymentProviderType } from "@/types";
@@ -17,7 +17,22 @@ export default function PaymentScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <CheckoutHeader compact onBack={() => router.back()} />
+      <CheckoutHeader
+        compact
+        onBack={() =>
+          router.canGoBack()
+            ? router.back()
+            : router.replace(`/(storefront)/${tenantSlug}/checkout` as never)
+        }
+      />
+
+      <YappyWebViewModal
+        visible={payment.yappyModalVisible}
+        onCreatePayment={payment.handleYappyCreatePayment}
+        onSuccess={payment.handleYappySuccess}
+        onError={payment.handleYappyError}
+        onDismiss={payment.handleYappyDismiss}
+      />
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
         <View className="gap-6">
@@ -42,33 +57,14 @@ export default function PaymentScreen() {
           </View>
 
           {payment.selectedPaymentMethod === "yappy" && (
-            <View className="gap-2">
-              <View className="rounded-lg border border-border bg-secondary p-4">
-                <Text variant="small" className="font-semibold">
-                  ¿Cómo funciona Yappy?
-                </Text>
-                <Text
-                  variant="xs"
-                  className="mt-1 leading-5 text-muted-foreground"
-                >
-                  Ingresa tu alias de Yappy (número de teléfono registrado).
-                  Recibirás una notificación en tu app de Yappy para confirmar
-                  el pago.
-                </Text>
-              </View>
-
-              <Input
-                label="Alias Yappy"
-                placeholder="6789-1234"
-                value={payment.aliasYappy}
-                onChangeText={(text) => {
-                  payment.setAliasYappy(text);
-                }}
-                keyboardType="phone-pad"
-                autoComplete="tel"
-                maxLength={9}
-                error={payment.aliasError ?? undefined}
-              />
+            <View className="rounded-lg border border-border bg-secondary p-4">
+              <Text variant="small" className="font-semibold">
+                ¿Cómo funciona Yappy?
+              </Text>
+              <Text variant="xs" className="mt-1 leading-5 text-muted-foreground">
+                Al confirmar, ingresarás tu número Yappy y recibirás una
+                notificación en tu app para aprobar el pago.
+              </Text>
             </View>
           )}
 

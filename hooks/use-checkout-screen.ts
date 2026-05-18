@@ -125,7 +125,10 @@ export function useCheckoutScreen(tenantSlug?: string) {
     }
   }, [selectedLocationId, selectedMethod, setSelectedLocation]);
 
-  const goBack = () => router.back();
+  const goBack = () =>
+    router.canGoBack()
+      ? router.back()
+      : router.replace(`/(storefront)/${tenantSlug}/cart` as never);
   const goToProducts = () => router.push(`/(storefront)/${tenantSlug}/products` as never);
   const goToCart = () => router.push(`/(storefront)/${tenantSlug}/cart` as never);
 

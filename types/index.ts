@@ -20,6 +20,7 @@ export interface CreatePaymentResult {
   success: boolean;
   transactionId?: string;
   documentName?: string;
+  token?: string;
 }
 
 export interface Tenant {
