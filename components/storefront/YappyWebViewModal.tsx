@@ -4,6 +4,7 @@ import {
   Modal,
   Platform,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -80,6 +81,14 @@ const buildHtml = (cdnUrl: string) => `<!DOCTYPE html>
     }
     #pay-btn:disabled { opacity: 0.45; cursor: not-allowed; }
     btn-yappy { display: block; width: 100%; }
+    #dialog {
+      position: fixed !important;
+      inset: unset !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      margin: 0 !important;
+    }
   </style>
 </head>
 <body>
@@ -145,7 +154,9 @@ const buildHtml = (cdnUrl: string) => `<!DOCTYPE html>
           payBtn.textContent = 'Continuar con Yappy';
           errorMsg.textContent = data.message || 'Error al procesar. Intenta nuevamente.';
         }
-      } catch (_) {}
+      } catch {
+        // ignore
+      }
     });
 
     window.addEventListener('load', function () {
@@ -174,7 +185,13 @@ export function YappyWebViewModal(props: Props) {
 
 // ─── Native ──────────────────────────────────────────────────────────────────
 
-function YappyWebViewNative({ visible, onCreatePayment, onSuccess, onError, onDismiss }: Props) {
+function YappyWebViewNative({
+  visible,
+  onCreatePayment,
+  onSuccess,
+  onError,
+  onDismiss,
+}: Props) {
   const webViewRef = useRef<any>(null);
   const HTML = buildHtml(YAPPY_CDN_URL);
 
@@ -188,26 +205,41 @@ function YappyWebViewNative({ visible, onCreatePayment, onSuccess, onError, onDi
 
   const handleMessage = async (event: { nativeEvent: { data: string } }) => {
     try {
-      const data = JSON.parse(event.nativeEvent.data) as { type: string; aliasYappy?: string };
+      const data = JSON.parse(event.nativeEvent.data) as {
+        type: string;
+        aliasYappy?: string;
+      };
       if (data.type === "createPayment" && data.aliasYappy) {
         try {
           const params = await onCreatePayment(data.aliasYappy);
           inject({ type: "payment", params });
         } catch (err: any) {
-          inject({ type: "paymentError", message: err?.message ?? "Error al crear el pago" });
+          inject({
+            type: "paymentError",
+            message: err?.message ?? "Error al crear el pago",
+          });
         }
       } else if (data.type === "success") {
         onSuccess();
       } else if (data.type === "error") {
         onError();
       }
-    } catch (_) {}
+    } catch {
+      // ignore malformed messages
+    }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onDismiss} statusBarTranslucent>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      onRequestClose={onDismiss}
+      statusBarTranslucent
+    >
       <View style={styles.container}>
-        <TouchableOpacity style={styles.closeHit} onPress={onDismiss} />
+        <TouchableOpacity style={styles.closeHit} onPress={onDismiss}>
+          <Text style={styles.closeText}>✕</Text>
+        </TouchableOpacity>
         {WebViewNative && (
           <WebViewNative
             ref={webViewRef}
@@ -232,7 +264,13 @@ function YappyWebViewNative({ visible, onCreatePayment, onSuccess, onError, onDi
 
 // ─── Web ─────────────────────────────────────────────────────────────────────
 
-function YappyWebViewWeb({ visible, onCreatePayment, onSuccess, onError, onDismiss }: Props) {
+function YappyWebViewWeb({
+  visible,
+  onCreatePayment,
+  onSuccess,
+  onError,
+  onDismiss,
+}: Props) {
   const iframeRef = useRef<any>(null);
   const HTML = buildHtml(YAPPY_CDN_URL);
 
@@ -242,10 +280,16 @@ function YappyWebViewWeb({ visible, onCreatePayment, onSuccess, onError, onDismi
     const handleMessage = async (e: MessageEvent) => {
       if (e.source !== iframeRef.current?.contentWindow) return;
       try {
-        const data = JSON.parse(e.data as string) as { type: string; aliasYappy?: string };
+        const data = JSON.parse(e.data as string) as {
+          type: string;
+          aliasYappy?: string;
+        };
 
         const postDown = (msg: object) => {
-          iframeRef.current?.contentWindow?.postMessage(JSON.stringify(msg), "*");
+          iframeRef.current?.contentWindow?.postMessage(
+            JSON.stringify(msg),
+            "*",
+          );
         };
 
         if (data.type === "createPayment" && data.aliasYappy) {
@@ -253,14 +297,17 @@ function YappyWebViewWeb({ visible, onCreatePayment, onSuccess, onError, onDismi
             const params = await onCreatePayment(data.aliasYappy);
             postDown({ type: "payment", params });
           } catch (err: any) {
-            postDown({ type: "paymentError", message: err?.message ?? "Error al crear el pago" });
+            postDown({
+              type: "paymentError",
+              message: err?.message ?? "Error al crear el pago",
+            });
           }
         } else if (data.type === "success") {
           onSuccess();
         } else if (data.type === "error") {
           onError();
         }
-      } catch (_) {}
+      } catch {}
     };
 
     window.addEventListener("message", handleMessage);
@@ -268,12 +315,18 @@ function YappyWebViewWeb({ visible, onCreatePayment, onSuccess, onError, onDismi
   }, [visible, onCreatePayment, onSuccess, onError]);
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onDismiss} transparent={false}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      onRequestClose={onDismiss}
+      transparent={false}
+    >
       <View style={styles.container}>
-        <TouchableOpacity style={styles.closeHit} onPress={onDismiss} />
+        <TouchableOpacity style={styles.closeHit} onPress={onDismiss}>
+          <Text style={styles.closeText}>✕</Text>
+        </TouchableOpacity>
         <View style={styles.fill}>
           {visible && (
-            // @ts-expect-error — iframe is valid DOM in Expo web
             <iframe
               ref={iframeRef}
               srcDoc={HTML}
@@ -303,5 +356,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#e0e0e0",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+  },
+  closeText: {
+    fontSize: 18,
+    color: "#555",
+    lineHeight: 22,
   },
 });

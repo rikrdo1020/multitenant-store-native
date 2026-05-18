@@ -16,14 +16,31 @@ export function usePaymentScreen(tenantSlug?: string) {
   const router = useRouter();
   const { data: tenant } = useTenant(tenantSlug ?? "");
 
+  const setCartTenantScope = useCartStore((state) => state.setTenantScope);
   const items = useCartStore((state) => state.items);
   const clearCart = useCartStore((state) => state.clearCart);
 
+  const setCheckoutTenantScope = useCheckoutStore((state) => state.setTenantScope);
   const customerData = useCheckoutStore((state) => state.customerData);
   const shippingAddress = useCheckoutStore((state) => state.shippingAddress);
   const selectedMethodId = useCheckoutStore((state) => state.selectedMethodId);
   const selectedLocationId = useCheckoutStore((state) => state.selectedLocationId);
   const clearCheckout = useCheckoutStore((state) => state.clearCheckout);
+
+  const [isScopeReady, setIsScopeReady] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadScopes() {
+      await Promise.all([
+        setCartTenantScope(tenantSlug ?? null),
+        setCheckoutTenantScope(tenantSlug ?? null),
+      ]);
+      if (mounted) setIsScopeReady(true);
+    }
+    void loadScopes();
+    return () => { mounted = false; };
+  }, [setCartTenantScope, setCheckoutTenantScope, tenantSlug]);
 
   const shippingQuery = useShippingMethods(tenantSlug);
   const shippingMethod = shippingQuery.data?.find(
@@ -63,7 +80,7 @@ export function usePaymentScreen(tenantSlug?: string) {
   );
 
   const handlePay = async () => {
-    if (!tenantSlug || !customerData || !shippingAddress || !shippingMethod) {
+    if (!isScopeReady || !tenantSlug || !customerData || !shippingAddress || !shippingMethod) {
       showToast(
         "Datos incompletos",
         "destructive",
@@ -141,7 +158,7 @@ export function usePaymentScreen(tenantSlug?: string) {
     setPendingOrder(null);
   }, []);
 
-  const isPending = createOrderMutation.isPending;
+  const isPending = createOrderMutation.isPending || !isScopeReady;
 
   return {
     tenant,

@@ -17,7 +17,14 @@ export default function PaymentScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <CheckoutHeader compact onBack={() => router.back()} />
+      <CheckoutHeader
+        compact
+        onBack={() =>
+          router.canGoBack()
+            ? router.back()
+            : router.replace(`/(storefront)/${tenantSlug}/checkout` as never)
+        }
+      />
 
       <YappyWebViewModal
         visible={payment.yappyModalVisible}
