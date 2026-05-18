@@ -8,6 +8,10 @@ export const STRIPE_PUBLISHABLE_KEY =
 
 export const PAYMENT_MOCK = process.env.EXPO_PUBLIC_PAYMENT_MOCK === "true";
 
+export const YAPPY_CDN_URL =
+  process.env.EXPO_PUBLIC_YAPPY_CDN_URL ??
+  "https://bt-cdn.yappy.cloud/v1/cdn/web-component-btn-yappy.js";
+
 export const DEFAULT_CURRENCY = "USD";
 
 export const STORAGE_KEYS = {
