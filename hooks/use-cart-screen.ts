@@ -36,9 +36,12 @@ export function useCartScreen(tenantSlug?: string) {
   const pricing = useMemo(() => calculateCartPricing(items), [items]);
 
   const goBack = () => {
-    router.canGoBack()
-      ? router.back()
-      : router.replace(`/(storefront)/${tenantSlug}/products` as never);
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace(`/(storefront)/${tenantSlug}/products` as never);
   };
 
   const goToProducts = () => {

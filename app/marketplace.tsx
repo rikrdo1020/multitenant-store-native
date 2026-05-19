@@ -83,7 +83,6 @@ export default function Marketplace() {
 }
 
 function StoreCard({ store }: { store: MarketplaceStore }) {
-  const router = useRouter();
   const accentColor = store.primaryColor ?? '#ffffff';
 
   return (

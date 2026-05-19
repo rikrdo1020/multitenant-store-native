@@ -1,7 +1,7 @@
-import { Controller, type Control, type FieldErrors } from 'react-hook-form';
+import type { Control, FieldErrors } from 'react-hook-form';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/Text';
-import { CheckoutTextField } from '@/components/storefront/CheckoutTextField';
+import { CheckoutControlledTextField } from '@/components/storefront/CheckoutControlledTextField';
 import type { CheckoutFormData } from '@/lib/validators';
 
 interface CheckoutCustomerFormProps {
@@ -20,62 +20,38 @@ export function CheckoutCustomerForm({ control, errors, isWide }: CheckoutCustom
 
       <View className={isWide ? 'flex-row gap-3' : 'gap-3'}>
         <View className="min-w-0 flex-1 gap-3">
-          <Controller
+          <CheckoutControlledTextField
             control={control}
+            errors={errors}
             name="name"
-            render={({ field: { onChange, value } }) => (
-              <CheckoutTextField
-                label="Nombre"
-                value={value}
-                placeholder="Nombre y apellido"
-                error={errors.name?.message}
-                onChangeText={onChange}
-              />
-            )}
+            label="Nombre"
+            placeholder="Nombre y apellido"
           />
-          <Controller
+          <CheckoutControlledTextField
             control={control}
+            errors={errors}
             name="email"
-            render={({ field: { onChange, value } }) => (
-              <CheckoutTextField
-                label="Correo"
-                value={value}
-                placeholder="cliente@correo.com"
-                error={errors.email?.message}
-                keyboardType="email-address"
-                onChangeText={onChange}
-              />
-            )}
+            label="Correo"
+            placeholder="cliente@correo.com"
+            keyboardType="email-address"
           />
         </View>
 
         <View className="min-w-0 flex-1 gap-3">
-          <Controller
+          <CheckoutControlledTextField
             control={control}
+            errors={errors}
             name="phone"
-            render={({ field: { onChange, value } }) => (
-              <CheckoutTextField
-                label="Telefono"
-                value={value}
-                placeholder="6000-0000"
-                error={errors.phone?.message}
-                keyboardType="phone-pad"
-                onChangeText={onChange}
-              />
-            )}
+            label="Telefono"
+            placeholder="6000-0000"
+            keyboardType="phone-pad"
           />
-          <Controller
+          <CheckoutControlledTextField
             control={control}
+            errors={errors}
             name="notes"
-            render={({ field: { onChange, value } }) => (
-              <CheckoutTextField
-                label="Nota opcional"
-                value={value}
-                placeholder="Indicaciones para la tienda"
-                error={errors.notes?.message}
-                onChangeText={onChange}
-              />
-            )}
+            label="Nota opcional"
+            placeholder="Indicaciones para la tienda"
           />
         </View>
       </View>

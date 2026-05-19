@@ -11,7 +11,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import * as ImagePicker from 'expo-image-picker';
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { MultiSelect } from '@/components/ui/MultiSelect';
@@ -28,7 +27,7 @@ import { useCreateProduct } from '@/hooks/api/use-create-product';
 import { useUpdateProduct } from '@/hooks/api/use-update-product';
 import { useUploadImage } from '@/hooks/api/use-upload-image';
 import { slugify, generateDKU, sanitizeDecimalInput, sanitizeIntegerInput } from '@/lib/utils';
-import type { Product, ProductOption } from '@/types';
+import type { ProductOption } from '@/types';
 import { ChevronLeft } from 'lucide-react-native';
 
 const productSchema = z.object({

@@ -81,6 +81,46 @@ export interface MemberInvitation {
   createdAt?: string;
 }
 
+export interface CustomerProfile {
+  documentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  address?: string | null;
+  city?: string | null;
+  country?: string | null;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateCustomerProfilePayload {
+  name?: string;
+  phone?: string;
+  notes?: string;
+}
+
+export interface CustomerAddress {
+  documentId: string;
+  name: string;
+  address: string;
+  city: string;
+  department: string;
+  phone: string;
+  isDefault: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CustomerAddressPayload {
+  name: string;
+  address: string;
+  city: string;
+  department: string;
+  phone: string;
+  isDefault?: boolean;
+}
+
 export interface InviteVerification {
   email: string;
   role: TeamRole;
@@ -267,6 +307,7 @@ export interface ShippingAddressData {
   address: string;
   reference?: string;
   city: string;
+  department?: string;
 }
 
 export type OrderStatus =
@@ -295,6 +336,7 @@ export interface Order {
     address?: {
       address: string;
       city: string;
+      department?: string;
       reference?: string;
     };
     method?: {

@@ -150,6 +150,7 @@ export function getOrderShippingAddress(order: Pick<Order, 'shippingData'>): str
   const lines = [
     getString(address.address),
     getString(address.city),
+    getString(address.department),
     getString(address.reference),
   ].filter((line): line is string => Boolean(line));
 

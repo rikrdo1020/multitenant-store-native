@@ -33,7 +33,7 @@ export default function RegisterScreen() {
       setLoading(true);
       await register(data);
       router.replace('/');
-    } catch (error) {
+    } catch {
       setError('root', { message: 'No fue posible crear la cuenta. Intenta de nuevo.' });
     } finally {
       setLoading(false);

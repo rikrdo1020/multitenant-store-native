@@ -3,10 +3,12 @@ import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldErrors } from 'react-hook-form';
 import { useShippingMethods } from '@/hooks/api/use-shipping-methods';
+import { useCustomerAddresses, useCustomerProfile } from '@/hooks/api/use-customers';
 import {
   getCheckoutFormErrorMessage,
   getCheckoutSubmitErrorMessage,
 } from '@/lib/checkout-feedback';
+import { mapSavedAddressToCheckoutValues } from '@/lib/customer-address';
 import { calculateCartPricing } from '@/lib/pricing';
 import {
   getSelectedShippingLocation,
@@ -15,10 +17,11 @@ import {
 } from '@/lib/shipping';
 import { showToast } from '@/lib/toast';
 import { checkoutFormSchema, type CheckoutFormData } from '@/lib/validators';
+import { useAuthStore } from '@/stores/use-auth-store';
 import { useCartStore } from '@/stores/use-cart-store';
 import { useCheckoutStore } from '@/stores/use-checkout-store';
 import { useTenantStore } from '@/stores/use-tenant-store';
-import type { CustomerFormData, ShippingAddressData, ShippingMethod } from '@/types';
+import type { CustomerAddress, CustomerFormData, ShippingAddressData, ShippingMethod } from '@/types';
 
 export const EMPTY_CHECKOUT_FORM: CheckoutFormData = {
   name: '',
@@ -28,6 +31,7 @@ export const EMPTY_CHECKOUT_FORM: CheckoutFormData = {
   address: '',
   reference: '',
   city: '',
+  department: '',
 };
 
 export function useCheckoutScreen(tenantSlug?: string) {
@@ -39,14 +43,18 @@ export function useCheckoutScreen(tenantSlug?: string) {
   const shippingAddress = useCheckoutStore((state) => state.shippingAddress);
   const selectedMethodId = useCheckoutStore((state) => state.selectedMethodId);
   const selectedLocationId = useCheckoutStore((state) => state.selectedLocationId);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const setCheckoutTenantScope = useCheckoutStore((state) => state.setTenantScope);
   const setCustomerData = useCheckoutStore((state) => state.setCustomerData);
   const setShippingAddress = useCheckoutStore((state) => state.setShippingAddress);
   const setSelectedMethod = useCheckoutStore((state) => state.setSelectedMethod);
   const setSelectedLocation = useCheckoutStore((state) => state.setSelectedLocation);
   const shippingQuery = useShippingMethods(tenantSlug);
+  const profileQuery = useCustomerProfile(tenantSlug, isAuthenticated);
+  const addressesQuery = useCustomerAddresses(tenantSlug, isAuthenticated);
   const [isScopeReady, setIsScopeReady] = useState(false);
   const [hydratedTenant, setHydratedTenant] = useState<string | null>(null);
+  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState<string | null>(null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -99,6 +107,7 @@ export function useCheckoutScreen(tenantSlug?: string) {
       setShippingAddress({
         address: value.address ?? '',
         city: value.city ?? '',
+        ...(value.department ? { department: value.department } : {}),
         ...(value.reference ? { reference: value.reference } : {}),
       });
     });
@@ -107,6 +116,7 @@ export function useCheckoutScreen(tenantSlug?: string) {
   }, [form, isScopeReady, setCustomerData, setShippingAddress]);
 
   const shippingMethods = shippingQuery.data ?? [];
+  const savedAddresses = addressesQuery.data ?? [];
   const selectedMethod = shippingMethods.find((method) => method.documentId === selectedMethodId);
   const selectedLocation = getSelectedShippingLocation(selectedMethod, selectedLocationId);
   const pricing = useMemo(() => calculateCartPricing(items), [items]);
@@ -142,6 +152,29 @@ export function useCheckoutScreen(tenantSlug?: string) {
     setSelectedLocation(locationId);
     setSelectionError(null);
     setSubmitError(null);
+  };
+
+  const handleSelectSavedAddress = (address: CustomerAddress) => {
+    const nextValues = mapSavedAddressToCheckoutValues(address, profileQuery.data);
+    setSelectedSavedAddressId(address.documentId);
+    setSubmitError(null);
+
+    Object.entries(nextValues).forEach(([field, value]) => {
+      form.setValue(field as keyof CheckoutFormData, value ?? '', {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    });
+
+    showToast('Direccion cargada', 'success', 'Revisa los datos antes de continuar.');
+  };
+
+  const retrySavedAddresses = () => {
+    void addressesQuery.refetch();
+  };
+
+  const retryShippingMethods = () => {
+    void shippingQuery.refetch();
   };
 
   const getShippingSelectionError = () => {
@@ -180,6 +213,7 @@ export function useCheckoutScreen(tenantSlug?: string) {
     const nextShippingAddress: ShippingAddressData = {
       address: values.address.trim(),
       city: values.city.trim(),
+      ...(values.department?.trim() ? { department: values.department.trim() } : {}),
       ...(values.reference?.trim() ? { reference: values.reference.trim() } : {}),
     };
 
@@ -213,7 +247,13 @@ export function useCheckoutScreen(tenantSlug?: string) {
     currency: tenant?.currency,
     items,
     pricing,
-    shippingQuery,
+    isShippingLoading: shippingQuery.isLoading,
+    isShippingErrored: shippingQuery.isError,
+    areSavedAddressesLoading: addressesQuery.isLoading,
+    areSavedAddressesErrored: addressesQuery.isError,
+    canUseSavedAddresses: isAuthenticated,
+    savedAddresses,
+    selectedSavedAddressId,
     shippingMethods,
     selectedMethodId,
     selectedLocationId,
@@ -229,6 +269,11 @@ export function useCheckoutScreen(tenantSlug?: string) {
     goToCart,
     handleSelectMethod,
     handleSelectLocation,
+    handleSelectSavedAddress,
+    retrySavedAddresses,
+    retryShippingMethods,
     submitOrder,
   };
 }
+
+export type CheckoutScreenViewModel = ReturnType<typeof useCheckoutScreen>;

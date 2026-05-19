@@ -156,17 +156,14 @@ export function RichTextField({
   const [visible, setVisible] = useState(false);
   const [draft, setDraft] = useState(value || '');
   const webviewRef = useRef<WebView>(null);
-  const [webviewReady, setWebviewReady] = useState(false);
 
   const openEditor = () => {
     setDraft(value || '');
-    setWebviewReady(false);
     setVisible(true);
   };
 
   const closeEditor = () => {
     setVisible(false);
-    setWebviewReady(false);
   };
 
   const saveContent = () => {
@@ -182,7 +179,6 @@ export function RichTextField({
         const msg = JSON.parse(event.nativeEvent.data);
 
         if (msg.type === 'ready') {
-          setWebviewReady(true);
           if (draft && webviewRef.current) {
             const escaped = JSON.stringify(draft);
             webviewRef.current.injectJavaScript(

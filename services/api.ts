@@ -16,12 +16,13 @@ const api = axios.create({
 api.interceptors.request.use(async (config) => {
   const token = await getSecureItem("mt:auth-token");
   const tenant = useTenantStore.getState().tenant;
+  const headers = config.headers as RequestHeaders;
 
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
-  if (tenant) {
-    config.headers["x-tenant-id"] = tenant.slug;
+  if (tenant && !hasRequestHeader(headers, "x-tenant-id")) {
+    headers["x-tenant-id"] = tenant.slug;
   }
 
   return config;
@@ -89,6 +90,23 @@ function normalizeError(error: unknown): ApiError {
     message: "Error de red. Verifica tu conexion.",
     statusCode: 0,
   };
+}
+
+type RequestHeaders = Record<string, unknown> & {
+  get?: (name: string) => unknown;
+};
+
+function hasRequestHeader(headers: RequestHeaders | undefined, name: string): boolean {
+  if (!headers) return false;
+
+  if (typeof headers.get === "function" && headers.get(name)) {
+    return true;
+  }
+
+  const normalizedName = name.toLowerCase();
+  return Object.keys(headers).some(
+    (key) => key.toLowerCase() === normalizedName && Boolean(headers[key]),
+  );
 }
 
 export default api;

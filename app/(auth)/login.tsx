@@ -16,7 +16,7 @@ export default function LoginRoute() {
     } else {
       router.replace('/(admin)/dashboard');
     }
-  }, [rootNavState?.key, isAuthenticated]);
+  }, [rootNavState?.key, isAuthenticated, router, user?.role]);
 
   if (isAuthenticated) return null;
 

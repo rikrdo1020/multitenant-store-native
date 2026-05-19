@@ -9,14 +9,16 @@ const CHECKOUT_FIELD_LABELS: Record<keyof CheckoutFormData, string> = {
   address: 'direccion',
   reference: 'referencia',
   city: 'ciudad',
+  department: 'departamento',
 };
 
-const CHECKOUT_FIELD_ORDER: Array<keyof CheckoutFormData> = [
+const CHECKOUT_FIELD_ORDER: (keyof CheckoutFormData)[] = [
   'name',
   'email',
   'phone',
   'address',
   'city',
+  'department',
   'notes',
   'reference',
 ];

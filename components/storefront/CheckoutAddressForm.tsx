@@ -1,8 +1,8 @@
-import { Controller, type Control, type FieldErrors } from 'react-hook-form';
+import { type Control, type FieldErrors } from 'react-hook-form';
 import { View } from 'react-native';
 import { MapPin } from 'lucide-react-native';
 import { Text } from '@/components/ui/Text';
-import { CheckoutTextField } from '@/components/storefront/CheckoutTextField';
+import { CheckoutControlledTextField } from '@/components/storefront/CheckoutControlledTextField';
 import type { CheckoutFormData } from '@/lib/validators';
 
 interface CheckoutAddressFormProps {
@@ -22,50 +22,44 @@ export function CheckoutAddressForm({ control, errors, isWide }: CheckoutAddress
         </View>
       </View>
 
-      <Controller
+      <CheckoutControlledTextField
         control={control}
+        errors={errors}
         name="address"
-        render={({ field: { onChange, value } }) => (
-          <CheckoutTextField
-            label="Direccion"
-            value={value}
-            placeholder="Calle, edificio, casa o local"
-            error={errors.address?.message}
-            onChangeText={onChange}
-          />
-        )}
+        label="Direccion"
+        placeholder="Calle, edificio, casa o local"
       />
 
       <View className={isWide ? 'flex-row gap-3' : 'gap-3'}>
         <View className="min-w-0 flex-1">
-          <Controller
+          <CheckoutControlledTextField
             control={control}
+            errors={errors}
             name="city"
-            render={({ field: { onChange, value } }) => (
-              <CheckoutTextField
-                label="Ciudad"
-                value={value}
-                placeholder="Ciudad"
-                error={errors.city?.message}
-                onChangeText={onChange}
-              />
-            )}
+            label="Ciudad"
+            placeholder="Ciudad"
           />
         </View>
 
         <View className="min-w-0 flex-1">
-          <Controller
+          <CheckoutControlledTextField
             control={control}
+            errors={errors}
+            name="department"
+            label="Departamento"
+            placeholder="Departamento o provincia"
+          />
+        </View>
+      </View>
+
+      <View className={isWide ? 'flex-row gap-3' : 'gap-3'}>
+        <View className="min-w-0 flex-1">
+          <CheckoutControlledTextField
+            control={control}
+            errors={errors}
             name="reference"
-            render={({ field: { onChange, value } }) => (
-              <CheckoutTextField
-                label="Referencia"
-                value={value}
-                placeholder="Punto de referencia"
-                error={errors.reference?.message}
-                onChangeText={onChange}
-              />
-            )}
+            label="Referencia"
+            placeholder="Punto de referencia"
           />
         </View>
       </View>

@@ -8,11 +8,9 @@ import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { SlugField } from '@/components/forms/SlugField';
 import { useManageStore } from '@/hooks/use-manage-store';
-import { useTenantStore } from '@/stores/use-tenant-store';
 
 export default function ManageStoreScreen() {
   const router = useRouter();
-  const tenant = useTenantStore((s) => s.tenant);
   const { form, profile, isLoading, logoUri, pickLogo, onSubmit, isPending } = useManageStore();
   const { control, watch, formState: { errors } } = form;
   const nameValue = watch('name');

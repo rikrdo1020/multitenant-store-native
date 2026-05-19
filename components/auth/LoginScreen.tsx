@@ -58,6 +58,8 @@ export function LoginScreen() {
     };
   }, [height, isWideLayout]);
 
+  const safeReturnPath = useMemo(() => getSafeReturnPath(returnTo), [returnTo]);
+
   const {
     control,
     handleSubmit,
@@ -77,7 +79,9 @@ export function LoginScreen() {
     try {
       setLoading(true);
       const user = await login(data.email, data.password);
-      if (user.role === "customer") {
+      if (returnTo) {
+        router.replace(safeReturnPath as never);
+      } else if (user.role === "customer") {
         router.replace("/marketplace");
       } else {
         router.replace("/(admin)/dashboard");
@@ -287,7 +291,11 @@ function getSafeReturnPath(returnTo?: string): string {
 
   try {
     const decoded = decodeURIComponent(returnTo);
-    return decoded.startsWith("/") ? decoded : "/";
+    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.includes("://")) {
+      return "/";
+    }
+
+    return decoded;
   } catch {
     return "/";
   }
