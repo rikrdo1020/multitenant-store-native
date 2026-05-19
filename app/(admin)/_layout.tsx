@@ -1,7 +1,23 @@
+import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { AdminDrawerContent } from '@/components/admin/AdminDrawerContent';
+import { useAuthStore } from '@/stores/use-auth-store';
 
 export default function AdminLayout() {
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/(auth)/login');
+    } else if (user?.role === 'superadmin') {
+      router.replace('/(superadmin)/dashboard');
+    }
+  }, [isAuthenticated, user?.role]);
+
+  if (!isAuthenticated || user?.role === 'superadmin') return null;
+
   return (
     <Drawer
       drawerContent={(props) => <AdminDrawerContent {...props} />}

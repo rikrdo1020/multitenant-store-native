@@ -52,3 +52,6 @@ ios/
 
 # Testing
 coverage/
+
+# CodeGraph
+.codegraph/
