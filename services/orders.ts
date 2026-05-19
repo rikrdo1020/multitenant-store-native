@@ -1,5 +1,5 @@
 import api from './api';
-import type { Order, ApiResponse, CreateOrderPayload } from '@/types';
+import type { Order, ApiResponse, CreateOrderPayload, AdminOrderFilters, PaginationMeta, OrderStatus } from '@/types';
 
 export const orderService = {
   createOrder: async (tenantSlug: string, data: CreateOrderPayload): Promise<Order> => {
@@ -15,6 +15,37 @@ export const orderService = {
       headers: { 'x-tenant-id': tenantSlug },
     });
 
+    return response.data.data;
+  },
+
+  getAdminOrders: async (
+    tenantSlug: string,
+    filters?: AdminOrderFilters,
+  ): Promise<{ data: Order[]; meta: PaginationMeta }> => {
+    const response = await api.get<ApiResponse<Order[]>>('/orders', {
+      params: filters,
+      headers: { 'x-tenant-id': tenantSlug },
+    });
+    return { data: response.data.data, meta: response.data.meta! };
+  },
+
+  getAdminOrder: async (tenantSlug: string, orderId: string): Promise<Order> => {
+    const response = await api.get<ApiResponse<Order>>(`/orders/${orderId}`, {
+      headers: { 'x-tenant-id': tenantSlug },
+    });
+    return response.data.data;
+  },
+
+  updateOrderStatus: async (
+    tenantSlug: string,
+    orderId: string,
+    status: OrderStatus,
+  ): Promise<Order> => {
+    const response = await api.put<ApiResponse<Order>>(
+      `/orders/${orderId}`,
+      { orderStatus: status },
+      { headers: { 'x-tenant-id': tenantSlug } },
+    );
     return response.data.data;
   },
 };
