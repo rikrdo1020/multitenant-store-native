@@ -34,6 +34,31 @@ export interface Tenant {
   provider?: string;
 }
 
+export interface TenantSettings {
+  documentId: string;
+  currency: string;
+  taxRate: number;
+  lowStockThreshold: number;
+  emailFrom?: string;
+  emailFromName?: string;
+}
+
+export interface UpdateTenantPayload {
+  name?: string;
+  slug?: string;
+  description?: string;
+  logo?: string;
+  primaryColor?: string;
+}
+
+export interface UpdateSettingsPayload {
+  currency?: string;
+  taxRate?: number;
+  lowStockThreshold?: number;
+  emailFrom?: string;
+  emailFromName?: string;
+}
+
 export interface TenantMember {
   documentId: string;
   role: TeamRole | "superadmin";
