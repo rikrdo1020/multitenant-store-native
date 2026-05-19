@@ -91,7 +91,7 @@ export const orderService = {
     status: OrderStatus,
   ): Promise<Order> => {
     const response = await api.put<ApiResponse<Order>>(
-      `/orders/${orderId}`,
+      `/orders/${orderId}/status`,
       { orderStatus: status },
       { headers: { "x-tenant-id": tenantSlug } },
     );

@@ -92,7 +92,7 @@ describe("orderService", () => {
 
   describe("updateOrderStatus", () => {
     it("GIVEN order id and new status WHEN updating SHOULD call PUT /orders/:id with status", async () => {
-      const updated = { ...mockOrder, orderStatus: "processing" as const };
+      const updated = { ...mockOrder, orderStatus: "paid" as const };
       mockedApi.put.mockResolvedValue({
         data: { success: true, data: updated },
       });
@@ -100,15 +100,15 @@ describe("orderService", () => {
       const result = await orderService.updateOrderStatus(
         TENANT,
         "ord_001",
-        "pending",
+        "paid",
       );
 
       expect(mockedApi.put).toHaveBeenCalledWith(
-        "/orders/ord_001",
-        { orderStatus: "processing" },
+        "/orders/ord_001/status",
+        { orderStatus: "paid" },
         { headers: { "x-tenant-id": TENANT } },
       );
-      expect(result.orderStatus).toBe("processing");
+      expect(result.orderStatus).toBe("paid");
     });
 
     it("GIVEN cancelled status WHEN updating SHOULD set order to cancelled", async () => {

@@ -13,6 +13,7 @@ export function createCartItem(
     selectedOptions,
     image: product.images[0],
     stock: product.stock,
+    type: product.type,
   };
 }
 

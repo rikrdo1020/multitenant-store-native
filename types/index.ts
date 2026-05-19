@@ -248,6 +248,7 @@ export interface CartItem {
   selectedOptions?: Record<string, string>;
   image?: string;
   stock: number;
+  type?: string;
 }
 
 export interface CustomerFormData {
@@ -276,6 +277,8 @@ export type OrderStatus =
   | "rejected"
   | "expired";
 
+export type OrderDisplayStatus = OrderStatus | "dispatched";
+
 export interface OrderStatusHistory {
   status: OrderStatus;
   timestamp: string;
@@ -285,7 +288,6 @@ export interface OrderStatusHistory {
 export interface Order {
   documentId: string;
   orderId: string;
-  orderStatus: OrderStatus;
   orderStatus: OrderStatus;
   items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
@@ -329,15 +331,6 @@ export interface AdminOrderFilters {
   search?: string;
   updatedAt?: string;
 }
-
-export type OrderStatus =
-  | "pending"
-  | "paid"
-  | "failed"
-  | "cancelled"
-  | "dispatched"
-  | "rejected"
-  | "expired";
 
 export interface ProductFilters {
   category?: string;

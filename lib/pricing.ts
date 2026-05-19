@@ -18,34 +18,26 @@ export function calculateCartPricing(
   let savings = 0;
 
   if (combos && combos.length > 0 && items.length > 0) {
-    const activeCombos = combos.filter((c) => c.conditions.length > 0);
+    const activeCombos = combos.filter((combo) => combo.isActive && combo.rules.length > 0);
     const comboApplications = new Map<string, number>();
 
     for (const combo of activeCombos) {
       const appCount = comboApplications.get(combo.documentId) || 0;
       if (appCount >= 5) continue;
 
-      const applicableItems = items.filter((item) =>
-        combo.conditions.some((cond) => {
-          if (cond.minQuantity && item.quantity < cond.minQuantity) return false;
-          return true;
-        })
-      );
+      const applicableItems = combo.rules.flatMap((rule) => {
+        const matchingItems = items.filter(
+          (item) => item.type === rule.productType && item.quantity >= rule.quantity,
+        );
+        return matchingItems;
+      });
 
       if (applicableItems.length > 0) {
         const applicableTotal = applicableItems.reduce(
           (sum, item) => sum + item.price * item.quantity,
           0
         );
-
-        let discount = 0;
-        if (combo.discountType === 'percentage') {
-          discount = applicableTotal * (combo.discount / 100);
-        } else {
-          discount = combo.discount;
-        }
-
-        discount = Math.min(discount, applicableTotal);
+        const discount = Math.max(0, applicableTotal - combo.price);
         savings += discount;
         comboApplications.set(combo.documentId, appCount + 1);
       }

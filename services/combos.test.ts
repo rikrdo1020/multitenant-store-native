@@ -17,11 +17,9 @@ const mockedApi = jest.mocked(api);
 const mockCombo = {
   documentId: 'combo_1',
   name: 'Combo 2x1',
-  description: 'Lleva 2 paga 1',
-  discount: 50,
-  discountType: 'percentage' as const,
-  conditions: [{ productType: 'bebida', minQuantity: 2 }],
-  products: [],
+  price: 12,
+  isActive: true,
+  rules: [{ productType: 'bebida', quantity: 2 }],
 };
 
 describe('comboService', () => {
@@ -40,18 +38,18 @@ describe('comboService', () => {
       headers: { 'x-tenant-id': 'demo-store' },
     });
     expect(result[0].name).toBe('Combo 2x1');
-    expect(result[0].discount).toBe(50);
+    expect(result[0].price).toBe(12);
   });
 
   it('GIVEN create payload WHEN creating combo SHOULD POST and return combo', async () => {
     const payload = {
       name: 'Combo Familiar',
-      discount: 20,
-      discountType: 'percentage' as const,
-      productIds: ['prod_1', 'prod_2'],
+      price: 25,
+      rules: [{ productType: 'bebida', quantity: 2 }],
+      isActive: true,
     };
     mockedApi.post.mockResolvedValue({
-      data: { success: true, data: { documentId: 'combo_2', ...payload, conditions: [], products: [] } },
+      data: { success: true, data: { documentId: 'combo_2', ...payload } },
     });
 
     const result = await comboService.createCombo('demo-store', payload);
@@ -63,9 +61,9 @@ describe('comboService', () => {
   });
 
   it('GIVEN update payload WHEN updating combo SHOULD PUT to /combos/:id', async () => {
-    const payload = { discount: 30 };
+    const payload = { price: 30 };
     mockedApi.put.mockResolvedValue({
-      data: { success: true, data: { ...mockCombo, discount: 30 } },
+      data: { success: true, data: { ...mockCombo, price: 30 } },
     });
 
     const result = await comboService.updateCombo('demo-store', 'combo_1', payload);
@@ -73,7 +71,7 @@ describe('comboService', () => {
     expect(mockedApi.put).toHaveBeenCalledWith('/combos/combo_1', payload, {
       headers: { 'x-tenant-id': 'demo-store' },
     });
-    expect(result.discount).toBe(30);
+    expect(result.price).toBe(30);
   });
 
   it('GIVEN an id WHEN deleting combo SHOULD call DELETE /combos/:id', async () => {

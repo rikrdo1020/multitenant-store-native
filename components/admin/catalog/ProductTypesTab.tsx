@@ -40,7 +40,7 @@ export function ProductTypesTab() {
           onSuccess: onDone,
           onError: (err) => {
             onDone();
-            const msg = (err as ApiError).message;
+            const msg = (err as unknown as ApiError).message;
             Toast.show({
               type: 'error',
               text1: 'No se puede eliminar',

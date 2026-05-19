@@ -21,7 +21,7 @@ import {
 } from '@/lib/order-display';
 import { cn, formatPrice } from '@/lib/utils';
 import { useAuthStore } from '@/stores/use-auth-store';
-import type { CreateOrderItemPayload, Order } from '@/types';
+import type { CreateOrderItemPayload, Order, OrderDisplayStatus } from '@/types';
 
 interface OrderDetailScreenContentProps {
   tenantSlug?: string;
@@ -151,7 +151,7 @@ function DetailHeader({ title, subtitle, onBack }: DetailHeaderProps) {
   );
 }
 
-function OrderTimeline({ status }: { status: Order['orderStatus'] }) {
+function OrderTimeline({ status }: { status: OrderDisplayStatus }) {
   const steps = getOrderTimeline(status);
 
   return (
@@ -321,7 +321,7 @@ function formatPaymentMethod(method?: string): string {
   }
 }
 
-function formatPaymentStatus(status: Order['orderStatus']): string {
+function formatPaymentStatus(status: OrderDisplayStatus): string {
   switch (status) {
     case 'paid':
     case 'dispatched':

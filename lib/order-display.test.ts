@@ -23,7 +23,7 @@ const baseOrder: Order = {
   shippingData: {
     address: { address: 'Street 1', city: 'Panama', reference: 'Floor 2' },
     method: { documentId: 'ship-1', name: 'Delivery', type: 'delivery_zone' },
-    location: { documentId: 'loc-1', label: 'Panama City' },
+    location: { documentId: 'loc-1', key: 'panama-city', label: 'Panama City' },
   },
   shippingCost: 3,
   paymentMethod: 'pending',

@@ -2,10 +2,10 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/Text';
 import { getOrderStatusDisplay } from '@/lib/order-display';
 import { cn } from '@/lib/utils';
-import type { OrderStatus } from '@/types';
+import type { OrderDisplayStatus } from '@/types';
 
 interface OrderStatusBadgeProps {
-  status: OrderStatus;
+  status: OrderDisplayStatus;
 }
 
 export function OrderStatusBadge({ status }: OrderStatusBadgeProps) {

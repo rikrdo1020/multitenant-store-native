@@ -1,4 +1,4 @@
-import type { CreateOrderItemPayload, Order, OrderStatus } from '@/types';
+import type { CreateOrderItemPayload, Order, OrderDisplayStatus } from '@/types';
 
 export interface OrderStatusDisplay {
   label: string;
@@ -20,7 +20,7 @@ export interface OrderTotals {
   total: number;
 }
 
-const STATUS_DISPLAY: Record<OrderStatus, OrderStatusDisplay> = {
+const STATUS_DISPLAY: Record<OrderDisplayStatus, OrderStatusDisplay> = {
   pending: {
     label: 'Pendiente',
     badgeClassName: 'border-amber-200 bg-amber-50',
@@ -72,12 +72,12 @@ const FALLBACK_STATUS: OrderStatusDisplay = {
   dotClassName: 'bg-neutral-500',
 };
 
-export function getOrderStatusDisplay(status?: OrderStatus): OrderStatusDisplay {
+export function getOrderStatusDisplay(status?: OrderDisplayStatus): OrderStatusDisplay {
   if (!status) return FALLBACK_STATUS;
   return STATUS_DISPLAY[status] ?? FALLBACK_STATUS;
 }
 
-export function getEffectiveOrderStatus(order: Pick<Order, 'orderStatus' | 'dispatched'>): OrderStatus {
+export function getEffectiveOrderStatus(order: Pick<Order, 'orderStatus' | 'dispatched'>): OrderDisplayStatus {
   if (order.dispatched && !['failed', 'cancelled', 'rejected', 'expired'].includes(order.orderStatus)) {
     return 'dispatched';
   }
@@ -102,7 +102,7 @@ export function getOrderTotals(order: Pick<Order, 'items' | 'shippingCost' | 'to
   };
 }
 
-export function getOrderTimeline(status: OrderStatus): OrderTimelineStep[] {
+export function getOrderTimeline(status: OrderDisplayStatus): OrderTimelineStep[] {
   if (['failed', 'cancelled', 'rejected', 'expired'].includes(status)) {
     return [
       { key: 'pending', label: 'Orden recibida', state: 'done' },
@@ -110,7 +110,7 @@ export function getOrderTimeline(status: OrderStatus): OrderTimelineStep[] {
     ];
   }
 
-  const flow: { key: OrderStatus; label: string }[] = [
+  const flow: { key: OrderDisplayStatus; label: string }[] = [
     { key: 'pending', label: 'Orden recibida' },
     { key: 'paid', label: 'Pago confirmado' },
     { key: 'dispatched', label: 'Despachada' },

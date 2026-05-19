@@ -1,13 +1,21 @@
+import type { ComponentProps, ReactNode } from "react";
 import { Tabs, useLocalSearchParams } from "expo-router";
 import { Home, Search, ShoppingCart, User } from "lucide-react-native";
 import { useCartCount } from "@/hooks/use-cart-count";
+
+type TabsWithIdProps = Omit<ComponentProps<typeof Tabs>, "id"> & {
+  id?: string;
+  children?: ReactNode;
+};
+
+const TabsWithId = Tabs as unknown as (props: TabsWithIdProps) => JSX.Element;
 
 export default function TenantLayout() {
   const { tenantSlug } = useLocalSearchParams<{ tenantSlug: string }>();
   const cartCount = useCartCount(tenantSlug);
 
   return (
-    <Tabs
+    <TabsWithId
       id="tenant"
       screenOptions={{
         headerShown: false,
@@ -51,6 +59,6 @@ export default function TenantLayout() {
       <Tabs.Screen name="checkout" options={{ href: null }} />
       <Tabs.Screen name="orders/index" options={{ href: null }} />
       <Tabs.Screen name="orders/[id]" options={{ href: null }} />
-    </Tabs>
+    </TabsWithId>
   );
 }
