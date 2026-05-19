@@ -16,13 +16,19 @@ export default function Index() {
     }
     if (user?.role === 'customer') {
       router.push('/marketplace');
+    } else if (user?.role === 'superadmin') {
+      router.push('/(superadmin)/dashboard');
     } else {
       router.push('/(admin)/dashboard');
     }
   };
 
   const authenticatedLabel =
-    user?.role === 'customer' ? 'Ir al marketplace' : 'Ir a mi tienda';
+    user?.role === 'customer'
+      ? 'Ir al marketplace'
+      : user?.role === 'superadmin'
+        ? 'Panel Superadmin'
+        : 'Ir a mi tienda';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
