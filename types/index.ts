@@ -537,3 +537,47 @@ export interface SuperadminUserFilters {
   page?: number;
   pageSize?: number;
 }
+
+// Analytics
+export interface AnalyticsOverview {
+  revenue: number;
+  orders: number;
+  avgTicket: number;
+  revenueChange: number;
+  ordersChange: number;
+  avgTicketChange: number;
+}
+
+export interface SalesPoint {
+  period: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface TopProduct {
+  productId: string;
+  name: string;
+  imageUrl: string | null;
+  units: number;
+  revenue: number;
+}
+
+export interface CustomerMetrics {
+  total: number;
+  newCustomers: number;
+  returning: number;
+  avgTicket: number;
+}
+
+export interface AnalyticsQuery {
+  from?: string;
+  to?: string;
+}
+
+export interface SalesQuery extends AnalyticsQuery {
+  groupBy?: 'day' | 'week' | 'month';
+}
+
+export interface TopProductsQuery extends AnalyticsQuery {
+  limit?: number;
+}
