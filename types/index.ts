@@ -191,7 +191,7 @@ export interface ShippingAddressData {
 export interface Order {
   documentId: string;
   orderId: string;
-  orderStatus: "pending" | "paid" | "failed" | "cancelled" | "dispatched";
+  orderStatus: OrderStatus;
   items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
   shippingData?: Record<string, unknown>;
@@ -200,9 +200,21 @@ export interface Order {
   shippingLocationId?: string;
   shippingCost?: number;
   paymentMethod?: string;
+  confirmationNumber?: string;
+  dispatched?: boolean;
   total: number;
   createdAt: string;
+  updatedAt?: string;
 }
+
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "failed"
+  | "cancelled"
+  | "dispatched"
+  | "rejected"
+  | "expired";
 
 export interface ProductFilters {
   category?: string;

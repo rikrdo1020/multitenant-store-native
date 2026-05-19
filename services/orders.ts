@@ -1,9 +1,39 @@
 import api from './api';
-import type { Order, ApiResponse, CreateOrderPayload } from '@/types';
+import type { Order, ApiResponse, CreateOrderPayload, PaginationMeta } from '@/types';
+
+export interface OrderListResult {
+  data: Order[];
+  meta?: PaginationMeta;
+}
+
+export interface OrderListParams {
+  page?: number;
+  pageSize?: number;
+}
 
 export const orderService = {
   createOrder: async (tenantSlug: string, data: CreateOrderPayload): Promise<Order> => {
     const response = await api.post<ApiResponse<Order>>('/orders', data, {
+      headers: { 'x-tenant-id': tenantSlug },
+    });
+
+    return response.data.data;
+  },
+
+  getOrders: async (tenantSlug: string, params: OrderListParams = {}): Promise<OrderListResult> => {
+    const response = await api.get<ApiResponse<Order[]>>('/orders', {
+      params,
+      headers: { 'x-tenant-id': tenantSlug },
+    });
+
+    return {
+      data: response.data.data,
+      meta: response.data.meta,
+    };
+  },
+
+  getOrderById: async (tenantSlug: string, orderId: string): Promise<Order> => {
+    const response = await api.get<ApiResponse<Order>>(`/orders/${orderId}`, {
       headers: { 'x-tenant-id': tenantSlug },
     });
 

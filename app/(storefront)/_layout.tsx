@@ -1,16 +1,9 @@
-import { Tabs } from 'expo-router';
-import { Home, Search, ShoppingCart, User } from 'lucide-react-native';
+import { Stack } from 'expo-router';
 
 export default function StorefrontLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }}>
-      <Tabs.Screen
-        name="[tenantSlug]"
-        options={{
-          title: 'Inicio',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-        }}
-      />
-    </Tabs>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="[tenantSlug]" />
+    </Stack>
   );
 }
