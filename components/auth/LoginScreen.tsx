@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,20 +8,21 @@ import {
   type TextStyle,
   type ViewStyle,
   useWindowDimensions,
-} from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
-import { loginSchema, type LoginFormData } from '@/lib/validators';
-import { cn } from '@/lib/utils';
-import { login } from '@/services/auth';
+} from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
+import { ScreenWrapper } from "@/components/shared/ScreenWrapper";
+import { Text } from "@/components/ui/Text";
+import { Button } from "@/components/ui/Button";
+import { loginSchema, type LoginFormData } from "@/lib/validators";
+import { cn } from "@/lib/utils";
+import { login } from "@/services/auth";
 
-const webTextInputFocusStyle = Platform.OS === 'web'
-  ? ({ outlineStyle: 'none' } as unknown as TextStyle)
-  : undefined;
+const webTextInputFocusStyle =
+  Platform.OS === "web"
+    ? ({ outlineStyle: "none" } as unknown as TextStyle)
+    : undefined;
 
 export function LoginScreen() {
   const router = useRouter();
@@ -37,19 +38,19 @@ export function LoginScreen() {
     const base = {
       maxWidth: 420,
       minHeight: Math.min(Math.max(height - 48, 560), 668),
-      width: '100%' as const,
+      width: "100%" as const,
     };
 
-    if (Platform.OS === 'web') {
+    if (Platform.OS === "web") {
       return {
         ...base,
-        boxShadow: '0 24px 64px rgba(17, 17, 17, 0.08)',
+        boxShadow: "0 24px 64px rgba(17, 17, 17, 0.08)",
       } as unknown as ViewStyle;
     }
 
     return {
       ...base,
-      shadowColor: '#111111',
+      shadowColor: "#111111",
       shadowOffset: { width: 0, height: 18 },
       shadowOpacity: 0.08,
       shadowRadius: 28,
@@ -66,39 +67,45 @@ export function LoginScreen() {
   });
 
   const inputBorderClass = (field: string, hasError: boolean) => {
-    if (hasError) return 'border-destructive';
-    if (focusedField === field) return 'border-foreground';
-    return 'border-border';
+    if (hasError) return "border-destructive";
+    if (focusedField === field) return "border-foreground";
+    return "border-border";
   };
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       setLoading(true);
-      await login(data.email, data.password);
-      router.replace('/');
-    } catch (error) {
-      setError('root', { message: 'Credenciales incorrectas. Intenta de nuevo.' });
+      const user = await login(data.email, data.password);
+      if (user.role === "customer") {
+        router.replace("/marketplace");
+      } else {
+        router.replace("/(admin)/dashboard");
+      }
+    } catch {
+      setError("root", {
+        message: "Credenciales incorrectas. Intenta de nuevo.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScreenWrapper scroll safeArea className={cn(isWideLayout && 'bg-muted')}>
+    <ScreenWrapper scroll safeArea className={cn(isWideLayout && "bg-muted")}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <View
           className={cn(
-            'flex-1 w-full',
-            isWideLayout && 'items-center justify-center px-5 py-6'
+            "flex-1 w-full",
+            isWideLayout && "items-center justify-center px-5 py-6",
           )}
         >
           <View
             className={cn(
-              'w-full flex-1 bg-background',
-              isWideLayout && 'flex-none border border-border'
+              "w-full flex-1 bg-background",
+              isWideLayout && "flex-none border border-border",
             )}
             style={authPanelStyle}
           >
@@ -111,7 +118,7 @@ export function LoginScreen() {
 
             <View className="px-6 pt-10 pb-8">
               <Text className="text-[52px] font-bold leading-[1] text-foreground">
-                {'Hola,\nbienvenido.'}
+                {"Hola,\nbienvenido."}
               </Text>
               <View className="flex-row items-center gap-3 mt-5">
                 <View className="w-6 h-[1.5px] bg-foreground" />
@@ -132,8 +139,8 @@ export function LoginScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <View
                       className={cn(
-                        'border-b-[1.5px] pb-2.5',
-                        inputBorderClass('email', !!errors.email)
+                        "border-b-[1.5px] pb-2.5",
+                        inputBorderClass("email", !!errors.email),
                       )}
                     >
                       <TextInput
@@ -150,7 +157,7 @@ export function LoginScreen() {
                           onBlur();
                           setFocusedField(null);
                         }}
-                        onFocus={() => setFocusedField('email')}
+                        onFocus={() => setFocusedField("email")}
                         accessibilityLabel="Correo electronico"
                       />
                     </View>
@@ -173,8 +180,8 @@ export function LoginScreen() {
                   render={({ field: { onChange, onBlur, value } }) => (
                     <View
                       className={cn(
-                        'border-b-[1.5px] pb-2.5 flex-row items-center',
-                        inputBorderClass('password', !!errors.password)
+                        "border-b-[1.5px] pb-2.5 flex-row items-center",
+                        inputBorderClass("password", !!errors.password),
                       )}
                     >
                       <TextInput
@@ -191,17 +198,21 @@ export function LoginScreen() {
                           onBlur();
                           setFocusedField(null);
                         }}
-                        onFocus={() => setFocusedField('password')}
+                        onFocus={() => setFocusedField("password")}
                         accessibilityLabel="Contrasena"
                       />
                       <Pressable
                         onPress={() => setShowPassword((previous) => !previous)}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         accessibilityRole="button"
-                        accessibilityLabel={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                        accessibilityLabel={
+                          showPassword
+                            ? "Ocultar contrasena"
+                            : "Mostrar contrasena"
+                        }
                       >
                         <Text className="text-[10px] tracking-[0.15em] text-muted-foreground font-medium">
-                          {showPassword ? 'OCULTAR' : 'MOSTRAR'}
+                          {showPassword ? "OCULTAR" : "MOSTRAR"}
                         </Text>
                       </Pressable>
                     </View>
@@ -216,7 +227,7 @@ export function LoginScreen() {
 
               <View className="flex-row justify-end -mt-2">
                 <Pressable
-                  onPress={() => router.push('/(auth)/forgot-password')}
+                  onPress={() => router.push("/(auth)/forgot-password")}
                   hitSlop={{ top: 8, bottom: 8, left: 12, right: 0 }}
                   accessibilityRole="button"
                   accessibilityLabel="Olvide mi contrasena"
@@ -229,7 +240,9 @@ export function LoginScreen() {
 
               {errors.root && (
                 <View className="border-l-2 border-destructive pl-4 py-1">
-                  <Text className="text-sm text-destructive">{errors.root.message}</Text>
+                  <Text className="text-sm text-destructive">
+                    {errors.root.message}
+                  </Text>
                 </View>
               )}
 
@@ -249,12 +262,12 @@ export function LoginScreen() {
             <View className="px-6 py-10 flex-row items-center gap-4">
               <View className="h-px flex-1 bg-border" />
               <Pressable
-                onPress={() => router.push('/(auth)/register')}
+                onPress={() => router.push("/(auth)/register")}
                 accessibilityRole="button"
                 accessibilityLabel="Registrarse"
               >
                 <Text className="text-[13px] text-muted-foreground">
-                  Sin cuenta?{' '}
+                  Sin cuenta?{" "}
                   <Text className="text-[13px] font-semibold text-foreground">
                     Registrate
                   </Text>

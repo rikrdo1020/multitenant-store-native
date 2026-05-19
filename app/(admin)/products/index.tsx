@@ -132,7 +132,7 @@ export default function AdminProductsScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="mb-3 -mx-1 min-h-10"
+          className="mb-3 -mx-1 min-h-10 flex-grow-0"
           contentContainerStyle={{ paddingHorizontal: 4, gap: 6 }}
         >
           {SORT_OPTIONS.map((opt) => (

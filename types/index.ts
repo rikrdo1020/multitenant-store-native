@@ -243,20 +243,56 @@ export interface ShippingAddressData {
   city: string;
 }
 
+export type OrderStatus = "pending" | "paid" | "cancelled" | "failed" | "rejected" | "expired";
+
+export interface OrderStatusHistory {
+  status: OrderStatus;
+  timestamp: string;
+  note?: string;
+}
+
 export interface Order {
   documentId: string;
   orderId: string;
-  orderStatus: "pending" | "paid" | "failed" | "cancelled" | "dispatched";
+  orderStatus: OrderStatus;
   items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
-  shippingData?: Record<string, unknown>;
+  shippingData?: {
+    address?: {
+      address: string;
+      city: string;
+      reference?: string;
+    };
+    method?: {
+      documentId: string;
+      name: string;
+      type: string;
+    };
+    location?: {
+      documentId: string;
+      key: string;
+      label: string;
+    };
+  };
   shippingMethod?: ShippingMethod;
   shippingMethodId?: string;
   shippingLocationId?: string;
   shippingCost?: number;
   paymentMethod?: string;
+  paymentStatus?: string;
   total: number;
   createdAt: string;
+  updatedAt?: string;
+  statusHistory?: OrderStatusHistory[];
+}
+
+export interface AdminOrderFilters {
+  status?: OrderStatus;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  pageSize?: number;
+  search?: string;
 }
 
 export interface ProductFilters {
