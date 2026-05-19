@@ -248,6 +248,7 @@ export interface CartItem {
   selectedOptions?: Record<string, string>;
   image?: string;
   stock: number;
+  type?: string;
 }
 
 export interface CustomerFormData {
@@ -268,7 +269,15 @@ export interface ShippingAddressData {
   city: string;
 }
 
-export type OrderStatus = "pending" | "paid" | "cancelled" | "failed" | "rejected" | "expired";
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "cancelled"
+  | "failed"
+  | "rejected"
+  | "expired";
+
+export type OrderDisplayStatus = OrderStatus | "dispatched";
 
 export interface OrderStatusHistory {
   status: OrderStatus;
@@ -304,6 +313,8 @@ export interface Order {
   shippingLocationId?: string;
   shippingCost?: number;
   paymentMethod?: string;
+  confirmationNumber?: string;
+  dispatched?: boolean;
   paymentStatus?: string;
   total: number;
   createdAt: string;
@@ -318,6 +329,7 @@ export interface AdminOrderFilters {
   page?: number;
   pageSize?: number;
   search?: string;
+  updatedAt?: string;
 }
 
 export interface ProductFilters {

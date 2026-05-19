@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScreenWrapper } from "@/components/shared/ScreenWrapper";
 import { Text } from "@/components/ui/Text";
 import { Button } from "@/components/ui/Button";
@@ -26,6 +26,7 @@ const webTextInputFocusStyle =
 
 export function LoginScreen() {
   const router = useRouter();
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { height, width } = useWindowDimensions();
   const isWideLayout = width >= 768;
   const [loading, setLoading] = useState(false);
@@ -279,4 +280,15 @@ export function LoginScreen() {
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
+}
+
+function getSafeReturnPath(returnTo?: string): string {
+  if (!returnTo) return "/";
+
+  try {
+    const decoded = decodeURIComponent(returnTo);
+    return decoded.startsWith("/") ? decoded : "/";
+  } catch {
+    return "/";
+  }
 }
