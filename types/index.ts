@@ -351,6 +351,40 @@ export interface PaginationMeta {
   total: number;
 }
 
+export interface Customer {
+  id: string;
+  documentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  totalOrders: number;
+  createdAt: string;
+}
+
+export interface CustomerOrder {
+  documentId: string;
+  orderId: string;
+  orderStatus: OrderStatus;
+  total: number;
+  createdAt: string;
+}
+
+export interface CustomerDetail extends Customer {
+  orders: CustomerOrder[];
+}
+
+export interface UpdateCustomerPayload {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface AdminCustomerFilters {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
