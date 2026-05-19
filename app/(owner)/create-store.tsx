@@ -1,42 +1,100 @@
-import { View } from 'react-native';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
+import { Controller } from 'react-hook-form';
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Store } from 'lucide-react-native';
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
+import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { createStoreSchema, type CreateStoreFormData } from '@/lib/validators';
-import { tenantService } from '@/services/tenant';
-import { useTenantStore } from '@/stores/use-tenant-store';
+import { Text } from '@/components/ui/Text';
+import { SlugField } from '@/components/forms/SlugField';
+import { useCreateStore } from '@/hooks/use-create-store';
 
 export default function CreateStoreScreen() {
-  const router = useRouter();
-  const setTenant = useTenantStore((s) => s.setTenant);
-  const { control, handleSubmit } = useForm<CreateStoreFormData>({
-    resolver: zodResolver(createStoreSchema),
-  });
-
-  const onSubmit = async (data: CreateStoreFormData) => {
-    try {
-      const tenant = await tenantService.createStore(data);
-      setTenant(tenant);
-      router.replace(`/(storefront)/${tenant.slug}`);
-    } catch (error) {
-      // Error handled by API interceptor
-    }
-  };
+  const { form, logoUri, pickLogo, onSubmit, isPending } = useCreateStore();
+  const { control, watch, formState: { errors } } = form;
+  const nameValue = watch('name');
 
   return (
     <ScreenWrapper>
-      <View className="flex-1 justify-center px-6 gap-6">
-        <View className="gap-2">
-          <Text variant="h1">Crear tu tienda</Text>
-          <Text variant="small">Completa los datos para comenzar a vender</Text>
+      <ScrollView
+        contentContainerClassName="px-6 py-8 gap-6"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="gap-1">
+          <Text variant="h1">Crear tienda</Text>
+          <Text variant="small" className="text-muted-foreground">
+            Configura los datos básicos de tu tienda
+          </Text>
         </View>
 
-        {/* TODO: Form fields for name, slug, description */}
-        <Button onPress={handleSubmit(onSubmit)}>Crear Tienda</Button>
-      </View>
+        {/* Logo */}
+        <View className="items-start gap-2">
+          <Text variant="small" className="font-medium text-foreground">Logo</Text>
+          <TouchableOpacity
+            onPress={pickLogo}
+            className="h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted"
+          >
+            {logoUri ? (
+              <Image source={{ uri: logoUri }} className="h-24 w-24" resizeMode="cover" />
+            ) : (
+              <Store size={32} className="text-muted-foreground" />
+            )}
+          </TouchableOpacity>
+          <Text variant="xs" className="text-muted-foreground">Toca para subir un logo</Text>
+        </View>
+
+        {/* Nombre */}
+        <Controller
+          control={control}
+          name="name"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="Nombre de la tienda"
+              placeholder="Mi Tienda"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              error={errors.name?.message}
+            />
+          )}
+        />
+
+        {/* Slug */}
+        <Controller
+          control={control}
+          name="slug"
+          render={({ field: { onChange, value } }) => (
+            <SlugField
+              value={value}
+              onChangeText={onChange}
+              nameValue={nameValue}
+              error={errors.slug?.message}
+            />
+          )}
+        />
+
+        {/* Descripción */}
+        <Controller
+          control={control}
+          name="description"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="Descripción (opcional)"
+              placeholder="Breve descripción de tu tienda"
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              multiline
+              numberOfLines={3}
+              error={errors.description?.message}
+            />
+          )}
+        />
+
+        <Button onPress={onSubmit} disabled={isPending}>
+          {isPending ? 'Creando...' : 'Crear tienda'}
+        </Button>
+      </ScrollView>
     </ScreenWrapper>
   );
 }

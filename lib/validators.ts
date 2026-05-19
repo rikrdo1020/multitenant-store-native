@@ -61,6 +61,27 @@ export const createStoreSchema = z.object({
   description: z.string().optional(),
 });
 
+export const editStoreSchema = z.object({
+  name: z.string().min(2, 'Minimo 2 caracteres').max(100, 'Maximo 100 caracteres'),
+  slug: z.string()
+    .min(3, 'Minimo 3 caracteres')
+    .max(80, 'Maximo 80 caracteres')
+    .regex(/^[a-z0-9-]+$/, 'Solo letras minusculas, numeros y guiones'),
+  description: z.string().max(500, 'Maximo 500 caracteres').optional(),
+});
+
+export const storeSettingsSchema = z.object({
+  currency: z.string().min(2, 'Requerido'),
+  taxRate: z.coerce
+    .number()
+    .min(0, 'No puede ser negativo')
+    .max(100, 'Maximo 100%'),
+  lowStockThreshold: z.coerce
+    .number()
+    .int('Debe ser entero')
+    .min(0, 'No puede ser negativo'),
+});
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
@@ -71,3 +92,5 @@ export type CustomerFormData = z.infer<typeof customerFormSchema>;
 export type ShippingAddressData = z.infer<typeof shippingAddressSchema>;
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 export type CreateStoreFormData = z.infer<typeof createStoreSchema>;
+export type EditStoreFormData = z.infer<typeof editStoreSchema>;
+export type StoreSettingsFormData = z.infer<typeof storeSettingsSchema>;

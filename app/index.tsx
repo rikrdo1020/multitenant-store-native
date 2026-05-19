@@ -1,10 +1,29 @@
-import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Link } from 'expo-router';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuthStore } from '@/stores/use-auth-store';
 
 const { width } = Dimensions.get('window');
 
 export default function Index() {
+  const router = useRouter();
+  const { isAuthenticated, user } = useAuthStore();
+
+  const handlePrimaryAction = () => {
+    if (!isAuthenticated) {
+      router.push('/(auth)/login');
+      return;
+    }
+    if (user?.role === 'customer') {
+      router.push('/marketplace');
+    } else {
+      router.push('/(admin)/dashboard');
+    }
+  };
+
+  const authenticatedLabel =
+    user?.role === 'customer' ? 'Ir al marketplace' : 'Ir a mi tienda';
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
       <View style={{ flex: 1, paddingHorizontal: 28, paddingTop: 60, paddingBottom: 40 }}>
@@ -67,22 +86,21 @@ export default function Index() {
             </TouchableOpacity>
           </Link>
 
-          <Link href="/(auth)/login" asChild>
-            <TouchableOpacity
-              activeOpacity={0.75}
-              style={{
-                borderRadius: 14,
-                paddingVertical: 18,
-                alignItems: 'center',
-                borderWidth: 1,
-                borderColor: '#2a2a2a',
-              }}
-            >
-              <Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '600', letterSpacing: 0.2 }}>
-                Iniciar sesión
-              </Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity
+            onPress={handlePrimaryAction}
+            activeOpacity={0.75}
+            style={{
+              borderRadius: 14,
+              paddingVertical: 18,
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#2a2a2a',
+            }}
+          >
+            <Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '600', letterSpacing: 0.2 }}>
+              {isAuthenticated ? authenticatedLabel : 'Iniciar sesión'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={{
@@ -92,7 +110,9 @@ export default function Index() {
           marginTop: 24,
           letterSpacing: 0.3,
         }}>
-          ¿Tienes una tienda? Inicia sesión para gestionarla.
+          {isAuthenticated
+            ? `Sesión activa: ${user?.name ?? user?.email}`
+            : '¿Tienes una tienda? Inicia sesión para gestionarla.'}
         </Text>
 
       </View>
