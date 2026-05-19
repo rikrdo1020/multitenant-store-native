@@ -23,6 +23,8 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="marketplace" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(storefront)" />
             <Stack.Screen name="(admin)" />

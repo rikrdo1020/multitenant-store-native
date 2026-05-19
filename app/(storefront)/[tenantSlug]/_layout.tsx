@@ -1,6 +1,6 @@
-import { Tabs, useLocalSearchParams } from 'expo-router';
-import { Home, Search, ShoppingCart, User } from 'lucide-react-native';
-import { useCartCount } from '@/hooks/use-cart-count';
+import { Tabs, useLocalSearchParams } from "expo-router";
+import { Home, Search, ShoppingCart, User } from "lucide-react-native";
+import { useCartCount } from "@/hooks/use-cart-count";
 
 export default function TenantLayout() {
   const { tenantSlug } = useLocalSearchParams<{ tenantSlug: string }>();
@@ -8,38 +8,41 @@ export default function TenantLayout() {
 
   return (
     <Tabs
+      id="tenant"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#171717',
-        tabBarInactiveTintColor: '#737373',
+        tabBarActiveTintColor: "#171717",
+        tabBarInactiveTintColor: "#737373",
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: "Inicio",
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="products"
         options={{
-          title: 'Catalogo',
+          title: "Catalogo",
           tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="cart"
         options={{
-          title: 'Carrito',
+          title: "Carrito",
           tabBarBadge: cartCount > 0 ? cartCount : undefined,
-          tabBarIcon: ({ color, size }) => <ShoppingCart size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <ShoppingCart size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="account"
         options={{
-          title: 'Cuenta',
+          title: "Cuenta",
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
         }}
       />

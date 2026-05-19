@@ -2,13 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldErrors } from 'react-hook-form';
-import { useCreateOrder } from '@/hooks/api/use-create-order';
 import { useShippingMethods } from '@/hooks/api/use-shipping-methods';
 import {
   getCheckoutFormErrorMessage,
   getCheckoutSubmitErrorMessage,
 } from '@/lib/checkout-feedback';
-import { buildCreateOrderPayload } from '@/lib/order';
 import { calculateCartPricing } from '@/lib/pricing';
 import {
   getSelectedShippingLocation,
@@ -20,7 +18,7 @@ import { checkoutFormSchema, type CheckoutFormData } from '@/lib/validators';
 import { useCartStore } from '@/stores/use-cart-store';
 import { useCheckoutStore } from '@/stores/use-checkout-store';
 import { useTenantStore } from '@/stores/use-tenant-store';
-import type { ApiError, CustomerFormData, Order, ShippingAddressData, ShippingMethod } from '@/types';
+import type { CustomerFormData, ShippingAddressData, ShippingMethod } from '@/types';
 
 export const EMPTY_CHECKOUT_FORM: CheckoutFormData = {
   name: '',
@@ -47,12 +45,10 @@ export function useCheckoutScreen(tenantSlug?: string) {
   const setSelectedMethod = useCheckoutStore((state) => state.setSelectedMethod);
   const setSelectedLocation = useCheckoutStore((state) => state.setSelectedLocation);
   const shippingQuery = useShippingMethods(tenantSlug);
-  const createOrderMutation = useCreateOrder(tenantSlug);
   const [isScopeReady, setIsScopeReady] = useState(false);
   const [hydratedTenant, setHydratedTenant] = useState<string | null>(null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
@@ -129,41 +125,28 @@ export function useCheckoutScreen(tenantSlug?: string) {
     }
   }, [selectedLocationId, selectedMethod, setSelectedLocation]);
 
-  const goBack = () => {
-    router.back();
-  };
-
-  const goToProducts = () => {
-    router.push(`/(storefront)/${tenantSlug}/products` as never);
-  };
-
-  const goToCart = () => {
-    router.push(`/(storefront)/${tenantSlug}/cart` as never);
-  };
+  const goBack = () =>
+    router.canGoBack()
+      ? router.back()
+      : router.replace(`/(storefront)/${tenantSlug}/cart` as never);
+  const goToProducts = () => router.push(`/(storefront)/${tenantSlug}/products` as never);
+  const goToCart = () => router.push(`/(storefront)/${tenantSlug}/cart` as never);
 
   const handleSelectMethod = (method: ShippingMethod) => {
     setSelectedMethod(method.documentId);
     setSelectionError(null);
     setSubmitError(null);
-    setCreatedOrder(null);
   };
 
   const handleSelectLocation = (locationId: string) => {
     setSelectedLocation(locationId);
     setSelectionError(null);
     setSubmitError(null);
-    setCreatedOrder(null);
   };
 
   const getShippingSelectionError = () => {
-    if (!selectedMethod) {
-      return 'Selecciona un metodo de envio.';
-    }
-
-    if (methodRequiresLocation && !selectedLocation) {
-      return 'Selecciona una zona o punto de entrega.';
-    }
-
+    if (!selectedMethod) return 'Selecciona un metodo de envio.';
+    if (methodRequiresLocation && !selectedLocation) return 'Selecciona una zona o punto de entrega.';
     return null;
   };
 
@@ -172,18 +155,16 @@ export function useCheckoutScreen(tenantSlug?: string) {
     showToast('Revisa el checkout', 'destructive', description ?? message);
   };
 
-  const handleCreateOrder = async (values: CheckoutFormData) => {
+  const handleProceedToPayment = async (values: CheckoutFormData) => {
     setSubmitError(null);
-    setCreatedOrder(null);
 
     if (items.length === 0) {
       showCheckoutError('Tu carrito esta vacio.');
       return;
     }
 
-    const orderShippingMethod = selectedMethod;
     const shippingError = getShippingSelectionError();
-    if (shippingError || !orderShippingMethod) {
+    if (shippingError || !selectedMethod) {
       const message = shippingError ?? 'Selecciona un metodo de envio.';
       setSelectionError(message);
       showCheckoutError(message);
@@ -205,22 +186,7 @@ export function useCheckoutScreen(tenantSlug?: string) {
     setCustomerData(nextCustomerData);
     setShippingAddress(nextShippingAddress);
 
-    try {
-      const order = await createOrderMutation.mutateAsync(
-        buildCreateOrderPayload({
-          items,
-          customerData: nextCustomerData,
-          shippingAddress: nextShippingAddress,
-          shippingMethod: orderShippingMethod,
-          selectedLocationId: selectedLocation?.documentId,
-        }),
-      );
-      setCreatedOrder(order);
-      showToast('Orden creada', 'success', `Orden ${order.orderId} pendiente de pago.`);
-    } catch (error) {
-      const apiError = error as ApiError;
-      showCheckoutError(apiError.message ?? 'No pudimos crear la orden. Intenta nuevamente.');
-    }
+    router.push(`/(storefront)/${tenantSlug}/checkout/payment` as never);
   };
 
   const handleInvalidSubmit = (errors: FieldErrors<CheckoutFormData>) => {
@@ -229,10 +195,7 @@ export function useCheckoutScreen(tenantSlug?: string) {
     const hasFormErrors = Object.keys(errors).length > 0;
 
     showCheckoutError(
-      getCheckoutSubmitErrorMessage({
-        hasFormErrors,
-        shippingError,
-      }),
+      getCheckoutSubmitErrorMessage({ hasFormErrors, shippingError }),
       hasFormErrors ? getCheckoutFormErrorMessage(errors) : undefined,
     );
   };
@@ -241,7 +204,7 @@ export function useCheckoutScreen(tenantSlug?: string) {
     const shippingError = getShippingSelectionError();
     if (shippingError) setSelectionError(shippingError);
 
-    void form.handleSubmit(handleCreateOrder, handleInvalidSubmit)();
+    void form.handleSubmit(handleProceedToPayment, handleInvalidSubmit)();
   };
 
   return {
@@ -251,7 +214,6 @@ export function useCheckoutScreen(tenantSlug?: string) {
     items,
     pricing,
     shippingQuery,
-    createOrderMutation,
     shippingMethods,
     selectedMethodId,
     selectedLocationId,
@@ -261,7 +223,6 @@ export function useCheckoutScreen(tenantSlug?: string) {
     methodRequiresLocation,
     selectionError,
     submitError,
-    createdOrder,
     isScopeReady,
     goBack,
     goToProducts,

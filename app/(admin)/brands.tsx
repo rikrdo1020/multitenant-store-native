@@ -1,13 +1,10 @@
-import { View } from 'react-native';
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
-import { Text } from '@/components/ui/Text';
+import { BrandsTab } from '@/components/admin/catalog/BrandsTab';
 
 export default function BrandsScreen() {
   return (
-    <ScreenWrapper>
-      <View className="p-4">
-        <Text variant="h1">Marcas</Text>
-      </View>
+    <ScreenWrapper safeArea={false}>
+      <BrandsTab />
     </ScreenWrapper>
   );
 }

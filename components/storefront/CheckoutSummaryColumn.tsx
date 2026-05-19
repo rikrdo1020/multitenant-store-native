@@ -3,7 +3,7 @@ import { Text } from '@/components/ui/Text';
 import { CartSummary } from '@/components/storefront/CartSummary';
 import { CheckoutItemSummary } from '@/components/storefront/CheckoutItemSummary';
 import { generateItemKey } from '@/lib/utils';
-import type { CartItem, Order, PricingResult, ShippingMethod } from '@/types';
+import type { CartItem, PricingResult, ShippingMethod } from '@/types';
 
 interface CheckoutSummaryColumnProps {
   items: CartItem[];
@@ -11,7 +11,6 @@ interface CheckoutSummaryColumnProps {
   currency?: string;
   selectedMethod?: ShippingMethod;
   shippingCost: number;
-  createdOrder: Order | null;
   isSubmitting: boolean;
   isShippingLoading: boolean;
   hasShippingMethods: boolean;
@@ -25,7 +24,6 @@ export function CheckoutSummaryColumn({
   currency,
   selectedMethod,
   shippingCost,
-  createdOrder,
   isSubmitting,
   isShippingLoading,
   hasShippingMethods,
@@ -52,24 +50,16 @@ export function CheckoutSummaryColumn({
         currency={currency}
         shippingCost={selectedMethod ? shippingCost : undefined}
         shippingLabel="Selecciona envio"
-        actionLabel={createdOrder ? 'Orden creada' : 'Crear orden'}
+        actionLabel="Continuar al pago"
         actionLoading={isSubmitting}
-        actionDisabled={!!createdOrder || isSubmitting || isShippingLoading || !hasShippingMethods}
+        actionDisabled={isSubmitting || isShippingLoading || !hasShippingMethods}
         actionError={submitError}
-        actionSuccess={
-          createdOrder
-            ? {
-                title: `Orden creada: ${createdOrder.orderId}`,
-                description: 'Queda pendiente de pago para el siguiente paso del flujo.',
-              }
-            : null
-        }
         onAction={onSubmit}
       />
 
       <View className="rounded-md bg-secondary px-3 py-3">
         <Text variant="xs" className="leading-5">
-          El pago se confirma en el siguiente paso del flujo. No vaciamos el carrito hasta que el pago quede confirmado.
+          El pago se confirma en el siguiente paso. No vaciamos el carrito hasta que el pago quede confirmado.
         </Text>
       </View>
     </>

@@ -8,6 +8,21 @@ export interface User {
 
 export type TeamRole = "admin" | "manager";
 
+export type PaymentProviderType = "yappy" | "cash";
+
+export interface PaymentMethod {
+  id: PaymentProviderType;
+  label: string;
+  description: string;
+}
+
+export interface CreatePaymentResult {
+  success: boolean;
+  transactionId?: string;
+  documentName?: string;
+  token?: string;
+}
+
 export interface Tenant {
   documentId: string;
   slug: string;
@@ -16,7 +31,32 @@ export interface Tenant {
   description?: string;
   primaryColor?: string;
   currency?: string;
-  provider?: "yappy";
+  provider?: string;
+}
+
+export interface TenantSettings {
+  documentId: string;
+  currency: string;
+  taxRate: number;
+  lowStockThreshold: number;
+  emailFrom?: string;
+  emailFromName?: string;
+}
+
+export interface UpdateTenantPayload {
+  name?: string;
+  slug?: string;
+  description?: string;
+  logo?: string;
+  primaryColor?: string;
+}
+
+export interface UpdateSettingsPayload {
+  currency?: string;
+  taxRate?: number;
+  lowStockThreshold?: number;
+  emailFrom?: string;
+  emailFromName?: string;
 }
 
 export interface TenantMember {
@@ -117,6 +157,7 @@ export interface Brand {
   documentId: string;
   slug: string;
   name: string;
+  logo?: string;
 }
 
 export interface Tag {
@@ -128,6 +169,7 @@ export interface Tag {
 export interface ProductType {
   documentId: string;
   name: string;
+  slug: string;
 }
 
 export interface ShippingMethod {
@@ -150,15 +192,53 @@ export interface ShippingLocation {
 export interface ComboDefinition {
   documentId: string;
   name: string;
-  conditions: ComboCondition[];
-  discount: number;
-  discountType: "percentage" | "fixed";
+  price: number;
+  isActive: boolean;
+  rules: ComboRule[];
 }
 
-export interface ComboCondition {
-  productType?: string;
-  minQuantity?: number;
+export interface ComboRule {
+  productType: string;
+  quantity: number;
 }
+
+// --- Catalog CRUD payloads ---
+
+export interface CreateCategoryPayload {
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+export type UpdateCategoryPayload = Partial<CreateCategoryPayload>;
+
+export interface CreateBrandPayload {
+  name: string;
+  logo?: string;
+}
+
+export type UpdateBrandPayload = Partial<CreateBrandPayload>;
+
+export interface CreateTagPayload {
+  name: string;
+}
+
+export type UpdateTagPayload = Partial<CreateTagPayload>;
+
+export interface CreateProductTypePayload {
+  name: string;
+}
+
+export type UpdateProductTypePayload = Partial<CreateProductTypePayload>;
+
+export interface CreateComboPayload {
+  name: string;
+  price: number;
+  rules: ComboRule[];
+  isActive?: boolean;
+}
+
+export type UpdateComboPayload = Partial<CreateComboPayload>;
 
 export interface CartItem {
   documentId: string;
@@ -188,13 +268,44 @@ export interface ShippingAddressData {
   city: string;
 }
 
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "cancelled"
+  | "failed"
+  | "rejected"
+  | "expired";
+
+export interface OrderStatusHistory {
+  status: OrderStatus;
+  timestamp: string;
+  note?: string;
+}
+
 export interface Order {
   documentId: string;
   orderId: string;
   orderStatus: OrderStatus;
+  orderStatus: OrderStatus;
   items: CreateOrderItemPayload[];
   customerData: CustomerFormData;
-  shippingData?: Record<string, unknown>;
+  shippingData?: {
+    address?: {
+      address: string;
+      city: string;
+      reference?: string;
+    };
+    method?: {
+      documentId: string;
+      name: string;
+      type: string;
+    };
+    location?: {
+      documentId: string;
+      key: string;
+      label: string;
+    };
+  };
   shippingMethod?: ShippingMethod;
   shippingMethodId?: string;
   shippingLocationId?: string;
@@ -202,8 +313,20 @@ export interface Order {
   paymentMethod?: string;
   confirmationNumber?: string;
   dispatched?: boolean;
+  paymentStatus?: string;
   total: number;
   createdAt: string;
+  updatedAt?: string;
+  statusHistory?: OrderStatusHistory[];
+}
+
+export interface AdminOrderFilters {
+  status?: OrderStatus;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  pageSize?: number;
+  search?: string;
   updatedAt?: string;
 }
 

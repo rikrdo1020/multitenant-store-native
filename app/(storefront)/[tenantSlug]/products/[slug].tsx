@@ -43,7 +43,11 @@ export default function ProductDetailScreen() {
       addDisabledReason={detail.addDisabledReason}
       onSelectOption={detail.selectOption}
       onAddToCart={detail.addToCart}
-      onBack={() => router.back()}
+      onBack={() =>
+        router.canGoBack()
+          ? router.back()
+          : router.replace(`/(storefront)/${tenantSlug}/products` as never)
+      }
       onCartPress={() => router.push(`/(storefront)/${tenantSlug}/cart` as never)}
       cartItemCount={cartItemCount}
     />
