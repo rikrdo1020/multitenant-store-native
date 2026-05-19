@@ -22,7 +22,8 @@ export default function AdminLayout() {
       <Drawer.Screen name="product-types" options={{ title: 'Combos', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="shipping-methods" options={{ title: 'Metodos de Envio' }} />
       <Drawer.Screen name="combos" options={{ title: 'Combos' }} />
-      <Drawer.Screen name="customers" options={{ title: 'Clientes' }} />
+      <Drawer.Screen name="customers/index" options={{ title: 'Clientes' }} />
+      <Drawer.Screen name="customers/[id]" options={{ title: 'Detalle del Cliente', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="settings" options={{ title: 'Configuracion' }} />
       <Drawer.Screen name="members" options={{ title: 'Miembros' }} />
     </Drawer>
