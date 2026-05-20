@@ -14,7 +14,7 @@ export default function SuperadminLayout() {
     } else if (user?.role !== "superadmin") {
       router.replace("/(admin)/dashboard");
     }
-  }, [isAuthenticated, user?.role]);
+  }, [isAuthenticated, router, user?.role]);
 
   if (!isAuthenticated || user?.role !== "superadmin") return null;
 

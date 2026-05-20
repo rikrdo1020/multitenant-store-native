@@ -117,7 +117,7 @@ export default function DashboardScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={false} onRefresh={handleRefresh} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
       >
         <View className="px-6 pt-6 pb-10 gap-6">

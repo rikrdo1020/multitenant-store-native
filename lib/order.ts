@@ -43,6 +43,7 @@ export function buildCreateOrderPayload({
       address: {
         address: shippingAddress.address,
         city: shippingAddress.city,
+        ...(shippingAddress.department ? { department: shippingAddress.department } : {}),
         ...(shippingAddress.reference ? { reference: shippingAddress.reference } : {}),
       },
       method: {

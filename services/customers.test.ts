@@ -1,22 +1,24 @@
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
-import { customerService } from './customers';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import api from './api';
+import { customerService } from './customers';
 
 jest.mock('./api', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(),
-    put: jest.fn(),
     delete: jest.fn(),
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
   },
 }));
 
 const mockedApi = jest.mocked(api);
+const TENANT = 'demo-store';
 
 const mockCustomer = {
   id: '1',
   documentId: 'cust_1',
-  name: 'Juan Pérez',
+  name: 'Juan Perez',
   email: 'juan@test.com',
   phone: '6000-0000',
   totalOrders: 3,
@@ -30,16 +32,80 @@ describe('customerService', () => {
     jest.clearAllMocks();
   });
 
+  it('GIVEN tenant slug WHEN fetching current customer SHOULD call /customers/me with tenant header', async () => {
+    mockedApi.get.mockResolvedValue({
+      data: {
+        success: true,
+        data: { documentId: 'cus_1', name: 'Buyer', email: 'buyer@example.com', phone: '6000-0000' },
+      },
+    });
+
+    const result = await customerService.getMe(TENANT);
+
+    expect(mockedApi.get).toHaveBeenCalledWith('/customers/me', {
+      headers: { 'x-tenant-id': TENANT },
+    });
+    expect(result.email).toBe('buyer@example.com');
+  });
+
+  it('GIVEN profile payload WHEN updating current customer SHOULD PUT /customers/me', async () => {
+    const payload = { name: 'Buyer Updated', phone: '6111-1111' };
+    mockedApi.put.mockResolvedValue({
+      data: {
+        success: true,
+        data: { documentId: 'cus_1', email: 'buyer@example.com', ...payload },
+      },
+    });
+
+    const result = await customerService.updateMe(TENANT, payload);
+
+    expect(mockedApi.put).toHaveBeenCalledWith('/customers/me', payload, {
+      headers: { 'x-tenant-id': TENANT },
+    });
+    expect(result.name).toBe('Buyer Updated');
+  });
+
+  it('GIVEN address payload WHEN creating address SHOULD POST current customer address endpoint', async () => {
+    const payload = {
+      name: 'Casa',
+      address: 'Street 1',
+      city: 'Panama',
+      department: 'Panama',
+      phone: '6000-0000',
+      isDefault: true,
+    };
+    mockedApi.post.mockResolvedValue({
+      data: { success: true, data: { documentId: 'addr_1', ...payload } },
+    });
+
+    const result = await customerService.createAddress(TENANT, payload);
+
+    expect(mockedApi.post).toHaveBeenCalledWith('/customers/me/addresses', payload, {
+      headers: { 'x-tenant-id': TENANT },
+    });
+    expect(result.isDefault).toBe(true);
+  });
+
+  it('GIVEN address id WHEN deleting address SHOULD DELETE current customer address endpoint', async () => {
+    mockedApi.delete.mockResolvedValue({});
+
+    await customerService.deleteAddress(TENANT, 'addr_1');
+
+    expect(mockedApi.delete).toHaveBeenCalledWith('/customers/me/addresses/addr_1', {
+      headers: { 'x-tenant-id': TENANT },
+    });
+  });
+
   it('GIVEN tenant slug WHEN fetching customers SHOULD call GET /customers with tenant header', async () => {
     mockedApi.get.mockResolvedValue({
       data: { success: true, data: [mockCustomer], meta: mockMeta },
     });
 
-    const result = await customerService.getCustomers('demo-store');
+    const result = await customerService.getCustomers(TENANT);
 
     expect(mockedApi.get).toHaveBeenCalledWith('/customers', {
       params: undefined,
-      headers: { 'x-tenant-id': 'demo-store' },
+      headers: { 'x-tenant-id': TENANT },
     });
     expect(result.data[0].documentId).toBe('cust_1');
     expect(result.meta.total).toBe(1);
@@ -50,11 +116,11 @@ describe('customerService', () => {
       data: { success: true, data: [], meta: { ...mockMeta, total: 0 } },
     });
 
-    await customerService.getCustomers('demo-store', { search: 'Juan', page: 1 });
+    await customerService.getCustomers(TENANT, { search: 'Juan', page: 1 });
 
     expect(mockedApi.get).toHaveBeenCalledWith('/customers', {
       params: { search: 'Juan', page: 1 },
-      headers: { 'x-tenant-id': 'demo-store' },
+      headers: { 'x-tenant-id': TENANT },
     });
   });
 
@@ -64,10 +130,10 @@ describe('customerService', () => {
       data: { success: true, data: detail },
     });
 
-    const result = await customerService.getCustomer('demo-store', 'cust_1');
+    const result = await customerService.getCustomer(TENANT, 'cust_1');
 
     expect(mockedApi.get).toHaveBeenCalledWith('/customers/cust_1', {
-      headers: { 'x-tenant-id': 'demo-store' },
+      headers: { 'x-tenant-id': TENANT },
     });
     expect(result.documentId).toBe('cust_1');
     expect(result.orders).toEqual([]);
@@ -79,10 +145,10 @@ describe('customerService', () => {
       data: { success: true, data: { ...mockCustomer, ...payload } },
     });
 
-    const result = await customerService.updateCustomer('demo-store', 'cust_1', payload);
+    const result = await customerService.updateCustomer(TENANT, 'cust_1', payload);
 
     expect(mockedApi.put).toHaveBeenCalledWith('/customers/cust_1', payload, {
-      headers: { 'x-tenant-id': 'demo-store' },
+      headers: { 'x-tenant-id': TENANT },
     });
     expect(result.name).toBe('Juan Updated');
   });
@@ -90,17 +156,17 @@ describe('customerService', () => {
   it('GIVEN customer id WHEN deleting customer SHOULD call DELETE /customers/:id', async () => {
     mockedApi.delete.mockResolvedValue({});
 
-    await customerService.deleteCustomer('demo-store', 'cust_1');
+    await customerService.deleteCustomer(TENANT, 'cust_1');
 
     expect(mockedApi.delete).toHaveBeenCalledWith('/customers/cust_1', {
-      headers: { 'x-tenant-id': 'demo-store' },
+      headers: { 'x-tenant-id': TENANT },
     });
   });
 
   it('GIVEN API error WHEN fetching customers SHOULD propagate the error', async () => {
     mockedApi.get.mockRejectedValue(new Error('Network error'));
 
-    await expect(customerService.getCustomers('demo-store')).rejects.toThrow('Network error');
+    await expect(customerService.getCustomers(TENANT)).rejects.toThrow('Network error');
   });
 
   it('GIVEN customer with orders WHEN fetching detail SHOULD return order history', async () => {
@@ -115,7 +181,7 @@ describe('customerService', () => {
       data: { success: true, data: { ...mockCustomer, orders: [order] } },
     });
 
-    const result = await customerService.getCustomer('demo-store', 'cust_1');
+    const result = await customerService.getCustomer(TENANT, 'cust_1');
 
     expect(result.orders).toHaveLength(1);
     expect(result.orders[0].orderId).toBe('001');

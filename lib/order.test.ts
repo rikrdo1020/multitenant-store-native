@@ -77,6 +77,7 @@ describe('order helpers', () => {
       shippingAddress: {
         address: 'Calle 1',
         city: 'Panama',
+        department: 'Panama',
         reference: 'Casa azul',
       },
       shippingMethod,
@@ -93,6 +94,7 @@ describe('order helpers', () => {
       address: {
         address: 'Calle 1',
         city: 'Panama',
+        department: 'Panama',
         reference: 'Casa azul',
       },
       method: {

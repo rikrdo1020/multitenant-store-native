@@ -45,10 +45,26 @@ export const customerFormSchema = z.object({
   notes: z.string().optional(),
 });
 
+export const customerProfileSchema = z.object({
+  name: z.string().min(3, 'Minimo 3 caracteres'),
+  phone: z.string().min(7, 'Telefono invalido'),
+  notes: z.string().optional(),
+});
+
+export const customerAddressSchema = z.object({
+  name: z.string().min(3, 'Minimo 3 caracteres'),
+  address: z.string().min(5, 'Direccion invalida'),
+  city: z.string().min(2, 'Ciudad invalida'),
+  department: z.string().min(2, 'Departamento invalido'),
+  phone: z.string().min(7, 'Telefono invalido'),
+  isDefault: z.boolean().optional(),
+});
+
 export const shippingAddressSchema = z.object({
   address: z.string().min(5, 'Direccion invalida'),
   reference: z.string().optional(),
   city: z.string().min(2, 'Ciudad invalida'),
+  department: z.string().optional(),
 });
 
 export const checkoutFormSchema = customerFormSchema.merge(shippingAddressSchema);
@@ -89,6 +105,8 @@ export type InviteMemberFormData = z.infer<typeof inviteMemberSchema>;
 export type InviteRegistrationFormData = z.infer<typeof inviteRegistrationSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type CustomerFormData = z.infer<typeof customerFormSchema>;
+export type CustomerProfileFormData = z.infer<typeof customerProfileSchema>;
+export type CustomerAddressFormData = z.infer<typeof customerAddressSchema>;
 export type ShippingAddressData = z.infer<typeof shippingAddressSchema>;
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 export type CreateStoreFormData = z.infer<typeof createStoreSchema>;

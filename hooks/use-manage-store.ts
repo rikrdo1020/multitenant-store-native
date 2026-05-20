@@ -26,16 +26,17 @@ export function useManageStore() {
     resolver: zodResolver(editStoreSchema),
     defaultValues: { name: '', slug: '', description: '' },
   });
+  const { reset } = form;
 
   useEffect(() => {
     if (profile) {
-      form.reset({
+      reset({
         name: profile.name,
         slug: profile.slug,
         description: profile.description ?? '',
       });
     }
-  }, [profile]);
+  }, [profile, reset]);
 
   const { mutateAsync: update, isPending } = useMutation({
     mutationFn: (data: EditStoreFormData & { logo?: string }) =>

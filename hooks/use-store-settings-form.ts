@@ -13,16 +13,17 @@ export function useStoreSettingsForm() {
     resolver: zodResolver(storeSettingsSchema),
     defaultValues: { currency: 'USD', taxRate: 0, lowStockThreshold: 5 },
   });
+  const { reset } = form;
 
   useEffect(() => {
     if (settings) {
-      form.reset({
+      reset({
         currency: settings.currency,
         taxRate: settings.taxRate,
         lowStockThreshold: settings.lowStockThreshold,
       });
     }
-  }, [settings]);
+  }, [settings, reset]);
 
   const onSubmit = async (data: StoreSettingsFormData) => {
     try {

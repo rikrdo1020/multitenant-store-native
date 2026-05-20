@@ -1,9 +1,7 @@
 import { View, TouchableOpacity, Image, FlatList } from 'react-native';
 import { Text } from './Text';
-import { Button } from './Button';
 import { cn } from '@/lib/utils';
 import { Plus, X } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
 
 interface ImagePickerFieldProps {
   label?: string;
