@@ -76,6 +76,7 @@ export function FilterSheet({ visible, onClose, brands, currentFilters, onApply 
                 <Pressable
                   key={opt.value ?? 'default'}
                   onPress={() => setLocal((s) => ({ ...s, sort: opt.value }))}
+                  accessibilityLabel={`Ordenar ${opt.label}`}
                   className={cn(
                     'px-4 py-3 rounded-xl border',
                     active ? 'border-foreground bg-foreground' : 'border-border bg-transparent',
@@ -105,6 +106,7 @@ export function FilterSheet({ visible, onClose, brands, currentFilters, onApply 
                     <Pressable
                       key={brand.documentId}
                       onPress={() => setLocal((s) => ({ ...s, brand: active ? undefined : brand.documentId }))}
+                      accessibilityLabel={`Marca ${brand.name}`}
                       className={cn(
                         'px-4 py-2 rounded-full border',
                         active ? 'bg-foreground border-foreground' : 'bg-transparent border-border',

@@ -48,7 +48,7 @@ export default function ProductsScreen() {
 
   const hasActiveFilters = !!(sort || selectedBrand || minPrice !== undefined || maxPrice !== undefined);
 
-  if (isLoading) return <LoadingScreen />;
+  if (!tenantSlug || isLoading) return <LoadingScreen />;
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -81,7 +81,7 @@ export default function ProductsScreen() {
               ? <List size={20} color="#0a0a0a" />
               : <LayoutGrid size={20} color="#0a0a0a" />}
           </Pressable>
-          <Pressable onPress={() => setFilterVisible(true)} hitSlop={8}>
+          <Pressable onPress={() => setFilterVisible(true)} hitSlop={8} accessibilityLabel="Abrir filtros">
             <SlidersHorizontal size={20} color={hasActiveFilters ? '#0a0a0a' : '#737373'} />
           </Pressable>
         </View>
