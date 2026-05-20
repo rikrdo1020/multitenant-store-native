@@ -393,6 +393,40 @@ export interface PaginationMeta {
   total: number;
 }
 
+export interface Customer {
+  id: string;
+  documentId: string;
+  name: string;
+  email: string;
+  phone: string;
+  totalOrders: number;
+  createdAt: string;
+}
+
+export interface CustomerOrder {
+  documentId: string;
+  orderId: string;
+  orderStatus: OrderStatus;
+  total: number;
+  createdAt: string;
+}
+
+export interface CustomerDetail extends Customer {
+  orders: CustomerOrder[];
+}
+
+export interface UpdateCustomerPayload {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface AdminCustomerFilters {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
@@ -496,4 +530,119 @@ export interface CreateOrderPayload {
   shippingCost: number;
   paymentMethod: string;
   customerId?: string;
+}
+
+// --- Superadmin ---
+
+export type TenantStatus = "active" | "suspended" | "inactive";
+
+export interface SuperadminTenantCount {
+  members: number;
+  products: number;
+  orders: number;
+  customers?: number;
+}
+
+export interface SuperadminTenantOwner {
+  documentId: string;
+  email: string;
+  name: string | null;
+}
+
+export interface SuperadminTenant {
+  documentId: string;
+  name: string;
+  slug: string;
+  status: TenantStatus;
+  createdAt: string;
+  owner: SuperadminTenantOwner;
+  _count: SuperadminTenantCount;
+  settings?: {
+    currency?: string;
+    taxRate?: number;
+  };
+}
+
+export interface SuperadminTenantDetail extends SuperadminTenant {
+  _count: SuperadminTenantCount & { customers: number };
+}
+
+export interface SuperadminUserTenantRef {
+  role: string;
+  tenant: { documentId: string; slug: string; name: string };
+}
+
+export interface SuperadminUser {
+  documentId: string;
+  email: string;
+  name: string | null;
+  isActive: boolean;
+  createdAt: string;
+  tenants: SuperadminUserTenantRef[];
+}
+
+export interface SuperadminTenantsResult {
+  data: SuperadminTenant[];
+  meta: PaginationMeta;
+}
+
+export interface SuperadminUsersResult {
+  data: SuperadminUser[];
+  meta: PaginationMeta;
+}
+
+export interface SuperadminTenantFilters {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: TenantStatus;
+}
+
+export interface SuperadminUserFilters {
+  page?: number;
+  pageSize?: number;
+}
+
+// Analytics
+export interface AnalyticsOverview {
+  revenue: number;
+  orders: number;
+  avgTicket: number;
+  revenueChange: number;
+  ordersChange: number;
+  avgTicketChange: number;
+}
+
+export interface SalesPoint {
+  period: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface TopProduct {
+  productId: string;
+  name: string;
+  imageUrl: string | null;
+  units: number;
+  revenue: number;
+}
+
+export interface CustomerMetrics {
+  total: number;
+  newCustomers: number;
+  returning: number;
+  avgTicket: number;
+}
+
+export interface AnalyticsQuery {
+  from?: string;
+  to?: string;
+}
+
+export interface SalesQuery extends AnalyticsQuery {
+  groupBy?: 'day' | 'week' | 'month';
+}
+
+export interface TopProductsQuery extends AnalyticsQuery {
+  limit?: number;
 }

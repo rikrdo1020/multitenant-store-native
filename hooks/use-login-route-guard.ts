@@ -15,6 +15,11 @@ export function useLoginRouteGuard() {
       return;
     }
 
+    if (user?.role === 'superadmin') {
+      router.replace('/(superadmin)/dashboard');
+      return;
+    }
+
     router.replace('/(admin)/dashboard');
   }, [rootNavState?.key, isAuthenticated, router, user?.role]);
 

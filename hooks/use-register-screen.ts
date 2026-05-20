@@ -28,7 +28,7 @@ export function useRegisterScreen() {
     control: form.control,
     errors: form.formState.errors,
     focusedField,
-    goBack: router.back,
+    goBack: () => router.back(),
     goToLogin: () => router.push('/(auth)/login'),
     loading,
     setFocusedField,

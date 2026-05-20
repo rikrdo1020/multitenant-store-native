@@ -29,6 +29,7 @@ export default function RootLayout() {
             <Stack.Screen name="(storefront)" />
             <Stack.Screen name="(admin)" />
             <Stack.Screen name="(owner)" />
+            <Stack.Screen name="(superadmin)" />
           </Stack>
           <AppToast />
           <StatusBar style="auto" />

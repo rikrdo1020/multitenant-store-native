@@ -30,6 +30,7 @@ export function ForgotPasswordScreen() {
     formState: { errors },
   } = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: '' },
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {

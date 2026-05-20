@@ -8,7 +8,14 @@ export function useMarketplaceScreen() {
 
   return {
     data: query.data,
-    goBack: router.back,
+    goBack: () => {
+      if (router.canGoBack()) {
+        router.back();
+        return;
+      }
+
+      router.push('/');
+    },
     goToProduct: (store: MarketplaceStore, product: MarketplaceFeaturedProduct) => {
       router.push(`/(storefront)/${store.slug}/products/${product.slug}` as never);
     },
