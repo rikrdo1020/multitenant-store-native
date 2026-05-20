@@ -27,7 +27,7 @@ export default function Marketplace() {
             Tiendas
           </Text>
         </View>
-        <TouchableOpacity onPress={() => router.back()} style={{ paddingBottom: 4 }}>
+        <TouchableOpacity onPress={() => router.canGoBack() ? router.back() : router.push('/')} style={{ paddingBottom: 4 }}>
           <Text style={{ color: '#737373', fontSize: 13 }}>← Volver</Text>
         </TouchableOpacity>
       </View>

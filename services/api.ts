@@ -20,7 +20,7 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  if (tenant) {
+  if (tenant && !config.headers["x-tenant-id"]) {
     config.headers["x-tenant-id"] = tenant.slug;
   }
 

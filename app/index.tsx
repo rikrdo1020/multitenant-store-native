@@ -78,6 +78,7 @@ export default function Index() {
         <View style={{ gap: 12 }}>
           <Link href="/marketplace" asChild>
             <TouchableOpacity
+              accessibilityRole="link"
               activeOpacity={0.85}
               style={{
                 backgroundColor: '#ffffff',

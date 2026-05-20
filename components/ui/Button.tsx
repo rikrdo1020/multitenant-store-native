@@ -39,6 +39,7 @@ export function Button({
 
   return (
     <TouchableOpacity
+      accessibilityRole="button"
       className={cn(
         'items-center justify-center rounded-md active:opacity-80',
         variants[variant],
