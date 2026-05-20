@@ -1,30 +1,7 @@
 import api from './api';
-import type { ApiResponse, PaginationMeta } from '@/types';
-
-export interface MarketplaceFeaturedProduct {
-  documentId: string;
-  name: string;
-  slug: string;
-  price: number;
-  images: string[];
-}
-
-export interface MarketplaceStore {
-  documentId: string;
-  slug: string;
-  name: string;
-  description?: string;
-  logo?: string;
-  primaryColor?: string;
-  products: MarketplaceFeaturedProduct[];
-}
+import type { ApiResponse, MarketplaceStore, MarketplaceStoresResult, PaginationMeta } from '@/types';
 
 interface MarketplaceStoresApiResponse extends ApiResponse<MarketplaceStore[]> {
-  meta: PaginationMeta;
-}
-
-export interface MarketplaceStoresResult {
-  stores: MarketplaceStore[];
   meta: PaginationMeta;
 }
 

@@ -31,7 +31,7 @@ export function CheckoutScreenContent({ tenantSlug }: CheckoutScreenContentProps
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <CheckoutHeader onBack={checkout.goToCart} onCartPress={checkout.goToCart} />
+      <CheckoutHeader onBack={checkout.goBack} onCartPress={checkout.goBack} />
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
         <View className={isWide ? 'flex-row items-start gap-5' : 'gap-5'}>

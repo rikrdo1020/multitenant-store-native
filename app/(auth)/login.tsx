@@ -1,24 +1,10 @@
-import { useEffect } from 'react';
-import { useRouter, useRootNavigationState } from 'expo-router';
 import { LoginScreen } from '@/components/auth/LoginScreen';
-import { useAuthStore } from '@/stores/use-auth-store';
+import { useLoginRouteGuard } from '@/hooks/use-login-route-guard';
 
 export default function LoginRoute() {
-  const router = useRouter();
-  const rootNavState = useRootNavigationState();
-  const { isAuthenticated, user } = useAuthStore();
+  const shouldRender = useLoginRouteGuard();
 
-  useEffect(() => {
-    if (!rootNavState?.key) return;
-    if (!isAuthenticated) return;
-    if (user?.role === 'customer') {
-      router.replace('/marketplace');
-    } else {
-      router.replace('/(admin)/dashboard');
-    }
-  }, [rootNavState?.key, isAuthenticated, router, user?.role]);
-
-  if (isAuthenticated) return null;
+  if (!shouldRender) return null;
 
   return <LoginScreen />;
 }

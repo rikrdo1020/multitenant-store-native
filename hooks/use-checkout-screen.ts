@@ -140,7 +140,6 @@ export function useCheckoutScreen(tenantSlug?: string) {
       ? router.back()
       : router.replace(`/(storefront)/${tenantSlug}/cart` as never);
   const goToProducts = () => router.push(`/(storefront)/${tenantSlug}/products` as never);
-  const goToCart = () => router.push(`/(storefront)/${tenantSlug}/cart` as never);
 
   const handleSelectMethod = (method: ShippingMethod) => {
     setSelectedMethod(method.documentId);
@@ -266,7 +265,6 @@ export function useCheckoutScreen(tenantSlug?: string) {
     isScopeReady,
     goBack,
     goToProducts,
-    goToCart,
     handleSelectMethod,
     handleSelectLocation,
     handleSelectSavedAddress,
