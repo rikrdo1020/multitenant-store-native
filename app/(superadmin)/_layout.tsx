@@ -1,22 +1,11 @@
-import { useEffect } from "react";
-import { useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { SuperadminDrawerContent } from "@/components/superadmin/SuperadminDrawerContent";
-import { useAuthStore } from "@/stores/use-auth-store";
+import { useSuperadminRouteGuard } from "@/hooks/use-superadmin-route-guard";
 
 export default function SuperadminLayout() {
-  const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const shouldRender = useSuperadminRouteGuard();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace("/(auth)/login");
-    } else if (user?.role !== "superadmin") {
-      router.replace("/(admin)/dashboard");
-    }
-  }, [isAuthenticated, router, user?.role]);
-
-  if (!isAuthenticated || user?.role !== "superadmin") return null;
+  if (!shouldRender) return null;
 
   return (
     <Drawer

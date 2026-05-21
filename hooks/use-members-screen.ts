@@ -18,12 +18,13 @@ type FormResult = Promise<string | null>;
 
 export function useMembersScreen() {
   const router = useRouter();
-  const { tenant } = useTenantStore();
-  const { user } = useAuthStore();
+  const tenant = useTenantStore((state) => state.tenant);
+  const user = useAuthStore((state) => state.user);
   const [inviteVisible, setInviteVisible] = useState(false);
   const [memberForRole, setMemberForRole] = useState<TenantMember | null>(null);
   const [memberForRemoval, setMemberForRemoval] = useState<TenantMember | null>(null);
-  const canManageMembers = user?.role === 'admin' || user?.role === 'superadmin';
+  const isSuperadmin = user?.role === 'superadmin';
+  const canManageMembers = user?.role === 'admin' || isSuperadmin;
 
   const membersQuery = useMembers(undefined, canManageMembers);
   const invitationsQuery = useMemberInvitations(undefined, canManageMembers);
@@ -85,6 +86,7 @@ export function useMembersScreen() {
   return {
     tenant,
     user,
+    isSuperadmin,
     canManageMembers,
     members: membersQuery.data ?? [],
     invitations: invitationsQuery.data ?? [],
@@ -100,7 +102,14 @@ export function useMembersScreen() {
     isInviting: inviteMember.isPending,
     isUpdatingRole: updateMemberRole.isPending,
     isRemovingMember: removeMember.isPending,
-    goToCreateStore: () => router.push('/(owner)/create-store'),
+    goToMissingTenantAction: () => {
+      if (isSuperadmin) {
+        router.push('/(superadmin)/tenants');
+        return;
+      }
+
+      router.push('/(owner)/create-store');
+    },
     refreshMembers,
     refreshInvitations,
     openInvite: () => setInviteVisible(true),

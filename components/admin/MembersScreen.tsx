@@ -22,9 +22,13 @@ export function MembersScreen() {
       <ScreenWrapper>
         <MembersStatePanel
           title="No hay tienda seleccionada"
-          description="Necesitas seleccionar o crear una tienda para gestionar miembros."
-          actionLabel="Crear tienda"
-          onAction={screen.goToCreateStore}
+          description={
+            screen.isSuperadmin
+              ? 'Selecciona un tenant desde el panel global para gestionar sus miembros.'
+              : 'Necesitas seleccionar o crear una tienda para gestionar miembros.'
+          }
+          actionLabel={screen.isSuperadmin ? 'Seleccionar tenant' : 'Crear tienda'}
+          onAction={screen.goToMissingTenantAction}
         />
       </ScreenWrapper>
     );

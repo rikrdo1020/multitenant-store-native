@@ -23,6 +23,8 @@ export function useLoginScreen() {
         router.replace(safeReturnPath as never);
       } else if (user.role === 'customer') {
         router.replace('/marketplace');
+      } else if (user.role === 'superadmin') {
+        router.replace('/(superadmin)/dashboard');
       } else {
         router.replace('/(admin)/dashboard');
       }

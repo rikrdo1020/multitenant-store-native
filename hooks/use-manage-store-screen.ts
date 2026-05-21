@@ -15,5 +15,12 @@ export function useManageStoreScreen() {
       }
     },
     goToStoreSettings: () => router.push('/(owner)/store-settings'),
+    goToStorefront: () => {
+      if (manageStore.tenant?.slug) {
+        router.push(`/(storefront)/${manageStore.tenant.slug}` as never);
+      }
+    },
   };
 }
+
+export type ManageStoreScreenViewModel = ReturnType<typeof useManageStoreScreen>;
