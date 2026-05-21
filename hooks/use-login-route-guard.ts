@@ -1,27 +1,28 @@
 import { useEffect } from 'react';
-import { useRouter, useRootNavigationState } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/stores/use-auth-store';
 
 export function useLoginRouteGuard() {
   const router = useRouter();
-  const rootNavState = useRootNavigationState();
-  const { isAuthenticated, user } = useAuthStore();
+  const userRole = useAuthStore((state) => state.user?.role);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   useEffect(() => {
-    if (!rootNavState?.key || !isAuthenticated) return;
+    if (isLoading || !isAuthenticated) return;
 
-    if (user?.role === 'customer') {
+    if (userRole === 'customer') {
       router.replace('/marketplace');
       return;
     }
 
-    if (user?.role === 'superadmin') {
+    if (userRole === 'superadmin') {
       router.replace('/(superadmin)/dashboard');
       return;
     }
 
     router.replace('/(admin)/dashboard');
-  }, [rootNavState?.key, isAuthenticated, router, user?.role]);
+  }, [isAuthenticated, isLoading, router, userRole]);
 
-  return !isAuthenticated;
+  return !isLoading && !isAuthenticated;
 }

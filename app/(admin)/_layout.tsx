@@ -1,22 +1,11 @@
-import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { AdminDrawerContent } from '@/components/admin/AdminDrawerContent';
-import { useAuthStore } from '@/stores/use-auth-store';
+import { useAdminRouteGuard } from '@/hooks/use-admin-route-guard';
 
 export default function AdminLayout() {
-  const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const shouldRender = useAdminRouteGuard();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/(auth)/login');
-    } else if (user?.role === 'superadmin') {
-      router.replace('/(superadmin)/dashboard');
-    }
-  }, [isAuthenticated, router, user?.role]);
-
-  if (!isAuthenticated || user?.role === 'superadmin') return null;
+  if (!shouldRender) return null;
 
   return (
     <Drawer
@@ -42,6 +31,7 @@ export default function AdminLayout() {
       <Drawer.Screen name="customers/[id]" options={{ title: 'Detalle del Cliente', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="settings" options={{ title: 'Configuracion' }} />
       <Drawer.Screen name="members" options={{ title: 'Miembros' }} />
+      <Drawer.Screen name="account" options={{ title: 'Mi cuenta' }} />
     </Drawer>
   );
 }

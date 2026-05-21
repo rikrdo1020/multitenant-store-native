@@ -9,10 +9,12 @@ import {
   useUpdateCustomerAddress,
   useUpdateCustomerProfile,
 } from '@/hooks/api/use-customers';
+import { canOpenTenantAdminPanel } from '@/lib/admin-navigation';
 import type { CustomerAddressFormData, CustomerProfileFormData } from '@/lib/validators';
 import { showToast } from '@/lib/toast';
 import { logout } from '@/services/auth';
 import { useAuthStore } from '@/stores/use-auth-store';
+import { useTenantStore } from '@/stores/use-tenant-store';
 import type { ApiError, CustomerAddress } from '@/types';
 
 export function useAccountScreen(tenantSlug?: string) {
@@ -21,6 +23,7 @@ export function useAccountScreen(tenantSlug?: string) {
   const isWide = width >= 900;
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const activeTenant = useTenantStore((state) => state.tenant);
   const profileQuery = useCustomerProfile(tenantSlug, isAuthenticated);
   const addressesQuery = useCustomerAddresses(tenantSlug, isAuthenticated);
   const updateProfile = useUpdateCustomerProfile(tenantSlug);
@@ -45,6 +48,10 @@ export function useAccountScreen(tenantSlug?: string) {
   const goToOrders = () => {
     if (!tenantSlug) return;
     router.push(`/(storefront)/${tenantSlug}/orders` as never);
+  };
+
+  const goToAdminPanel = () => {
+    router.push('/(admin)/dashboard' as never);
   };
 
   const goToLogin = () => {
@@ -172,7 +179,9 @@ export function useAccountScreen(tenantSlug?: string) {
     closeAddressModal: () => setAddressModalMode(null),
     closeProfileModal: () => setProfileModalVisible(false),
     cancelDeleteAddress: () => setAddressToDelete(null),
+    canOpenAdminPanel: canOpenTenantAdminPanel(user, activeTenant, tenantSlug),
     goToLogin,
+    goToAdminPanel,
     goToOrders,
     handleDeleteAddress,
     handleLogout,

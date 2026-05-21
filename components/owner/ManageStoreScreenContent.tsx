@@ -3,12 +3,15 @@ import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
 import { ManageStoreForm } from '@/components/owner/ManageStoreForm';
 import { ManageStoreHeader } from '@/components/owner/ManageStoreHeader';
 import { ManageStoreLogoField } from '@/components/owner/ManageStoreLogoField';
+import { getManageStoreScreenState } from '@/components/owner/manage-store-screen-state';
+import { ManageStoreStatePanel } from '@/components/owner/ManageStoreStatePanel';
 import { useManageStoreScreen } from '@/hooks/use-manage-store-screen';
 
 export function ManageStoreScreenContent() {
   const store = useManageStoreScreen();
+  const state = getManageStoreScreenState(store);
 
-  if (store.isLoading || !store.profile) {
+  if (state?.kind === 'loading') {
     return (
       <ScreenWrapper>
         <View className="flex-1 items-center justify-center">
@@ -18,7 +21,18 @@ export function ManageStoreScreenContent() {
     );
   }
 
-  const displayLogo = store.logoUri ?? store.profile.logo ?? null;
+  if (state?.kind === 'panel') {
+    return (
+      <ScreenWrapper>
+        <ManageStoreStatePanel {...state} />
+      </ScreenWrapper>
+    );
+  }
+
+  const profile = store.profile;
+  if (!profile) return null;
+
+  const displayLogo = store.logoUri ?? profile.logo ?? null;
 
   return (
     <ScreenWrapper>

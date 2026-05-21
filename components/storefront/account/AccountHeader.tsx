@@ -1,11 +1,20 @@
-import { View } from 'react-native';
-import { Text } from '@/components/ui/Text';
+import { StorefrontScreenHeader } from '@/components/storefront/StorefrontScreenHeader';
 
-export function AccountHeader() {
+interface AccountHeaderProps {
+  canOpenAdminPanel?: boolean;
+  onOpenAdminPanel?: () => void;
+}
+
+export function AccountHeader({
+  canOpenAdminPanel = false,
+  onOpenAdminPanel,
+}: AccountHeaderProps) {
   return (
-    <View className="gap-1">
-      <Text variant="h1">Mi cuenta</Text>
-      <Text variant="small">Gestiona tu perfil, direcciones y pedidos de esta tienda.</Text>
-    </View>
+    <StorefrontScreenHeader
+      title="Mi cuenta"
+      subtitle="Gestiona tu perfil, direcciones y pedidos de esta tienda."
+      onBack={canOpenAdminPanel ? onOpenAdminPanel : undefined}
+      backAccessibilityLabel="Volver al panel de tienda"
+    />
   );
 }

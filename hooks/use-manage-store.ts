@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
+import { useMyStores } from '@/hooks/api/use-my-stores';
 import { tenantService } from '@/services/tenant';
 import { uploadService } from '@/services/upload';
 import { useTenantStore } from '@/stores/use-tenant-store';
@@ -14,8 +15,12 @@ export function useManageStore() {
   const queryClient = useQueryClient();
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const myStoresQuery = useMyStores();
+  const canEditStore = Boolean(
+    tenant && myStoresQuery.data?.some((store) => store.documentId === tenant.documentId),
+  );
 
-  const { data: profile, isLoading } = useQuery({
+  const profileQuery = useQuery({
     queryKey: ['store-profile', tenant?.slug],
     queryFn: () => tenantService.getProfile(tenant!.slug),
     enabled: !!tenant?.slug,
@@ -29,14 +34,14 @@ export function useManageStore() {
   const { reset } = form;
 
   useEffect(() => {
-    if (profile) {
+    if (profileQuery.data) {
       reset({
-        name: profile.name,
-        slug: profile.slug,
-        description: profile.description ?? '',
+        name: profileQuery.data.name,
+        slug: profileQuery.data.slug,
+        description: profileQuery.data.description ?? '',
       });
     }
-  }, [profile, reset]);
+  }, [profileQuery.data, reset]);
 
   const { mutateAsync: update, isPending } = useMutation({
     mutationFn: (data: EditStoreFormData & { logo?: string }) =>
@@ -79,11 +84,17 @@ export function useManageStore() {
 
   return {
     form,
-    profile,
-    isLoading,
+    tenant,
+    profile: profileQuery.data,
+    isLoading: profileQuery.isLoading || myStoresQuery.isLoading,
+    isProfileError: profileQuery.isError,
+    isOwnershipError: myStoresQuery.isError,
+    canEditStore,
     logoUri,
     pickLogo,
     onSubmit: form.handleSubmit(onSubmit),
+    retryOwnership: () => void myStoresQuery.refetch(),
+    retryProfile: () => void profileQuery.refetch(),
     isPending: isPending || uploading,
   };
 }

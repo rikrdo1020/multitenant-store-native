@@ -219,6 +219,7 @@ export interface ShippingMethod {
   basePrice?: number | null;
   requiresDetails?: boolean;
   disclaimer?: string | null;
+  isActive?: boolean;
   logistics?: ShippingLocation[];
 }
 
@@ -227,6 +228,28 @@ export interface ShippingLocation {
   key: string;
   label: string;
   extraPrice?: number | null;
+}
+
+export interface ShippingLocationPayload {
+  key: string;
+  label: string;
+  extraPrice?: number;
+}
+
+export interface ShippingMethodPayload {
+  name: string;
+  type: ShippingMethod["type"];
+  basePrice?: number;
+  requiresDetails?: boolean;
+  disclaimer?: string;
+  isActive?: boolean;
+  locations?: ShippingLocationPayload[];
+}
+
+export interface ShippingCalculation {
+  methodId: string;
+  locationId: string | null;
+  cost: number;
 }
 
 export interface ComboDefinition {
