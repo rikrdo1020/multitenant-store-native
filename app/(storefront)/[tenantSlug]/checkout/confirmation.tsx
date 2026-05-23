@@ -102,6 +102,36 @@ export default function ConfirmationScreen() {
     );
   }
 
+  if (order.paymentMethod === 'cash') {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="flex-1 items-center justify-center gap-6 px-6">
+          <CheckCircle2 size={56} color="#16a34a" strokeWidth={1.5} />
+          <View className="w-full items-center gap-2 mb-4">
+            <Text variant="h1" className="text-center w-full">
+              ¡Pedido recibido!
+            </Text>
+            <Text variant="small" className="text-center text-muted-foreground w-full">
+              Tu pedido{' '}
+              <Text variant="small" className="font-semibold text-foreground">
+                {order.orderId}
+              </Text>{' '}
+              fue registrado exitosamente.
+            </Text>
+            <Text variant="small" className="text-center text-muted-foreground w-full">
+              Nos estaremos poniendo en contacto contigo para coordinar el pago en efectivo.
+            </Text>
+          </View>
+          <View className="w-full gap-3">
+            <Button size="lg" onPress={goToProducts}>
+              Volver a la tienda
+            </Button>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   // Pending: real Yappy — static screen, library sends notification to phone
   return (
     <SafeAreaView className="flex-1 bg-background">

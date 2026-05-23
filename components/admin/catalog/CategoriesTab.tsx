@@ -21,6 +21,7 @@ import {
 } from '@/hooks/api/use-catalog-categories';
 import type { Category } from '@/types';
 import { Plus, Pencil, Trash2 } from 'lucide-react-native';
+import { colors } from '@/lib/theme';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -222,7 +223,7 @@ export function CategoriesTab() {
                     onPress={() => { setEditing(item); setShowForm(false); }}
                     className="rounded-lg border border-border p-2"
                   >
-                    <Pencil size={16} className="text-foreground" />
+                    <Pencil size={16} color={colors.foreground} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setToDelete(item)}

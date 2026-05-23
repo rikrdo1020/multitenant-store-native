@@ -24,6 +24,7 @@ import {
 import { useUploadImage } from '@/hooks/api/use-upload-image';
 import type { Brand } from '@/types';
 import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react-native';
+import { colors } from '@/lib/theme';
 
 const brandSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -98,7 +99,7 @@ function BrandForm({ initial, onSubmit, onCancel, submitting }: BrandFormProps) 
           />
         ) : (
           <View className="h-16 w-16 items-center justify-center rounded-lg border border-dashed border-border bg-muted">
-            <ImageIcon size={24} className="text-muted-foreground" />
+            <ImageIcon size={24} color={colors.mutedForeground} />
           </View>
         )}
         <Button
@@ -223,7 +224,7 @@ export function BrandsTab() {
                     />
                   ) : (
                     <View className="h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                      <ImageIcon size={18} className="text-muted-foreground" />
+                      <ImageIcon size={18} color={colors.mutedForeground} />
                     </View>
                   )}
                   <Text variant="body" className="font-medium flex-1" numberOfLines={1}>{item.name}</Text>
@@ -233,7 +234,7 @@ export function BrandsTab() {
                     onPress={() => { setEditing(item); setShowForm(false); }}
                     className="rounded-lg border border-border p-2"
                   >
-                    <Pencil size={16} className="text-foreground" />
+                    <Pencil size={16} color={colors.foreground} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setToDelete(item)}

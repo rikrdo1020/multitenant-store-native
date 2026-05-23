@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { Settings, Store } from 'lucide-react-native';
+import { adminColors } from '@/lib/admin-theme';
 import { AdminSettingsAction } from '@/components/admin/settings/AdminSettingsAction';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
@@ -10,25 +11,41 @@ interface AdminSettingsStoreCardProps {
 }
 
 export function AdminSettingsStoreCard({ settings }: AdminSettingsStoreCardProps) {
+  const storeName = settings.tenant?.name ?? 'Sin tienda';
+  const storeInitial = storeName.charAt(0).toUpperCase();
+
   return (
-    <View className="gap-3 rounded-xl border border-border bg-card p-4">
-      <View className="flex-row items-center gap-3">
-        <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-          <Store size={24} className="text-primary" />
+    <View className="rounded-xl border border-border bg-card overflow-hidden">
+      {/* Store identity row */}
+      <View className="flex-row items-center gap-3 px-4 py-4">
+        <View className="h-10 w-10 items-center justify-center rounded-xl bg-foreground">
+          <Text variant="small" className="font-bold text-background">
+            {storeInitial}
+          </Text>
         </View>
         <View className="flex-1">
-          <Text variant="body" className="font-semibold text-foreground">
-            {settings.tenant?.name ?? 'Sin tienda'}
+          <Text variant="small" className="font-semibold text-foreground leading-tight">
+            {storeName}
           </Text>
-          <Text variant="small" className="text-muted-foreground">
-            {settings.tenant?.slug ?? 'No hay tienda seleccionada'}
-          </Text>
+          {settings.tenant?.slug ? (
+            <Text variant="xs" className="text-muted-foreground">
+              {settings.tenant.slug}
+            </Text>
+          ) : (
+            <Text variant="xs" className="text-muted-foreground">
+              No hay tienda seleccionada
+            </Text>
+          )}
         </View>
       </View>
+
+      {/* Actions */}
       {!settings.tenant ? (
-        <Button variant="outline" onPress={settings.goToCreateStore}>
-          Crear tienda
-        </Button>
+        <View className="border-t border-border px-4 py-3">
+          <Button variant="outline" onPress={settings.goToCreateStore}>
+            Crear tienda
+          </Button>
+        </View>
       ) : (
         <StoreActions settings={settings} />
       )}
@@ -37,8 +54,13 @@ export function AdminSettingsStoreCard({ settings }: AdminSettingsStoreCardProps
 }
 
 function StoreActions({ settings }: AdminSettingsStoreCardProps) {
+  const hasActions =
+    settings.canOpenStorefront || settings.canEditStoreProfile || settings.canEditStoreSettings;
+
+  if (!hasActions) return null;
+
   return (
-    <View className="gap-2">
+    <View className="border-t border-border px-3 py-2">
       {settings.canOpenStorefront && (
         <AdminSettingsAction icon={Store} label="Ver tienda" onPress={settings.goToStorefront} />
       )}

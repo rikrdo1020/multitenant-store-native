@@ -22,7 +22,7 @@ export default function RootLayout() {
             <Stack.Screen name="(superadmin)" />
           </Stack>
           <AppToast />
-          <StatusBar style="auto" />
+          <StatusBar style="dark" translucent={false} backgroundColor="#ffffff" />
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

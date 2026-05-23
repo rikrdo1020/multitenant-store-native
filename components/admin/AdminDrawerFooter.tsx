@@ -1,5 +1,4 @@
-import { TouchableOpacity, View } from 'react-native';
-import { LogOut } from 'lucide-react-native';
+import { View } from 'react-native';
 import { Text } from '@/components/ui/Text';
 import type { AdminDrawerViewModel } from '@/hooks/use-admin-drawer-content';
 
@@ -8,20 +7,30 @@ interface AdminDrawerFooterProps {
 }
 
 export function AdminDrawerFooter({ drawer }: AdminDrawerFooterProps) {
+  const name = drawer.user?.name ?? 'Usuario';
+  const initial = name.charAt(0).toUpperCase();
+
   return (
     <View className="border-t border-border px-4 py-3">
-      <Text variant="small" className="mb-2 text-muted-foreground">
-        {drawer.user?.name ?? 'Usuario'}
-      </Text>
-      <TouchableOpacity
-        onPress={drawer.handleLogout}
-        className="flex-row items-center gap-2 rounded-md bg-destructive/5 px-3 py-2"
-      >
-        <LogOut size={18} className="text-destructive" />
-        <Text variant="body" className="font-medium text-destructive">
-          Cerrar sesion
-        </Text>
-      </TouchableOpacity>
+      <View className="flex-row items-center gap-3">
+        {/* Avatar initial */}
+        <View className="h-8 w-8 items-center justify-center rounded-full bg-muted border border-border">
+          <Text variant="xs" className="font-semibold text-foreground">
+            {initial}
+          </Text>
+        </View>
+
+        <View className="flex-1">
+          <Text variant="small" className="font-medium text-foreground leading-tight">
+            {name}
+          </Text>
+          {drawer.user?.email ? (
+            <Text variant="xs" className="text-muted-foreground">
+              {drawer.user.email}
+            </Text>
+          ) : null}
+        </View>
+      </View>
     </View>
   );
 }
