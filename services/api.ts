@@ -14,7 +14,12 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  const token = await getSecureItem("mt:auth-token");
+  let token: string | null = null;
+  try {
+    token = await getSecureItem("mt_auth_token");
+  } catch {
+    // SecureStore unavailable (e.g. emulator keystore not initialized)
+  }
   const tenant = useTenantStore.getState().tenant;
   const headers = config.headers as RequestHeaders;
 
@@ -33,10 +38,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    const isAuthEndpoint = originalRequest.url?.includes('/auth/');
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
       try {
-        const refreshToken = await getSecureItem("mt:refresh-token");
+        const refreshToken = await getSecureItem("mt_refresh_token");
         if (!refreshToken) throw new Error("No refresh token");
 
         const response = await axios.post(`${API_URL}/auth/refresh`, {
@@ -46,8 +52,8 @@ api.interceptors.response.use(
           response.data.data;
 
         await Promise.all([
-          setSecureItem("mt:auth-token", accessToken),
-          setSecureItem("mt:refresh-token", newRefreshToken),
+          setSecureItem("mt_auth_token", accessToken),
+          setSecureItem("mt_refresh_token", newRefreshToken),
         ]);
 
         const { setAccessToken } = useAuthStore.getState();

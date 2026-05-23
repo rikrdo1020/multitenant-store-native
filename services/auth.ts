@@ -47,7 +47,7 @@ export async function register(data: {
 }
 
 export async function refreshAccessToken(): Promise<string> {
-  const refreshToken = await getSecureItem("mt:refresh-token");
+  const refreshToken = await getSecureItem("mt_refresh_token");
   if (!refreshToken) throw new Error("No refresh token");
 
   const response = await api.post<ApiResponse<{ accessToken: string }>>(
@@ -55,7 +55,7 @@ export async function refreshAccessToken(): Promise<string> {
     { refreshToken },
   );
   const { accessToken } = response.data.data;
-  await setSecureItem("mt:auth-token", accessToken);
+  await setSecureItem("mt_auth_token", accessToken);
   useAuthStore.getState().setAccessToken(accessToken);
   return accessToken;
 }
@@ -139,11 +139,11 @@ async function saveTokens(
   accessToken: string,
   refreshToken: string,
 ): Promise<void> {
-  await setSecureItem("mt:auth-token", accessToken);
-  await setSecureItem("mt:refresh-token", refreshToken);
+  await setSecureItem("mt_auth_token", accessToken);
+  await setSecureItem("mt_refresh_token", refreshToken);
 }
 
 async function clearTokens(): Promise<void> {
-  await removeSecureItem("mt:auth-token");
-  await removeSecureItem("mt:refresh-token");
+  await removeSecureItem("mt_auth_token");
+  await removeSecureItem("mt_refresh_token");
 }

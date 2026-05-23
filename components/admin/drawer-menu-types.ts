@@ -4,6 +4,7 @@ export interface DrawerMenuItem {
   label: string;
   href: string;
   icon: ComponentType<{ size?: string | number; className?: string }>;
+  badge?: number;
 }
 
 export interface DrawerMenuSection {

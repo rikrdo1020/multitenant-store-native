@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
+import { AdminSettingsAccountCard } from '@/components/admin/settings/AdminSettingsAccountCard';
 import { AdminSettingsLogoutButton } from '@/components/admin/settings/AdminSettingsLogoutButton';
 import { AdminSettingsProfileCard } from '@/components/admin/settings/AdminSettingsProfileCard';
 import { AdminSettingsStoreCard } from '@/components/admin/settings/AdminSettingsStoreCard';
@@ -15,6 +16,9 @@ export function AdminSettingsScreen() {
       <View className="flex-1 gap-5 p-4">
         <Text variant="h1">Configuracion</Text>
         <AdminSettingsProfileCard user={settings.user} />
+        {settings.canOpenStorefront && (
+          <AdminSettingsAccountCard onPress={settings.goToAccount} />
+        )}
         <AdminSettingsStoreCard settings={settings} />
         {settings.stores.length > 1 && <AdminSettingsStoreSelector settings={settings} />}
         <AdminSettingsLogoutButton onLogout={settings.handleLogout} />
