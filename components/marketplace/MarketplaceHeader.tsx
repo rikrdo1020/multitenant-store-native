@@ -21,7 +21,7 @@ export function MarketplaceHeader({ onBack }: MarketplaceHeaderProps) {
         <Text style={{ color: '#ffffff', fontSize: 28, fontWeight: '800' }}>Tiendas</Text>
       </View>
       <TouchableOpacity onPress={onBack} style={{ paddingBottom: 4 }}>
-        <Text style={{ color: '#737373', fontSize: 13 }}>{'< Volver'}</Text>
+        <Text style={{ color: '#737373', fontSize: 13 }}>{'← Volver'}</Text>
       </TouchableOpacity>
     </View>
   );
