@@ -13,14 +13,30 @@ export function AdminSettingsScreen() {
 
   return (
     <ScreenWrapper scroll>
-      <View className="flex-1 gap-5 p-4">
-        <Text variant="h1">Configuracion</Text>
-        <AdminSettingsProfileCard user={settings.user} />
+      {/* Hero profile section — full bleed, no card */}
+      <AdminSettingsProfileCard user={settings.user} />
+
+      <View className="flex-1 gap-6 px-4 pt-6 pb-8">
+        {/* Account section */}
         {settings.canOpenStorefront && (
-          <AdminSettingsAccountCard onPress={settings.goToAccount} />
+          <View className="gap-1.5">
+            <Text variant="xs" className="px-1 font-semibold uppercase tracking-widest text-muted-foreground">
+              Cuenta
+            </Text>
+            <AdminSettingsAccountCard onPress={settings.goToAccount} />
+          </View>
         )}
-        <AdminSettingsStoreCard settings={settings} />
-        {settings.stores.length > 1 && <AdminSettingsStoreSelector settings={settings} />}
+
+        {/* Store section */}
+        <View className="gap-1.5">
+          <Text variant="xs" className="px-1 font-semibold uppercase tracking-widest text-muted-foreground">
+            Tienda
+          </Text>
+          <AdminSettingsStoreCard settings={settings} />
+          {settings.stores.length > 1 && <AdminSettingsStoreSelector settings={settings} />}
+        </View>
+
+        {/* Logout — separated, at bottom */}
         <AdminSettingsLogoutButton onLogout={settings.handleLogout} />
       </View>
     </ScreenWrapper>

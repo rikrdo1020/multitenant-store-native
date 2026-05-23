@@ -1,4 +1,6 @@
 import { TouchableOpacity, View } from 'react-native';
+import { Check } from 'lucide-react-native';
+import { adminColors } from '@/lib/admin-theme';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import type { AdminSettingsViewModel } from '@/hooks/use-admin-settings-screen';
@@ -9,34 +11,55 @@ interface AdminSettingsStoreSelectorProps {
 
 export function AdminSettingsStoreSelector({ settings }: AdminSettingsStoreSelectorProps) {
   return (
-    <View className="gap-3 rounded-xl border border-border bg-card p-4">
-      <Text variant="small" className="font-semibold text-foreground">
-        Mis tiendas
-      </Text>
-      {settings.stores.map((store) => (
-        <TouchableOpacity
-          key={store.documentId}
-          onPress={() => settings.switchStore(store.documentId)}
-          className={`flex-row items-center justify-between rounded-lg px-3 py-3 ${
-            settings.tenant?.documentId === store.documentId ? 'bg-primary/10' : 'bg-muted'
-          }`}
-        >
-          <View>
-            <Text variant="small" className="font-medium text-foreground">
-              {store.name}
-            </Text>
-            <Text variant="xs" className="text-muted-foreground">
-              {store.slug}
-            </Text>
-          </View>
-          {settings.tenant?.documentId === store.documentId && (
-            <View className="h-2 w-2 rounded-full bg-primary" />
-          )}
-        </TouchableOpacity>
-      ))}
-      <Button variant="outline" onPress={settings.goToCreateStore}>
-        + Nueva tienda
-      </Button>
+    <View className="rounded-xl border border-border bg-card overflow-hidden">
+      {settings.stores.map((store, index) => {
+        const isActive = settings.tenant?.documentId === store.documentId;
+        const initial = store.name.charAt(0).toUpperCase();
+        const isLast = index === settings.stores.length - 1;
+
+        return (
+          <TouchableOpacity
+            key={store.documentId}
+            onPress={() => settings.switchStore(store.documentId)}
+            activeOpacity={0.6}
+            className={`flex-row items-center gap-3 px-4 py-3.5 ${
+              !isLast ? 'border-b border-border' : ''
+            } ${isActive ? 'bg-muted/60' : 'bg-transparent'}`}
+          >
+            {/* Store initial badge */}
+            <View
+              className={`h-8 w-8 items-center justify-center rounded-lg ${
+                isActive ? 'bg-foreground' : 'bg-muted'
+              }`}
+            >
+              <Text
+                variant="xs"
+                className={`font-bold ${isActive ? 'text-background' : 'text-foreground'}`}
+              >
+                {initial}
+              </Text>
+            </View>
+
+            <View className="flex-1">
+              <Text variant="small" className="font-medium text-foreground leading-tight">
+                {store.name}
+              </Text>
+              <Text variant="xs" className="text-muted-foreground">
+                {store.slug}
+              </Text>
+            </View>
+
+            {isActive && <Check size={16} color={adminColors.foreground} />}
+          </TouchableOpacity>
+        );
+      })}
+
+      {/* Add store row */}
+      <View className="border-t border-border px-4 py-3">
+        <Button variant="outline" onPress={settings.goToCreateStore}>
+          + Nueva tienda
+        </Button>
+      </View>
     </View>
   );
 }

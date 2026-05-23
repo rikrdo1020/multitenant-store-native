@@ -18,6 +18,10 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.multitenant.store",
+      "statusBar": {
+        "translucent": false,
+        "backgroundColor": "#ffffff"
+      },
       "intentFilters": [
         {
           "action": "VIEW",
