@@ -53,10 +53,15 @@ export const orderService = {
     return response.data.data;
   },
 
-  getOrder: async (tenantSlug: string, orderId: string): Promise<Order> => {
+  getOrder: async (
+    tenantSlug: string,
+    orderId: string,
+    viewToken: string,
+  ): Promise<Order> => {
     const response = await api.get<ApiResponse<Order>>(
       `/orders/track/${orderId}`,
       {
+        params: { token: viewToken },
         headers: { "x-tenant-id": tenantSlug },
       },
     );

@@ -90,6 +90,22 @@ describe("orderService", () => {
     });
   });
 
+  describe("getOrder", () => {
+    it("GIVEN public view token WHEN tracking order SHOULD call tokenized track endpoint", async () => {
+      mockedApi.get.mockResolvedValue({
+        data: { success: true, data: mockOrder },
+      });
+
+      const result = await orderService.getOrder(TENANT, "ORD-0001", "view-token");
+
+      expect(mockedApi.get).toHaveBeenCalledWith("/orders/track/ORD-0001", {
+        params: { token: "view-token" },
+        headers: { "x-tenant-id": TENANT },
+      });
+      expect(result.orderId).toBe("ORD-0001");
+    });
+  });
+
   describe("updateOrderStatus", () => {
     it("GIVEN order id and new status WHEN updating SHOULD call PUT /orders/:id with status", async () => {
       const updated = { ...mockOrder, orderStatus: "paid" as const };

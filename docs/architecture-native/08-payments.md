@@ -28,7 +28,7 @@ const { data } = await orderService.createOrder({
   shippingData,
   shippingMethodId,
 });
-// Returns: { order, clientSecret }
+// Returns: order with orderId + viewToken
 ```
 
 ### 2. Initialize Payment Sheet (Native)
@@ -51,7 +51,9 @@ export function PaymentScreen() {
     const { error } = await presentPaymentSheet();
     if (!error) {
       // Payment successful
-      router.push(`/${tenantSlug}/checkout/success?orderId=${order.orderId}`);
+      router.push(
+        `/${tenantSlug}/checkout/confirmation?orderId=${order.orderId}&viewToken=${order.viewToken}`
+      );
     }
   };
 }
@@ -75,7 +77,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 1. Create order → backend returns { transactionId, token, paymentUrl }
 2. Open In-App Browser (expo-web-browser) with paymentUrl
 3. User completes payment in Yappy
-4. Yappy redirects to app://checkout/success?orderId=XXX
+4. Yappy redirects to app://checkout/confirmation?orderId=XXX&viewToken=YYY
 5. App polls order status or receives deep link
 6. Close browser, show success screen
 ```
@@ -85,7 +87,7 @@ import * as WebBrowser from 'expo-web-browser';
 
 const result = await WebBrowser.openAuthSessionAsync(
   paymentUrl,
-  'multitenant://checkout/success'
+  'multitenant://checkout/confirmation'
 );
 
 if (result.type === 'success') {
@@ -119,18 +121,19 @@ Behavior:
 ## Order Success / Failure
 
 After payment completion, the app navigates to:
-- **Success**: `/(storefront)/[tenantSlug]/checkout/success?orderId=XXX`
-  - Shows order summary
-  - Clear cart
-  - Option to share order details
-- **Failure**: Shows error, option to retry
+
+- **Success**: `/(storefront)/[tenantSlug]/checkout/confirmation?orderId=XXX&viewToken=YYY`
+  - Shows order summary.
+  - Clears cart.
+  - Uses `viewToken` for the guest confirmation lookup.
+- **Failure**: Shows error, option to retry.
 
 ## Order Status Polling
 
 ```ts
 const { data: order } = useQuery({
-  queryKey: ['order', orderId],
-  queryFn: () => orderService.getOrder(orderId),
+  queryKey: ['order-confirmation', tenantSlug, orderId, viewToken],
+  queryFn: () => orderService.getOrder(tenantSlug, orderId, viewToken),
   refetchInterval: (data) =>
     data?.orderStatus === 'pending' ? 3000 : false,
 });
@@ -145,8 +148,10 @@ Polls every 3 seconds while status is `pending`.
 useEffect(() => {
   const subscription = Linking.addEventListener('url', (event) => {
     const { path, queryParams } = Linking.parse(event.url);
-    if (path === 'checkout/success') {
-      router.push(`/checkout/success?orderId=${queryParams.orderId}`);
+    if (path === 'checkout/confirmation') {
+      router.push(
+        `/checkout/confirmation?orderId=${queryParams.orderId}&viewToken=${queryParams.viewToken}`
+      );
     }
   });
   return () => subscription.remove();

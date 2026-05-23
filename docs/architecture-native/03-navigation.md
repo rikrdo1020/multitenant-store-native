@@ -140,7 +140,7 @@ Expo Router handles deep links automatically.
 |------|--------|
 | `multitenant://store/{tenantSlug}` | Store home |
 | `multitenant://store/{tenantSlug}/products/{slug}` | Product detail |
-| `multitenant://store/{tenantSlug}/checkout/success?orderId=XXX` | Order success |
+| `multitenant://store/{tenantSlug}/checkout/confirmation?orderId=XXX&viewToken=YYY` | Order confirmation |
 | `multitenant://admin/orders/{id}` | Admin order detail |
 | `https://{tenantSlug}.multitenant.app/products/{slug}` | Web product detail |
 

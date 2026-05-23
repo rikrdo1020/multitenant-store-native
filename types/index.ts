@@ -352,6 +352,7 @@ export interface OrderStatusHistory {
 export interface Order {
   documentId: string;
   orderId: string;
+  viewToken?: string;
   orderStatus: OrderStatus;
   items: CreateOrderItemPayload[];
   customerData: CustomerFormData;

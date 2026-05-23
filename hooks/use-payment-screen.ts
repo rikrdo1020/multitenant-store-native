@@ -62,7 +62,12 @@ export function usePaymentScreen(tenantSlug?: string) {
   const createOrderMutation = useCreateOrder(tenantSlug);
 
   const yappyMutation = useMutation({
-    mutationFn: (params: { orderId: string; amount: number; aliasYappy: string }) =>
+    mutationFn: (params: {
+      orderId: string;
+      viewToken: string;
+      amount: number;
+      aliasYappy: string;
+    }) =>
       paymentService.createYappyPayment(tenantSlug!, params),
   });
 
@@ -72,8 +77,13 @@ export function usePaymentScreen(tenantSlug?: string) {
     (order: Order) => {
       clearCart();
       clearCheckout();
+      const params = new URLSearchParams({
+        orderId: order.orderId,
+        ...(order.viewToken ? { viewToken: order.viewToken } : {}),
+      });
+
       router.replace(
-        `/(storefront)/${tenantSlug}/checkout/confirmation?orderId=${order.orderId}` as never,
+        `/(storefront)/${tenantSlug}/checkout/confirmation?${params.toString()}` as never,
       );
     },
     [clearCart, clearCheckout, router, tenantSlug],
@@ -122,9 +132,13 @@ export function usePaymentScreen(tenantSlug?: string) {
   const handleYappyCreatePayment = useCallback(
     async (aliasYappy: string): Promise<YappyPaymentParams> => {
       if (!pendingOrder) throw new Error("No hay orden pendiente");
+      if (!pendingOrder.viewToken) {
+        throw new Error("No hay token de confirmacion para esta orden");
+      }
 
       const result = await yappyMutation.mutateAsync({
         orderId: pendingOrder.orderId,
+        viewToken: pendingOrder.viewToken,
         amount: pendingOrder.total,
         aliasYappy,
       });
