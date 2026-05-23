@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { calculateCartPricing } from '@/lib/pricing';
+import { useCartPricing } from '@/hooks/use-cart-pricing';
 import { showToast } from '@/lib/toast';
 import { useCartStore } from '@/stores/use-cart-store';
 import { useTenantStore } from '@/stores/use-tenant-store';
@@ -33,7 +33,10 @@ export function useCartScreen(tenantSlug?: string) {
     };
   }, [setTenantScope, tenantSlug]);
 
-  const pricing = useMemo(() => calculateCartPricing(items), [items]);
+  const { pricing, isPricingLoading, pricingError, retryPricing } = useCartPricing(
+    items,
+    tenantSlug,
+  );
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -98,6 +101,9 @@ export function useCartScreen(tenantSlug?: string) {
     currency: tenant?.currency,
     items,
     pricing,
+    isPricingLoading,
+    pricingError,
+    retryPricing,
     isReady,
     isClearConfirmVisible,
     goBack,
@@ -111,3 +117,5 @@ export function useCartScreen(tenantSlug?: string) {
     handleClearCart,
   };
 }
+
+export type CartScreenViewModel = ReturnType<typeof useCartScreen>;

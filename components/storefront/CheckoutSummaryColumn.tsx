@@ -13,8 +13,11 @@ interface CheckoutSummaryColumnProps {
   shippingCost: number;
   isSubmitting: boolean;
   isShippingLoading: boolean;
+  isPricingLoading: boolean;
+  pricingError: string | null;
   hasShippingMethods: boolean;
   submitError: string | null;
+  onRetryPricing: () => void;
   onSubmit: () => void;
 }
 
@@ -26,8 +29,11 @@ export function CheckoutSummaryColumn({
   shippingCost,
   isSubmitting,
   isShippingLoading,
+  isPricingLoading,
+  pricingError,
   hasShippingMethods,
   submitError,
+  onRetryPricing,
   onSubmit,
 }: CheckoutSummaryColumnProps) {
   return (
@@ -48,11 +54,14 @@ export function CheckoutSummaryColumn({
       <CartSummary
         pricing={pricing}
         currency={currency}
+        isPricingLoading={isPricingLoading}
+        pricingError={pricingError}
+        onRetryPricing={onRetryPricing}
         shippingCost={selectedMethod ? shippingCost : undefined}
         shippingLabel="Selecciona envio"
         actionLabel="Continuar al pago"
         actionLoading={isSubmitting}
-        actionDisabled={isSubmitting || isShippingLoading || !hasShippingMethods}
+        actionDisabled={isSubmitting || isShippingLoading || isPricingLoading || !hasShippingMethods}
         actionError={submitError}
         onAction={onSubmit}
       />

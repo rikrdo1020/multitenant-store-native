@@ -9,6 +9,9 @@ interface CartTotalsColumnProps {
   estimator: CartShippingEstimatorViewModel;
   currency?: string;
   isWide: boolean;
+  isPricingLoading?: boolean;
+  pricingError?: string | null;
+  onRetryPricing?: () => void;
   onCheckout: () => void;
 }
 
@@ -17,6 +20,9 @@ export function CartTotalsColumn({
   estimator,
   currency,
   isWide,
+  isPricingLoading,
+  pricingError,
+  onRetryPricing,
   onCheckout,
 }: CartTotalsColumnProps) {
   return (
@@ -25,6 +31,9 @@ export function CartTotalsColumn({
       <CartSummary
         pricing={pricing}
         currency={currency}
+        isPricingLoading={isPricingLoading}
+        pricingError={pricingError}
+        onRetryPricing={onRetryPricing}
         shippingCost={estimator.selectedMethod ? estimator.shippingCost : undefined}
         shippingLabel="Selecciona envio"
         actionLabel={isWide ? 'Ir al checkout' : undefined}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldErrors } from 'react-hook-form';
@@ -8,8 +8,8 @@ import {
   getCheckoutFormErrorMessage,
   getCheckoutSubmitErrorMessage,
 } from '@/lib/checkout-feedback';
+import { useCartPricing } from '@/hooks/use-cart-pricing';
 import { mapSavedAddressToCheckoutValues } from '@/lib/customer-address';
-import { calculateCartPricing } from '@/lib/pricing';
 import {
   getSelectedShippingLocation,
   getShippingCost,
@@ -119,7 +119,10 @@ export function useCheckoutScreen(tenantSlug?: string) {
   const savedAddresses = addressesQuery.data ?? [];
   const selectedMethod = shippingMethods.find((method) => method.documentId === selectedMethodId);
   const selectedLocation = getSelectedShippingLocation(selectedMethod, selectedLocationId);
-  const pricing = useMemo(() => calculateCartPricing(items), [items]);
+  const { pricing, isPricingLoading, pricingError, retryPricing } = useCartPricing(
+    items,
+    tenantSlug,
+  );
   const shippingCost = selectedMethod ? getShippingCost(selectedMethod, selectedLocationId) : 0;
   const methodRequiresLocation = requiresShippingLocation(selectedMethod);
 
@@ -246,6 +249,9 @@ export function useCheckoutScreen(tenantSlug?: string) {
     currency: tenant?.currency,
     items,
     pricing,
+    isPricingLoading,
+    pricingError,
+    retryPricing,
     isShippingLoading: shippingQuery.isLoading,
     isShippingErrored: shippingQuery.isError,
     areSavedAddressesLoading: addressesQuery.isLoading,
