@@ -1,9 +1,11 @@
 import { Drawer } from 'expo-router/drawer';
 import { AdminDrawerContent } from '@/components/admin/AdminDrawerContent';
 import { useAdminRouteGuard } from '@/hooks/use-admin-route-guard';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 
 export default function AdminLayout() {
   const shouldRender = useAdminRouteGuard();
+  usePushNotifications();
 
   if (!shouldRender) return null;
 
@@ -31,6 +33,7 @@ export default function AdminLayout() {
       <Drawer.Screen name="customers/[id]" options={{ title: 'Detalle del Cliente', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="settings" options={{ title: 'Configuracion' }} />
       <Drawer.Screen name="members" options={{ title: 'Miembros' }} />
+      <Drawer.Screen name="notifications" options={{ title: 'Notificaciones' }} />
       <Drawer.Screen name="account" options={{ title: 'Mi cuenta' }} />
     </Drawer>
   );

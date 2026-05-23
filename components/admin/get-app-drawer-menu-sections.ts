@@ -1,4 +1,4 @@
-import { Store, User } from 'lucide-react-native';
+import { Store } from 'lucide-react-native';
 import { adminDrawerMenuItems } from '@/components/admin/admin-drawer-menu-items';
 import { superadminDrawerMenuItems } from '@/components/superadmin/superadmin-drawer-menu-items';
 import type { DrawerMenuItem, DrawerMenuSection } from '@/components/admin/drawer-menu-types';
@@ -44,7 +44,6 @@ function getTenantDrawerItems(tenantSlug?: string | null): readonly DrawerMenuIt
 
   return [
     { label: 'Ver tienda', href: `/(storefront)/${tenantSlug}`, icon: Store },
-    { label: 'Cuenta', href: '/(admin)/account', icon: User },
     ...adminDrawerMenuItems,
   ];
 }

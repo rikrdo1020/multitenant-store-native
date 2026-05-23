@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Settings, Store, User } from 'lucide-react-native';
+import { Settings, Store } from 'lucide-react-native';
 import { AdminSettingsAction } from '@/components/admin/settings/AdminSettingsAction';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
@@ -40,10 +40,7 @@ function StoreActions({ settings }: AdminSettingsStoreCardProps) {
   return (
     <View className="gap-2">
       {settings.canOpenStorefront && (
-        <>
-          <AdminSettingsAction icon={Store} label="Ver tienda" onPress={settings.goToStorefront} />
-          <AdminSettingsAction icon={User} label="Cuenta en tienda" onPress={settings.goToAccount} />
-        </>
+        <AdminSettingsAction icon={Store} label="Ver tienda" onPress={settings.goToStorefront} />
       )}
       {settings.canEditStoreProfile && (
         <AdminSettingsAction label="Editar perfil de tienda" onPress={settings.goToManageStore} />

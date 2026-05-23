@@ -14,7 +14,7 @@ export const uploadService = {
     const formData = new FormData();
     formData.append("file", blob, filename);
 
-    const token = await getSecureItem("mt:auth-token");
+    const token = await getSecureItem("mt_auth_token");
     const tenant = useTenantStore.getState().tenant;
 
     const url = new URL(`${API_URL}/upload/image`);

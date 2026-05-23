@@ -15,8 +15,8 @@ export const YAPPY_CDN_URL =
 export const DEFAULT_CURRENCY = "USD";
 
 export const STORAGE_KEYS = {
-  AUTH: "mt:auth",
-  TENANT: "mt:active-tenant",
-  CART: (tenantId: string) => `mt:cart:${tenantId}`,
-  CHECKOUT: (tenantId: string) => `mt:checkout:${tenantId}`,
+  AUTH: "mt_auth",
+  TENANT: "mt_active_tenant",
+  CART: (tenantId: string) => `mt_cart_${tenantId}`,
+  CHECKOUT: (tenantId: string) => `mt_checkout_${tenantId}`,
 } as const;

@@ -2,6 +2,7 @@ import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { adminDrawerMenuItems } from '@/components/admin/admin-drawer-menu-items';
 import { Text } from '@/components/ui/Text';
 import { cn } from '@/lib/utils';
+import { useUnreadCount } from '@/hooks/api/use-notifications';
 import type { DrawerMenuSection } from '@/components/admin/drawer-menu-types';
 
 interface AdminDrawerMenuProps {
@@ -15,6 +16,8 @@ export function AdminDrawerMenu({
   onNavigate,
   sections = [{ items: adminDrawerMenuItems }],
 }: AdminDrawerMenuProps) {
+  const unreadCount = useUnreadCount();
+
   return (
     <ScrollView className="flex-1 px-2 py-2">
       {sections.map((section, sectionIndex) => (
@@ -37,6 +40,8 @@ export function AdminDrawerMenu({
           {section.items.map((item) => {
             const isActive = pathname.startsWith(item.href);
             const Icon = item.icon;
+            const badgeCount =
+              item.href === '/(admin)/notifications' ? unreadCount : (item.badge ?? 0);
 
             return (
               <TouchableOpacity
@@ -56,12 +61,19 @@ export function AdminDrawerMenu({
                 <Text
                   variant="body"
                   className={cn(
-                    'ml-3 font-medium',
+                    'ml-3 flex-1 font-medium',
                     isActive ? 'text-primary' : 'text-foreground',
                   )}
                 >
                   {item.label}
                 </Text>
+                {badgeCount > 0 && (
+                  <View className="bg-primary rounded-full min-w-5 h-5 items-center justify-center px-1">
+                    <Text variant="xs" className="text-primary-foreground font-semibold">
+                      {badgeCount > 99 ? '99+' : badgeCount}
+                    </Text>
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
