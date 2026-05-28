@@ -37,6 +37,7 @@ export function useOrderConfirmationScreen({
     isUnavailable: !viewToken || orderQuery.isError || !order,
     isSuccess: !!status && SUCCESS_STATUSES.has(status),
     isFailed: !!status && FAILED_STATUSES.has(status),
+    isCashPayment: order?.paymentMethod === 'cash',
     failureMessage: status ? getFailureMessage(status) : undefined,
     goToProducts,
     goBackToPayment,

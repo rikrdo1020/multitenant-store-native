@@ -60,6 +60,18 @@ export function OrderConfirmationBody({
     );
   }
 
+  if (confirmation.isCashPayment) {
+    return (
+      <OrderConfirmationState
+        icon={CheckCircle2}
+        iconColor="#16a34a"
+        title="Pedido recibido"
+        description={<OrderConfirmationDescription orderId={order.orderId} cash />}
+        actions={[{ label: 'Volver a la tienda', onPress: confirmation.goToProducts }]}
+      />
+    );
+  }
+
   return (
     <OrderConfirmationState
       icon={Clock}

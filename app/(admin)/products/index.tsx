@@ -123,9 +123,10 @@ export default function AdminProductsScreen() {
           <Text variant="h1">Productos</Text>
           <TouchableOpacity
             onPress={() => router.push("/(admin)/products/new")}
-            className="rounded-full bg-primary p-2"
+            className="flex-row items-center gap-1.5 rounded-lg bg-primary px-3 py-2"
           >
-            <Plus size={20} className="text-primary-foreground" />
+            <Plus size={16} color="white" />
+            <Text variant="small" className="font-semibold text-primary-foreground">Nuevo</Text>
           </TouchableOpacity>
         </View>
 

@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Plus, Pencil, Trash2 } from 'lucide-react-native';
+import { colors } from '@/lib/theme';
 
 const nameSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -116,7 +117,8 @@ export function SimpleNameTab({
   const [editing, setEditing] = useState<NameItem | null>(null);
   const [toDelete, setToDelete] = useState<NameItem | null>(null);
 
-  const handleRefresh = useCallback(() => { onRefetch(); }, [onRefetch]);
+  const reloadItems = onRefetch;
+  const handleRefresh = useCallback(() => { reloadItems(); }, [reloadItems]);
 
   if (isLoading) {
     return (
@@ -188,7 +190,7 @@ export function SimpleNameTab({
                     onPress={() => { setEditing(item); setShowForm(false); }}
                     className="rounded-lg border border-border p-2"
                   >
-                    <Pencil size={16} className="text-foreground" />
+                    <Pencil size={16} color={colors.foreground} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => setToDelete(item)}

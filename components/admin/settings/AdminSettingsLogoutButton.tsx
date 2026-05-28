@@ -1,6 +1,7 @@
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { LogOut } from 'lucide-react-native';
 import { Text } from '@/components/ui/Text';
+import { adminColors } from '@/lib/admin-theme';
 
 interface AdminSettingsLogoutButtonProps {
   onLogout: () => void;
@@ -10,10 +11,13 @@ export function AdminSettingsLogoutButton({ onLogout }: AdminSettingsLogoutButto
   return (
     <TouchableOpacity
       onPress={onLogout}
-      className="flex-row items-center justify-center gap-2 rounded-xl border border-destructive bg-destructive/5 p-4"
+      activeOpacity={0.7}
+      className="flex-row items-center gap-3 rounded-xl px-4 py-3"
     >
-      <LogOut size={20} className="text-destructive" />
-      <Text variant="body" className="font-semibold text-destructive">
+      <View className="h-8 w-8 items-center justify-center rounded-lg bg-destructive/8">
+        <LogOut size={16} color={adminColors.destructive} />
+      </View>
+      <Text variant="small" className="font-medium text-destructive">
         Cerrar sesion
       </Text>
     </TouchableOpacity>

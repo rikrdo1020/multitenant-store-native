@@ -5,6 +5,7 @@ interface OrderConfirmationDescriptionProps {
   message?: string;
   success?: boolean;
   pending?: boolean;
+  cash?: boolean;
 }
 
 export function OrderConfirmationDescription({
@@ -12,6 +13,7 @@ export function OrderConfirmationDescription({
   message,
   success,
   pending,
+  cash,
 }: OrderConfirmationDescriptionProps) {
   if (success) {
     return (
@@ -26,6 +28,15 @@ export function OrderConfirmationDescription({
       <>
         Te enviamos una solicitud de pago en tu app de Yappy.{'\n'}Tu pedido es{' '}
         <OrderIdText orderId={orderId} />
+      </>
+    );
+  }
+
+  if (cash) {
+    return (
+      <>
+        Tu pedido <OrderIdText orderId={orderId} /> fue registrado exitosamente.
+        {'\n'}Nos estaremos poniendo en contacto contigo para coordinar el pago en efectivo.
       </>
     );
   }

@@ -1,4 +1,5 @@
 import {
+  Bell,
   Building2,
   Grid3X3,
   LayoutDashboard,
@@ -22,5 +23,6 @@ export const adminDrawerMenuItems = [
   { label: 'Combos', href: '/(admin)/combos', icon: Grid3X3 },
   { label: 'Clientes', href: '/(admin)/customers', icon: Users },
   { label: 'Miembros', href: '/(admin)/members', icon: Users },
+  { label: 'Notificaciones', href: '/(admin)/notifications', icon: Bell },
   { label: 'Configuracion', href: '/(admin)/settings', icon: Settings },
 ] as const satisfies readonly DrawerMenuItem[];

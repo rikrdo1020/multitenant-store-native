@@ -1,9 +1,10 @@
-import type { ComponentType } from 'react';
+import type { LucideIcon } from 'lucide-react-native';
 
 export interface DrawerMenuItem {
   label: string;
   href: string;
-  icon: ComponentType<{ size?: string | number; className?: string }>;
+  icon: LucideIcon;
+  badge?: number;
 }
 
 export interface DrawerMenuSection {

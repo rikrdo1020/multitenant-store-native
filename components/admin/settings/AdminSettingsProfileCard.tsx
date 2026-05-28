@@ -1,5 +1,4 @@
 import { View } from 'react-native';
-import { User } from 'lucide-react-native';
 import { Text } from '@/components/ui/Text';
 import type { User as UserModel } from '@/types';
 
@@ -8,24 +7,36 @@ interface AdminSettingsProfileCardProps {
 }
 
 export function AdminSettingsProfileCard({ user }: AdminSettingsProfileCardProps) {
+  const name = user?.name ?? 'Usuario';
+  const initial = name.charAt(0).toUpperCase();
+  const role = user?.role ?? null;
+
   return (
-    <View className="rounded-xl border border-border bg-card p-4">
-      <View className="flex-row items-center gap-3">
-        <View className="h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-          <User size={24} className="text-primary" />
-        </View>
-        <View className="flex-1">
-          <Text variant="body" className="font-semibold text-foreground">
-            {user?.name ?? 'Usuario'}
-          </Text>
-          <Text variant="small" className="text-muted-foreground">
-            {user?.email ?? ''}
-          </Text>
-        </View>
+    <View className="bg-foreground px-5 pt-8 pb-7">
+      {/* Large avatar */}
+      <View className="h-16 w-16 items-center justify-center rounded-2xl bg-background mb-4">
+        <Text variant="h2" className="font-bold text-foreground">
+          {initial}
+        </Text>
       </View>
-      <Text variant="xs" className="mt-2 text-muted-foreground">
-        Rol: {user?.role ?? 'N/A'}
+
+      <Text variant="h2" className="font-bold text-background leading-tight">
+        {name}
       </Text>
+
+      {user?.email ? (
+        <Text variant="small" className="mt-0.5 text-muted-foreground">
+          {user.email}
+        </Text>
+      ) : null}
+
+      {role ? (
+        <View className="mt-3 self-start rounded-md border border-border/20 bg-background/10 px-2.5 py-1">
+          <Text variant="xs" className="font-semibold uppercase tracking-wider text-background/70">
+            {role}
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

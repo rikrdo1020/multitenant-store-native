@@ -4,6 +4,7 @@ import { ProductStatusBadge } from './ProductStatusBadge';
 import { formatPrice } from '@/lib/utils';
 import type { Product } from '@/types';
 import { Pencil, Trash2 } from 'lucide-react-native';
+import { colors } from '@/lib/theme';
 
 interface ProductListItemProps {
   product: Product;
@@ -45,14 +46,14 @@ export function ProductListItem({ product, onEdit, onDelete }: ProductListItemPr
           onPress={() => onEdit(product)}
           className="rounded-md bg-primary/10 p-2"
         >
-          <Pencil size={18} className="text-primary" />
+          <Pencil size={18} color={colors.foreground} />
         </TouchableOpacity>
         <TouchableOpacity
           testID="delete-button"
           onPress={() => onDelete(product)}
           className="rounded-md bg-destructive/10 p-2"
         >
-          <Trash2 size={18} className="text-destructive" />
+          <Trash2 size={18} color={colors.destructive} />
         </TouchableOpacity>
       </View>
     </View>
