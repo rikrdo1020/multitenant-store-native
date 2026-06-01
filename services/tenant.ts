@@ -22,7 +22,7 @@ export const tenantService = {
   },
 
   createStore: async (data: { name: string; slug: string; description?: string }): Promise<Tenant> => {
-    const response = await api.post<ApiResponse<Tenant>>('/tenants', data);
+    const response = await api.post<ApiResponse<Tenant>>('/store', data);
     return response.data.data;
   },
 
