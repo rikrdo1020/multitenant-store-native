@@ -31,6 +31,7 @@ export function usePushNotifications() {
       }
 
       if (finalStatus !== "granted" || cancelled) return;
+      if (Platform.OS === "web") return;
 
       const tokenData = await Notifications.getExpoPushTokenAsync();
       const platform = Platform.OS === "ios" ? "ios" : "android";

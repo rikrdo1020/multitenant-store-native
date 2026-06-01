@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
@@ -7,12 +7,20 @@ import * as ImagePicker from 'expo-image-picker';
 import { tenantService } from '@/services/tenant';
 import { uploadService } from '@/services/upload';
 import { useTenantStore } from '@/stores/use-tenant-store';
+import { useAuthStore } from '@/stores/use-auth-store';
 import { createStoreSchema, type CreateStoreFormData } from '@/lib/validators';
 import { showToast } from '@/lib/toast';
 
 export function useCreateStore() {
   const router = useRouter();
   const setTenant = useTenantStore((s) => s.setTenant);
+  const { user, setUser } = useAuthStore();
+
+  // Creating a new store has no current tenant context — clear any stale value
+  // so the API interceptor doesn't send x-tenant-id from a previous session.
+  useEffect(() => {
+    setTenant(null);
+  }, []);
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -25,7 +33,8 @@ export function useCreateStore() {
     mutationFn: tenantService.createStore,
     onSuccess: (tenant) => {
       setTenant(tenant);
-      router.replace(`/(storefront)/${tenant.slug}`);
+      if (user) setUser({ ...user, role: 'admin' });
+      router.replace('/(owner)/onboarding-product');
     },
     onError: () => {},
   });

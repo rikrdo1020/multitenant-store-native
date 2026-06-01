@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import api from './api';
 import {
+  completeOnboarding,
   getAuthErrorMessage,
   registerInvite,
   requestPasswordReset,
@@ -123,6 +124,14 @@ describe('auth recovery service flow', () => {
       password: 'newsecure123',
     });
     expect(result.existingUser).toBe(false);
+  });
+
+  it('GIVEN authenticated user WHEN completeOnboarding called SHOULD post to complete-onboarding endpoint', async () => {
+    postMock.mockResolvedValueOnce({ data: {} });
+
+    await completeOnboarding();
+
+    expect(api.post).toHaveBeenCalledWith('/auth/complete-onboarding');
   });
 
   it('GIVEN backend reset error codes WHEN mapping messages SHOULD return actionable user text', () => {

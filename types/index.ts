@@ -4,6 +4,7 @@ export interface User {
   name: string;
   role: "superadmin" | "admin" | "manager" | "customer";
   phone?: string;
+  onboardingCompleted?: boolean;
 }
 
 export type TeamRole = "admin" | "manager";
