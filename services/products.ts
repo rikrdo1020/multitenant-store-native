@@ -43,7 +43,7 @@ export const productService = {
       ...(category ? { categoryId: category } : {}),
       ...(brand ? { brandId: brand } : {}),
     };
-    const response = await api.get<ApiResponse<Product[]>>("/products", {
+    const response = await api.get<ApiResponse<Product[]>>("/products/admin/list", {
       params,
       headers: { "x-tenant-id": tenantSlug },
     });

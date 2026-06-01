@@ -24,6 +24,8 @@ export interface CreatePaymentResult {
   token?: string;
 }
 
+export type TenantPlan = 'FREE' | 'PRO';
+
 export interface Tenant {
   documentId: string;
   slug: string;
@@ -33,6 +35,8 @@ export interface Tenant {
   primaryColor?: string;
   currency?: string;
   provider?: string;
+  plan?: TenantPlan;
+  whatsappPhone?: string;
 }
 
 export interface TenantSettings {

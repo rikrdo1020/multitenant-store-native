@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type FieldErrors } from 'react-hook-form';
+import { useTenant } from '@/hooks/api/use-tenant';
+import { useCreateOrder } from '@/hooks/api/use-create-order';
 import { useShippingMethods } from '@/hooks/api/use-shipping-methods';
 import { useCustomerAddresses, useCustomerProfile } from '@/hooks/api/use-customers';
 import {
   getCheckoutFormErrorMessage,
   getCheckoutSubmitErrorMessage,
 } from '@/lib/checkout-feedback';
+import { ADMIN_URL } from '@/lib/constants';
 import { mapSavedAddressToCheckoutValues } from '@/lib/customer-address';
+import { buildCreateOrderPayload, PENDING_PAYMENT_METHOD } from '@/lib/order';
 import { calculateCartPricing } from '@/lib/pricing';
 import {
   getSelectedShippingLocation,
@@ -16,12 +21,13 @@ import {
   requiresShippingLocation,
 } from '@/lib/shipping';
 import { showToast } from '@/lib/toast';
+import { generateWhatsAppUrl } from '@/lib/whatsapp-message';
 import { checkoutFormSchema, type CheckoutFormData } from '@/lib/validators';
 import { useAuthStore } from '@/stores/use-auth-store';
 import { useCartStore } from '@/stores/use-cart-store';
 import { useCheckoutStore } from '@/stores/use-checkout-store';
 import { useTenantStore } from '@/stores/use-tenant-store';
-import type { CustomerAddress, CustomerFormData, ShippingAddressData, ShippingMethod } from '@/types';
+import type { ApiError, CustomerAddress, CustomerFormData, ShippingAddressData, ShippingMethod } from '@/types';
 
 export const EMPTY_CHECKOUT_FORM: CheckoutFormData = {
   name: '',
@@ -36,8 +42,11 @@ export const EMPTY_CHECKOUT_FORM: CheckoutFormData = {
 
 export function useCheckoutScreen(tenantSlug?: string) {
   const router = useRouter();
-  const { tenant } = useTenantStore();
+  const { tenant: adminTenant } = useTenantStore();
+  const { data: storefrontTenant } = useTenant(tenantSlug ?? '');
+  const tenant = storefrontTenant ?? adminTenant;
   const items = useCartStore((state) => state.items);
+  const clearCart = useCartStore((state) => state.clearCart);
   const setCartTenantScope = useCartStore((state) => state.setTenantScope);
   const customerData = useCheckoutStore((state) => state.customerData);
   const shippingAddress = useCheckoutStore((state) => state.shippingAddress);
@@ -49,14 +58,18 @@ export function useCheckoutScreen(tenantSlug?: string) {
   const setShippingAddress = useCheckoutStore((state) => state.setShippingAddress);
   const setSelectedMethod = useCheckoutStore((state) => state.setSelectedMethod);
   const setSelectedLocation = useCheckoutStore((state) => state.setSelectedLocation);
+  const clearCheckout = useCheckoutStore((state) => state.clearCheckout);
   const shippingQuery = useShippingMethods(tenantSlug);
   const profileQuery = useCustomerProfile(tenantSlug, isAuthenticated);
   const addressesQuery = useCustomerAddresses(tenantSlug, isAuthenticated);
+  const createOrderMutation = useCreateOrder(tenantSlug);
   const [isScopeReady, setIsScopeReady] = useState(false);
   const [hydratedTenant, setHydratedTenant] = useState<string | null>(null);
   const [selectedSavedAddressId, setSelectedSavedAddressId] = useState<string | null>(null);
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const isFreePlan = tenant?.plan !== 'PRO';
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
@@ -219,7 +232,64 @@ export function useCheckoutScreen(tenantSlug?: string) {
     setCustomerData(nextCustomerData);
     setShippingAddress(nextShippingAddress);
 
+    if (isFreePlan) {
+      await handleWhatsAppCheckout(nextCustomerData, nextShippingAddress, selectedMethod);
+      return;
+    }
+
     router.push(`/(storefront)/${tenantSlug}/checkout/payment` as never);
+  };
+
+  const handleWhatsAppCheckout = async (
+    nextCustomerData: CustomerFormData,
+    nextShippingAddress: ShippingAddressData,
+    shippingMethod: ShippingMethod,
+  ) => {
+    if (!tenant?.whatsappPhone) {
+      showCheckoutError(
+        'Sin número de WhatsApp configurado.',
+        'El vendedor no ha configurado su número de WhatsApp. Contacta al administrador.',
+      );
+      return;
+    }
+
+    try {
+      const order = await createOrderMutation.mutateAsync(
+        buildCreateOrderPayload({
+          items,
+          customerData: nextCustomerData,
+          shippingAddress: nextShippingAddress,
+          shippingMethod,
+          selectedLocationId,
+          paymentMethod: PENDING_PAYMENT_METHOD,
+        }),
+      );
+
+      const deliveryType = shippingMethod.type === 'pickup_point' ? 'pickup' : 'delivery';
+      const waUrl = generateWhatsAppUrl({
+        storeName: tenant.name,
+        whatsappPhone: tenant.whatsappPhone,
+        orderId: order.orderId,
+        customerName: nextCustomerData.name,
+        deliveryType,
+        items,
+        total: order.total,
+        currency: tenant.currency ?? '$',
+        adminUrl: ADMIN_URL || undefined,
+      });
+
+      clearCart();
+      clearCheckout();
+      await Linking.openURL(waUrl);
+
+      router.replace(
+        `/(storefront)/${tenantSlug}/checkout/whatsapp-sent?orderId=${order.orderId}` as never,
+      );
+    } catch (error) {
+      const apiError = error as ApiError;
+      const message = apiError.message ?? 'No pudimos procesar el pedido. Intenta nuevamente.';
+      showCheckoutError(message);
+    }
   };
 
   const handleInvalidSubmit = (errors: FieldErrors<CheckoutFormData>) => {
@@ -239,6 +309,8 @@ export function useCheckoutScreen(tenantSlug?: string) {
 
     void form.handleSubmit(handleProceedToPayment, handleInvalidSubmit)();
   };
+
+  const isSubmitting = createOrderMutation.isPending;
 
   return {
     control: form.control,
@@ -263,6 +335,8 @@ export function useCheckoutScreen(tenantSlug?: string) {
     selectionError,
     submitError,
     isScopeReady,
+    isFreePlan,
+    isSubmitting,
     goBack,
     goToProducts,
     handleSelectMethod,
