@@ -99,6 +99,16 @@ export const onboardingShippingSchema = z.object({
   basePrice: z.coerce.number({ invalid_type_error: 'Ingresa un precio' }).min(0, 'No puede ser negativo'),
 });
 
+// Panama mobile numbers: 6xxx-xxxx or 6xxxxxxx
+const panamanianPhone = z
+  .string()
+  .regex(/^6\d{3}-?\d{4}$/, 'Número panameño inválido (ej: 6000-0000)');
+
+export const yappySettingsSchema = z.object({
+  yappyPhone: panamanianPhone,
+  yappyName: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
+});
+
 export const storeSettingsSchema = z.object({
   currency: z.string().min(2, 'Requerido'),
   taxRate: z.coerce
@@ -127,3 +137,4 @@ export type EditStoreFormData = z.infer<typeof editStoreSchema>;
 export type StoreSettingsFormData = z.infer<typeof storeSettingsSchema>;
 export type OnboardingProductFormData = z.infer<typeof onboardingProductSchema>;
 export type OnboardingShippingFormData = z.infer<typeof onboardingShippingSchema>;
+export type YappySettingsFormData = z.infer<typeof yappySettingsSchema>;

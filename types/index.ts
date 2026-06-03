@@ -37,6 +37,8 @@ export interface Tenant {
   provider?: string;
   plan?: TenantPlan;
   whatsappPhone?: string;
+  yappyPhone?: string;
+  yappyName?: string;
 }
 
 export interface TenantSettings {
@@ -54,6 +56,8 @@ export interface UpdateTenantPayload {
   description?: string;
   logo?: string;
   primaryColor?: string;
+  yappyPhone?: string;
+  yappyName?: string;
 }
 
 export interface UpdateSettingsPayload {

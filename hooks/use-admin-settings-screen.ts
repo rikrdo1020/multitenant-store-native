@@ -46,7 +46,7 @@ export function useAdminSettingsScreen() {
     goToAccount,
     goToCreateStore: () => router.push('/(owner)/create-store'),
     goToManageStore: () => router.push('/(owner)/manage-store'),
-    goToStoreSettings: () => router.push('/(owner)/store-settings'),
+    goToStoreConfig: () => router.push('/(owner)/store-config'),
     goToStorefront,
     handleLogout,
     switchStore,
