@@ -12,7 +12,9 @@ export default function OwnerLayout() {
       <Stack.Screen name="onboarding-product" options={{ title: 'Agregar Producto' }} />
       <Stack.Screen name="onboarding-shipping" options={{ title: 'Métodos de Envío' }} />
       <Stack.Screen name="manage-store" options={{ title: 'Gestionar Tienda' }} />
+      <Stack.Screen name="store-config" options={{ title: 'Configurar Tienda' }} />
       <Stack.Screen name="store-settings" options={{ title: 'Configuración de Tienda' }} />
+      <Stack.Screen name="payment-settings" options={{ title: 'Métodos de Pago' }} />
     </Stack>
   );
 }

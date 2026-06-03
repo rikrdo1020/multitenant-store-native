@@ -7,6 +7,7 @@ import {
   inviteRegistrationSchema,
   loginSchema,
   resetPasswordSchema,
+  yappySettingsSchema,
 } from './validators';
 
 describe('validators', () => {
@@ -93,5 +94,43 @@ describe('validators', () => {
     if (!result.success) {
       expect(result.error.issues[0].message).toBe('Las contrasenas no coinciden');
     }
+  });
+
+  describe('yappySettingsSchema', () => {
+    it('GIVEN valid Panamanian number with dash SHOULD pass', () => {
+      const result = yappySettingsSchema.safeParse({ yappyPhone: '6000-0000', yappyName: 'Tienda Panama' });
+      expect(result.success).toBe(true);
+    });
+
+    it('GIVEN valid Panamanian number without dash SHOULD pass', () => {
+      const result = yappySettingsSchema.safeParse({ yappyPhone: '60000000', yappyName: 'Mi Negocio' });
+      expect(result.success).toBe(true);
+    });
+
+    it('GIVEN number not starting with 6 SHOULD fail', () => {
+      const result = yappySettingsSchema.safeParse({ yappyPhone: '5000-0000', yappyName: 'Tienda' });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Número panameño inválido (ej: 6000-0000)');
+      }
+    });
+
+    it('GIVEN US-format number SHOULD fail', () => {
+      const result = yappySettingsSchema.safeParse({ yappyPhone: '555-1234-567', yappyName: 'Tienda' });
+      expect(result.success).toBe(false);
+    });
+
+    it('GIVEN missing yappyName SHOULD fail', () => {
+      const result = yappySettingsSchema.safeParse({ yappyPhone: '6000-0000', yappyName: '' });
+      expect(result.success).toBe(false);
+    });
+
+    it('GIVEN yappyName with 1 char SHOULD fail with min length message', () => {
+      const result = yappySettingsSchema.safeParse({ yappyPhone: '6000-0000', yappyName: 'A' });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('Mínimo 2 caracteres');
+      }
+    });
   });
 });

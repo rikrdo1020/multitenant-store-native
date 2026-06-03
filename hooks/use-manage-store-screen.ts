@@ -14,7 +14,8 @@ export function useManageStoreScreen() {
         router.replace('/(admin)/settings');
       }
     },
-    goToStoreSettings: () => router.push('/(owner)/store-settings'),
+    goToStoreConfig: () => router.push('/(owner)/store-config'),
+    goToPaymentSettings: () => router.push('/(owner)/payment-settings'),
     goToStorefront: () => {
       if (manageStore.tenant?.slug) {
         router.push(`/(storefront)/${manageStore.tenant.slug}` as never);
