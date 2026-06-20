@@ -47,7 +47,29 @@ describe('order display helpers', () => {
       subtotal: 25,
       shippingCost: 3,
       discount: 8,
+      tax: 0,
       total: 20,
+    });
+  });
+
+  it('GIVEN server pricing breakdown WHEN calculating totals SHOULD prefer confirmed server values', () => {
+    expect(
+      getOrderTotals({
+        ...baseOrder,
+        pricingBreakdown: {
+          subtotal: 40,
+          discount: 5,
+          shippingCost: 4,
+          tax: 2,
+          total: 41,
+        },
+      }),
+    ).toEqual({
+      subtotal: 40,
+      shippingCost: 4,
+      discount: 5,
+      tax: 2,
+      total: 41,
     });
   });
 

@@ -1,6 +1,5 @@
 import { View } from 'react-native';
 import { Settings, Store } from 'lucide-react-native';
-import { adminColors } from '@/lib/admin-theme';
 import { AdminSettingsAction } from '@/components/admin/settings/AdminSettingsAction';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';

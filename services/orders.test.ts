@@ -90,6 +90,53 @@ describe("orderService", () => {
     });
   });
 
+  describe("getOrder", () => {
+    it("GIVEN public view token WHEN tracking order SHOULD call tokenized track endpoint", async () => {
+      mockedApi.get.mockResolvedValue({
+        data: { success: true, data: mockOrder },
+      });
+
+      const result = await orderService.getOrder(TENANT, "ORD-0001", "view-token");
+
+      expect(mockedApi.get).toHaveBeenCalledWith("/orders/track/ORD-0001", {
+        params: { token: "view-token" },
+        headers: { "x-tenant-id": TENANT },
+      });
+      expect(result.orderId).toBe("ORD-0001");
+    });
+
+    it("GIVEN view token only WHEN tracking order SHOULD call token lookup endpoint", async () => {
+      mockedApi.get.mockResolvedValue({
+        data: { success: true, data: mockOrder },
+      });
+
+      const result = await orderService.getOrderByViewToken(TENANT, "view-token");
+
+      expect(mockedApi.get).toHaveBeenCalledWith("/orders/track/view-token", {
+        headers: { "x-tenant-id": TENANT },
+      });
+      expect(result.orderId).toBe("ORD-0001");
+    });
+
+    it("GIVEN order id and email WHEN tracking order SHOULD call email tracking endpoint", async () => {
+      mockedApi.post.mockResolvedValue({
+        data: { success: true, data: mockOrder },
+      });
+
+      const result = await orderService.trackOrderByEmail(TENANT, {
+        orderId: "ORD-0001",
+        email: "buyer@example.com",
+      });
+
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        "/orders/track",
+        { orderId: "ORD-0001", email: "buyer@example.com" },
+        { headers: { "x-tenant-id": TENANT } },
+      );
+      expect(result.orderId).toBe("ORD-0001");
+    });
+  });
+
   describe("updateOrderStatus", () => {
     it("GIVEN order id and new status WHEN updating SHOULD call PUT /orders/:id with status", async () => {
       const updated = { ...mockOrder, orderStatus: "paid" as const };
@@ -124,6 +171,33 @@ describe("orderService", () => {
       );
 
       expect(result.orderStatus).toBe("cancelled");
+    });
+
+    it("GIVEN shipped status with tracking WHEN updating SHOULD send tracking payload", async () => {
+      const shipped = { ...mockOrder, orderStatus: "shipped" as const };
+      mockedApi.put.mockResolvedValue({
+        data: { success: true, data: shipped },
+      });
+
+      await orderService.updateOrderStatus(TENANT, "ord_001", {
+        status: "shipped",
+        trackingNumber: "TRK-1",
+        trackingCarrier: "DHL",
+        trackingUrl: "https://tracking.test/TRK-1",
+        adminNote: "Despachado",
+      });
+
+      expect(mockedApi.put).toHaveBeenCalledWith(
+        "/orders/ord_001/status",
+        {
+          orderStatus: "shipped",
+          trackingNumber: "TRK-1",
+          trackingCarrier: "DHL",
+          trackingUrl: "https://tracking.test/TRK-1",
+          adminNote: "Despachado",
+        },
+        { headers: { "x-tenant-id": TENANT } },
+      );
     });
   });
 });

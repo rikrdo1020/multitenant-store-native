@@ -52,6 +52,7 @@ ios/
 
 # Testing
 coverage/
+.jest-cache/
 
 # CodeGraph
 .codegraph/

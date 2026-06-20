@@ -1,15 +1,5 @@
 import api from "./api";
-
-export interface AppNotification {
-  documentId: string;
-  userId: string;
-  title: string;
-  body: string;
-  type: "order_created" | "order_status_changed" | "team_invitation";
-  read: boolean;
-  metadata: Record<string, unknown> | null;
-  createdAt: string;
-}
+import type { AppNotification } from "@/types";
 
 export interface NotificationListResult {
   items: AppNotification[];

@@ -12,7 +12,9 @@ export function createCartItem(
     quantity: 1,
     selectedOptions,
     image: product.images[0],
-    stock: product.stock,
+    stock: getEffectiveStock(product),
+    availableStock: product.availableStock,
+    stockStatus: product.stockStatus,
     type: product.type,
   };
 }
@@ -22,7 +24,8 @@ export function upsertCartItem(
   product: Product,
   selectedOptions?: Record<string, string>,
 ): CartItem[] {
-  if (product.stock <= 0) return items;
+  const effectiveStock = getEffectiveStock(product);
+  if (effectiveStock <= 0) return items;
 
   const key = generateItemKey(product.documentId, selectedOptions);
   const existingIndex = items.findIndex(
@@ -35,7 +38,7 @@ export function upsertCartItem(
 
   return items.map((item, index) =>
     index === existingIndex
-      ? { ...item, quantity: Math.min(item.quantity + 1, product.stock) }
+      ? { ...item, quantity: Math.min(item.quantity + 1, effectiveStock) }
       : item,
   );
 }
@@ -65,4 +68,8 @@ export function updateCartItemQuantity(
       ? { ...item, quantity: Math.min(quantity, item.stock) }
       : item,
   );
+}
+
+function getEffectiveStock(product: Product): number {
+  return product.availableStock ?? product.stock;
 }

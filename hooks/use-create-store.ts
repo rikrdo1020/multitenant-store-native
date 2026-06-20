@@ -20,7 +20,7 @@ export function useCreateStore() {
   // so the API interceptor doesn't send x-tenant-id from a previous session.
   useEffect(() => {
     setTenant(null);
-  }, []);
+  }, [setTenant]);
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 

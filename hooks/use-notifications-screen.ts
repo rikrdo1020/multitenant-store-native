@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useRouter } from "expo-router";
 import { useNotifications, useMarkAsRead } from "@/hooks/api/use-notifications";
-import type { AppNotification } from "@/services/notifications";
+import type { AppNotification } from "@/types";
 
 function getNotificationRoute(notification: AppNotification): string | null {
   const meta = notification.metadata as Record<string, string> | null;

@@ -15,13 +15,9 @@ export function useRegisterScreen() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setLoading(true);
-      console.log('[register] payload:', JSON.stringify({ ...data, password: '***' }));
-      const user = await register(data);
-      console.log('[register] success:', JSON.stringify(user));
+      await register(data);
       router.replace('/(auth)/welcome');
-    } catch (err: unknown) {
-      const e = err as Record<string, unknown>;
-      console.error('[register] error:', JSON.stringify(e?.response ?? e?.message ?? err));
+    } catch {
       form.setError('root', { message: 'No fue posible crear la cuenta. Intenta de nuevo.' });
     } finally {
       setLoading(false);

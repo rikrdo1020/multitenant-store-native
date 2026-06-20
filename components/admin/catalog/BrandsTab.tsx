@@ -1,29 +1,21 @@
-import { useState, useCallback } from 'react';
 import {
-  View,
+  ActivityIndicator,
   FlatList,
+  Image,
   RefreshControl,
   TouchableOpacity,
-  ActivityIndicator,
-  Image,
+  View,
 } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import * as ImagePicker from 'expo-image-picker';
-import { Text } from '@/components/ui/Text';
+import { Image as ImageIcon, Pencil, Plus, Trash2 } from 'lucide-react-native';
+import { useBrandsTab } from '@/hooks/use-brands-tab';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import {
-  useCatalogBrands,
-  useCreateBrand,
-  useUpdateBrand,
-  useDeleteBrand,
-} from '@/hooks/api/use-catalog-brands';
-import { useUploadImage } from '@/hooks/api/use-upload-image';
-import type { Brand } from '@/types';
-import { Plus, Pencil, Trash2, Image as ImageIcon } from 'lucide-react-native';
+import { Input } from '@/components/ui/Input';
+import { Text } from '@/components/ui/Text';
 import { colors } from '@/lib/theme';
 
 const brandSchema = z.object({
@@ -37,12 +29,19 @@ interface BrandFormProps {
   initial?: Partial<BrandFormValues>;
   onSubmit: (values: BrandFormValues) => void;
   onCancel: () => void;
+  onUploadLogo: (fileUri: string, onDone: (url: string) => void) => void;
   submitting?: boolean;
+  uploadingLogo?: boolean;
 }
 
-function BrandForm({ initial, onSubmit, onCancel, submitting }: BrandFormProps) {
-  const uploadImage = useUploadImage();
-
+function BrandForm({
+  initial,
+  onSubmit,
+  onCancel,
+  onUploadLogo,
+  submitting,
+  uploadingLogo,
+}: BrandFormProps) {
   const {
     control,
     handleSubmit,
@@ -67,10 +66,7 @@ function BrandForm({ initial, onSubmit, onCancel, submitting }: BrandFormProps) 
       quality: 0.8,
     });
     if (result.canceled) return;
-    const uri = result.assets[0].uri;
-    uploadImage.mutate({ fileUri: uri, folder: 'brands' }, {
-      onSuccess: (data) => setValue('logo', data.url),
-    });
+    onUploadLogo(result.assets[0].uri, (url) => setValue('logo', url));
   };
 
   return (
@@ -102,12 +98,7 @@ function BrandForm({ initial, onSubmit, onCancel, submitting }: BrandFormProps) 
             <ImageIcon size={24} color={colors.mutedForeground} />
           </View>
         )}
-        <Button
-          variant="outline"
-          size="sm"
-          onPress={pickLogo}
-          loading={uploadImage.isPending}
-        >
+        <Button variant="outline" size="sm" onPress={pickLogo} loading={uploadingLogo}>
           {logoUrl ? 'Cambiar logo' : 'Subir logo'}
         </Button>
       </View>
@@ -125,38 +116,9 @@ function BrandForm({ initial, onSubmit, onCancel, submitting }: BrandFormProps) 
 }
 
 export function BrandsTab() {
-  const { data: brands = [], isLoading, isRefetching, refetch, error } = useCatalogBrands();
-  const createBrand = useCreateBrand();
-  const updateBrand = useUpdateBrand();
-  const deleteBrand = useDeleteBrand();
+  const brands = useBrandsTab();
 
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<Brand | null>(null);
-  const [toDelete, setToDelete] = useState<Brand | null>(null);
-
-  const handleRefresh = useCallback(() => { refetch(); }, [refetch]);
-
-  const handleCreate = (values: BrandFormValues) => {
-    createBrand.mutate(values, {
-      onSuccess: () => setShowForm(false),
-    });
-  };
-
-  const handleUpdate = (values: BrandFormValues) => {
-    if (!editing) return;
-    updateBrand.mutate({ id: editing.documentId, payload: values }, {
-      onSuccess: () => setEditing(null),
-    });
-  };
-
-  const handleConfirmDelete = () => {
-    if (!toDelete) return;
-    deleteBrand.mutate(toDelete.documentId, {
-      onSuccess: () => setToDelete(null),
-    });
-  };
-
-  if (isLoading) {
+  if (brands.isLoading) {
     return (
       <View className="flex-1 items-center justify-center py-12">
         <ActivityIndicator size="large" />
@@ -165,11 +127,11 @@ export function BrandsTab() {
     );
   }
 
-  if (error) {
+  if (brands.error) {
     return (
       <View className="flex-1 items-center justify-center py-12 px-6">
         <Text variant="body" className="text-destructive mb-4 text-center">Error al cargar marcas</Text>
-        <Button onPress={() => refetch()}>Reintentar</Button>
+        <Button onPress={brands.handleRefresh}>Reintentar</Button>
       </View>
     );
   }
@@ -177,9 +139,9 @@ export function BrandsTab() {
   return (
     <View className="flex-1">
       <View className="flex-row items-center justify-between px-4 py-3">
-        <Text variant="small" className="text-muted-foreground">{brands.length} marcas</Text>
+        <Text variant="small" className="text-muted-foreground">{brands.brands.length} marcas</Text>
         <TouchableOpacity
-          onPress={() => { setShowForm(true); setEditing(null); }}
+          onPress={brands.handleStartCreate}
           className="flex-row items-center gap-1.5 rounded-lg bg-primary px-3 py-2"
         >
           <Plus size={16} color="white" />
@@ -187,30 +149,34 @@ export function BrandsTab() {
         </TouchableOpacity>
       </View>
 
-      {showForm && !editing && (
+      {brands.showForm && !brands.editing && (
         <View className="px-4 pb-3">
           <BrandForm
-            onSubmit={handleCreate}
-            onCancel={() => setShowForm(false)}
-            submitting={createBrand.isPending}
+            onSubmit={brands.handleCreate}
+            onCancel={() => brands.setShowForm(false)}
+            onUploadLogo={brands.handleUploadLogo}
+            submitting={brands.isCreating}
+            uploadingLogo={brands.isUploadingLogo}
           />
         </View>
       )}
 
       <FlatList
-        data={brands}
+        data={brands.brands}
         keyExtractor={(item) => item.documentId}
-        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />}
+        refreshControl={<RefreshControl refreshing={brands.isRefetching} onRefresh={brands.handleRefresh} />}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24, gap: 8 }}
         renderItem={({ item }) => (
           <>
-            {editing?.documentId === item.documentId ? (
+            {brands.editing?.documentId === item.documentId ? (
               <View className="mb-1">
                 <BrandForm
                   initial={{ name: item.name, logo: item.logo }}
-                  onSubmit={handleUpdate}
-                  onCancel={() => setEditing(null)}
-                  submitting={updateBrand.isPending}
+                  onSubmit={brands.handleUpdate}
+                  onCancel={() => brands.setEditing(null)}
+                  onUploadLogo={brands.handleUploadLogo}
+                  submitting={brands.isUpdating}
+                  uploadingLogo={brands.isUploadingLogo}
                 />
               </View>
             ) : (
@@ -231,13 +197,13 @@ export function BrandsTab() {
                 </View>
                 <View className="flex-row gap-2 ml-3">
                   <TouchableOpacity
-                    onPress={() => { setEditing(item); setShowForm(false); }}
+                    onPress={() => brands.handleStartEdit(item)}
                     className="rounded-lg border border-border p-2"
                   >
                     <Pencil size={16} color={colors.foreground} />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => setToDelete(item)}
+                    onPress={() => brands.setToDelete(item)}
                     className="rounded-lg border border-destructive/30 bg-destructive/5 p-2"
                   >
                     <Trash2 size={16} color="#dc2626" />
@@ -249,20 +215,20 @@ export function BrandsTab() {
         )}
         ListEmptyComponent={
           <View className="mt-8 items-center">
-            <Text variant="body" className="text-muted-foreground">No hay marcas aún.</Text>
+            <Text variant="body" className="text-muted-foreground">No hay marcas aun.</Text>
           </View>
         }
       />
 
       <ConfirmDialog
-        visible={!!toDelete}
+        visible={!!brands.toDelete}
         title="Eliminar marca"
-        description={`¿Eliminar "${toDelete?.name}"? Esta acción no se puede deshacer.`}
+        description={`Eliminar "${brands.toDelete?.name}"? Esta accion no se puede deshacer.`}
         confirmLabel="Eliminar"
         destructive
-        loading={deleteBrand.isPending}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setToDelete(null)}
+        loading={brands.isDeleting}
+        onConfirm={brands.handleConfirmDelete}
+        onCancel={() => brands.setToDelete(null)}
       />
     </View>
   );

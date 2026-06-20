@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { ArrowRight, LayoutDashboard, ListChecks } from 'lucide-react-native';
+import { LayoutDashboard, ListChecks } from 'lucide-react-native';
 import { ScreenWrapper } from '@/components/shared/ScreenWrapper';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
@@ -17,15 +17,12 @@ export function WelcomeScreen() {
   return (
     <ScreenWrapper scroll={false} safeArea>
       <View className="flex-1 px-6 pt-14 pb-10">
-
-        {/* Label */}
         <View className="self-start mb-10">
           <Text className="text-[11px] tracking-[3px] uppercase text-muted-foreground font-medium">
             Bienvenido
           </Text>
         </View>
 
-        {/* Headline */}
         <View className="gap-4 mb-12">
           <Text className="text-[44px] font-bold leading-[1.0] text-foreground">
             Tu tienda está lista.{'\n'}Empieza a vender{'\n'}en 3 pasos.
@@ -33,7 +30,6 @@ export function WelcomeScreen() {
           <View className="h-[2px] w-10 bg-foreground" />
         </View>
 
-        {/* Steps */}
         <View className="gap-4 mb-auto">
           {STEPS.map((step, i) => (
             <View key={i} className="flex-row items-center gap-4">
@@ -45,7 +41,6 @@ export function WelcomeScreen() {
           ))}
         </View>
 
-        {/* CTAs */}
         <View className="gap-3 mt-12">
           <Button
             size="lg"
@@ -74,7 +69,6 @@ export function WelcomeScreen() {
             </View>
           </Button>
         </View>
-
       </View>
     </ScreenWrapper>
   );

@@ -41,7 +41,8 @@ export function useProductDetail(product: Product | undefined, tenantSlug?: stri
     return currentItem?.quantity ?? 0;
   }, [cartItems, product, selectedOptionsForCart]);
 
-  const isOutOfStock = !product || product.stock <= 0;
+  const availableStock = product?.availableStock ?? product?.stock ?? 0;
+  const isOutOfStock = !product || availableStock <= 0;
   const canAddToCart = !!product && isCartScopeReady && !isOutOfStock && missingOptionNames.length === 0;
   const addDisabledReason = getAddDisabledReason(isCartScopeReady, isOutOfStock, missingOptionNames);
 
@@ -75,11 +76,12 @@ export function useProductDetail(product: Product | undefined, tenantSlug?: stri
   const addToCart = useCallback(() => {
     if (!product || !tenantSlug || !canAddToCart) return;
 
-    if (selectedCartQuantity >= product.stock) {
+    const effectiveStock = product.availableStock ?? product.stock;
+    if (selectedCartQuantity >= effectiveStock) {
       showToast(
         'Stock maximo alcanzado',
         'info',
-        `${product.name} tiene ${product.stock} disponible${product.stock === 1 ? '' : 's'}.`,
+        `${product.name} tiene ${effectiveStock} disponible${effectiveStock === 1 ? '' : 's'}.`,
       );
       return;
     }

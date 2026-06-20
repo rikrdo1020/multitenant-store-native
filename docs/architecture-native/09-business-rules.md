@@ -80,10 +80,12 @@ Prerequisites:
 
 ## Order Tracking (NR-05)
 
-- Guest users can track orders via email + order ID + view token.
+- Guest users can track orders via tenant + order ID + view token.
 - Authenticated customers see order history in Account tab.
-- Order detail shows: items, totals, status timeline, shipping info.
-- Status colors: `pending` = yellow, `paid` = green, `failed` = red, `cancelled` = gray.
+- Order detail shows: items, confirmed totals, status timeline, shipping info, and carrier tracking when available.
+- Guest public tracking supports `tenant + order ID + view token`, `tenant + view token`, or `tenant + order ID + email`.
+- Fulfillment statuses: `pending`, `paid`, `processing`, `ready`, `shipped`, `delivered`, plus terminal `failed`, `cancelled`, `rejected`, and `expired`.
+- Status colors: `pending` = yellow, success/paid/delivered = green, active fulfillment = blue/indigo, failed/rejected = red, terminal neutral = gray.
 
 ## Admin Panel (NR-06)
 

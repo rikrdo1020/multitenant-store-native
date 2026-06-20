@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,10 +11,10 @@ import {
   getCheckoutFormErrorMessage,
   getCheckoutSubmitErrorMessage,
 } from '@/lib/checkout-feedback';
+import { useCartPricing } from '@/hooks/use-cart-pricing';
 import { ADMIN_URL } from '@/lib/constants';
 import { mapSavedAddressToCheckoutValues } from '@/lib/customer-address';
-import { buildCreateOrderPayload, PENDING_PAYMENT_METHOD } from '@/lib/order';
-import { calculateCartPricing } from '@/lib/pricing';
+import { buildCreateOrderPayload, getCartStockIssue, PENDING_PAYMENT_METHOD } from '@/lib/order';
 import {
   getSelectedShippingLocation,
   getShippingCost,
@@ -132,7 +132,10 @@ export function useCheckoutScreen(tenantSlug?: string) {
   const savedAddresses = addressesQuery.data ?? [];
   const selectedMethod = shippingMethods.find((method) => method.documentId === selectedMethodId);
   const selectedLocation = getSelectedShippingLocation(selectedMethod, selectedLocationId);
-  const pricing = useMemo(() => calculateCartPricing(items), [items]);
+  const { pricing, isPricingLoading, pricingError, retryPricing } = useCartPricing(
+    items,
+    tenantSlug,
+  );
   const shippingCost = selectedMethod ? getShippingCost(selectedMethod, selectedLocationId) : 0;
   const methodRequiresLocation = requiresShippingLocation(selectedMethod);
 
@@ -205,6 +208,12 @@ export function useCheckoutScreen(tenantSlug?: string) {
 
     if (items.length === 0) {
       showCheckoutError('Tu carrito esta vacio.');
+      return;
+    }
+
+    const stockIssue = getCartStockIssue(items);
+    if (stockIssue) {
+      showCheckoutError(stockIssue, 'Actualiza el carrito antes de continuar.');
       return;
     }
 
@@ -318,6 +327,9 @@ export function useCheckoutScreen(tenantSlug?: string) {
     currency: tenant?.currency,
     items,
     pricing,
+    isPricingLoading,
+    pricingError,
+    retryPricing,
     isShippingLoading: shippingQuery.isLoading,
     isShippingErrored: shippingQuery.isError,
     areSavedAddressesLoading: addressesQuery.isLoading,

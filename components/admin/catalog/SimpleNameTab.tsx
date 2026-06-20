@@ -117,7 +117,8 @@ export function SimpleNameTab({
   const [editing, setEditing] = useState<NameItem | null>(null);
   const [toDelete, setToDelete] = useState<NameItem | null>(null);
 
-  const handleRefresh = useCallback(() => { onRefetch(); }, [onRefetch]);
+  const reloadItems = onRefetch;
+  const handleRefresh = useCallback(() => { reloadItems(); }, [reloadItems]);
 
   if (isLoading) {
     return (

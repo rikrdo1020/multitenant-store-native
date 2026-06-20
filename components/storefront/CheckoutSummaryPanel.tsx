@@ -23,8 +23,11 @@ export function CheckoutSummaryPanel({ checkout, isWide }: CheckoutSummaryPanelP
         shippingCost={checkout.shippingCost}
         isSubmitting={checkout.isSubmitting}
         isShippingLoading={checkout.isShippingLoading}
+        isPricingLoading={checkout.isPricingLoading}
+        pricingError={checkout.pricingError}
         hasShippingMethods={checkout.shippingMethods.length > 0}
         submitError={checkout.submitError}
+        onRetryPricing={checkout.retryPricing}
         actionLabel={actionLabel}
         actionNote={actionNote}
         onSubmit={checkout.submitOrder}

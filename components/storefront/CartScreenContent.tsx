@@ -1,12 +1,10 @@
-import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { LoadingScreen } from '@/components/shared/LoadingScreen';
 import { CartEmptyState } from '@/components/storefront/CartEmptyState';
+import { CartFilledState } from '@/components/storefront/CartFilledState';
 import { CartHeader } from '@/components/storefront/CartHeader';
-import { CartItemsColumn } from '@/components/storefront/CartItemsColumn';
-import { CartMobileCheckoutBar } from '@/components/storefront/CartMobileCheckoutBar';
-import { CartTotalsColumn } from '@/components/storefront/CartTotalsColumn';
 import { useCartShippingEstimator } from '@/hooks/use-cart-shipping-estimator';
 import { useCartScreen } from '@/hooks/use-cart-screen';
 
@@ -33,34 +31,7 @@ export function CartScreenContent({ tenantSlug }: CartScreenContentProps) {
       {cart.items.length === 0 ? (
         <CartEmptyState onBrowseProducts={cart.goToProducts} />
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: isWide ? 32 : 112 }}>
-          <View className={isWide ? 'flex-row items-start gap-5' : 'gap-5'}>
-            <CartItemsColumn
-              items={cart.items}
-              currency={cart.currency}
-              onDecrease={cart.handleDecrease}
-              onIncrease={cart.handleIncrease}
-              onRemove={cart.handleRemove}
-              onBrowseProducts={cart.goToProducts}
-            />
-            <CartTotalsColumn
-              pricing={cart.pricing}
-              estimator={shippingEstimator}
-              currency={cart.currency}
-              isWide={isWide}
-              onCheckout={cart.goToCheckout}
-            />
-          </View>
-        </ScrollView>
-      )}
-
-      {!isWide && cart.items.length > 0 && (
-        <CartMobileCheckoutBar
-          pricing={cart.pricing}
-          currency={cart.currency}
-          shippingCost={shippingEstimator.selectedMethod ? shippingEstimator.shippingCost : undefined}
-          onCheckout={cart.goToCheckout}
-        />
+        <CartFilledState cart={cart} estimator={shippingEstimator} isWide={isWide} />
       )}
 
       <ConfirmDialog

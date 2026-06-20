@@ -1,8 +1,11 @@
 import { View } from 'react-native';
-import { AlertCircle, ShoppingBag } from 'lucide-react-native';
-import { Button } from '@/components/ui/Button';
+import { ShoppingBag } from 'lucide-react-native';
 import { Text } from '@/components/ui/Text';
-import { formatPrice } from '@/lib/utils';
+import { CartSummaryActionButton } from '@/components/storefront/CartSummaryActionButton';
+import { CartSummaryActionFeedback } from '@/components/storefront/CartSummaryActionFeedback';
+import { CartSummaryFeedback } from '@/components/storefront/CartSummaryFeedback';
+import { CartSummaryLines } from '@/components/storefront/CartSummaryLines';
+import { CartSummaryTotal } from '@/components/storefront/CartSummaryTotal';
 import type { PricingResult } from '@/types';
 
 interface CartSummaryProps {
@@ -14,6 +17,9 @@ interface CartSummaryProps {
   actionDisabled?: boolean;
   actionLoading?: boolean;
   actionError?: string | null;
+  isPricingLoading?: boolean;
+  pricingError?: string | null;
+  onRetryPricing?: () => void;
   actionSuccess?: {
     title: string;
     description?: string;
@@ -30,10 +36,12 @@ export function CartSummary({
   actionDisabled,
   actionLoading,
   actionError,
+  isPricingLoading,
+  pricingError,
+  onRetryPricing,
   actionSuccess,
   onAction,
 }: CartSummaryProps) {
-  const hasShippingCost = typeof shippingCost === 'number';
   const finalTotal = pricing.total + (shippingCost ?? 0);
 
   return (
@@ -43,80 +51,29 @@ export function CartSummary({
         <Text variant="h3">Resumen</Text>
       </View>
 
-      <View className="gap-3">
-        <SummaryRow label="Subtotal" value={formatPrice(pricing.originalTotal, currency)} />
-        <SummaryRow
-          label="Descuento por combo"
-          value={pricing.savings > 0 ? `-${formatPrice(pricing.savings, currency)}` : formatPrice(0, currency)}
-          muted={pricing.savings === 0}
-        />
-        <SummaryRow
-          label="Envio"
-          value={hasShippingCost ? formatPrice(shippingCost, currency) : shippingLabel ?? 'En checkout'}
-          muted={!hasShippingCost}
-        />
-      </View>
+      <CartSummaryLines
+        pricing={pricing}
+        currency={currency}
+        shippingCost={shippingCost}
+        shippingLabel={shippingLabel}
+      />
 
-      <View className="border-t border-border pt-4">
-        <View className="flex-row items-center justify-between gap-4">
-          <Text className="font-semibold">Total</Text>
-          <Text variant="h2" className="font-bold">
-            {formatPrice(finalTotal, currency)}
-          </Text>
-        </View>
-      </View>
+      <CartSummaryFeedback
+        isLoading={isPricingLoading}
+        error={pricingError}
+        onRetry={onRetryPricing}
+      />
 
-      {actionError && (
-        <View className="flex-row items-start gap-2 rounded-md border border-destructive p-3">
-          <AlertCircle size={16} color="#dc2626" />
-          <Text variant="small" className="min-w-0 flex-1 text-destructive">
-            {actionError}
-          </Text>
-        </View>
-      )}
+      <CartSummaryTotal total={finalTotal} currency={currency} />
 
-      {actionSuccess && (
-        <View className="rounded-md border border-green-200 bg-green-50 p-3">
-          <Text className="font-semibold text-green-800">
-            {actionSuccess.title}
-          </Text>
-          {actionSuccess.description && (
-            <Text variant="small" className="mt-1 text-green-800">
-              {actionSuccess.description}
-            </Text>
-          )}
-        </View>
-      )}
+      <CartSummaryActionFeedback error={actionError} success={actionSuccess} />
 
-      {actionLabel && onAction && (
-        <Button
-          size="lg"
-          onPress={onAction}
-          disabled={actionDisabled}
-          loading={actionLoading}
-        >
-          {actionLabel}
-        </Button>
-      )}
-    </View>
-  );
-}
-
-function SummaryRow({
-  label,
-  value,
-  muted,
-}: {
-  label: string;
-  value: string;
-  muted?: boolean;
-}) {
-  return (
-    <View className="flex-row items-center justify-between gap-4">
-      <Text variant="small">{label}</Text>
-      <Text className={muted ? 'text-muted-foreground' : 'font-semibold text-foreground'}>
-        {value}
-      </Text>
+      <CartSummaryActionButton
+        label={actionLabel}
+        disabled={actionDisabled}
+        loading={actionLoading}
+        onPress={onAction}
+      />
     </View>
   );
 }

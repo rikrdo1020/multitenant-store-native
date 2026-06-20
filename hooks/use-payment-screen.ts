@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useCreateOrder } from "@/hooks/api/use-create-order";
 import { useShippingMethods } from "@/hooks/api/use-shipping-methods";
 import { useTenant } from "@/hooks/api/use-tenant";
-import { buildCreateOrderPayload } from "@/lib/order";
+import { buildCreateOrderPayload, getCartStockIssue } from "@/lib/order";
 import { showToast } from "@/lib/toast";
 import { paymentService } from "@/services/payments";
 import { useCartStore } from "@/stores/use-cart-store";
@@ -62,7 +62,12 @@ export function usePaymentScreen(tenantSlug?: string) {
   const createOrderMutation = useCreateOrder(tenantSlug);
 
   const yappyMutation = useMutation({
-    mutationFn: (params: { orderId: string; amount: number; aliasYappy: string }) =>
+    mutationFn: (params: {
+      orderId: string;
+      viewToken: string;
+      amount: number;
+      aliasYappy: string;
+    }) =>
       paymentService.createYappyPayment(tenantSlug!, params),
   });
 
@@ -72,8 +77,13 @@ export function usePaymentScreen(tenantSlug?: string) {
     (order: Order) => {
       clearCart();
       clearCheckout();
+      const params = new URLSearchParams({
+        orderId: order.orderId,
+        ...(order.viewToken ? { viewToken: order.viewToken } : {}),
+      });
+
       router.replace(
-        `/(storefront)/${tenantSlug}/checkout/confirmation?orderId=${order.orderId}` as never,
+        `/(storefront)/${tenantSlug}/checkout/confirmation?${params.toString()}` as never,
       );
     },
     [clearCart, clearCheckout, router, tenantSlug],
@@ -86,6 +96,13 @@ export function usePaymentScreen(tenantSlug?: string) {
         "destructive",
         "Vuelve al formulario y completa todos los campos.",
       );
+      return;
+    }
+
+    const stockIssue = getCartStockIssue(items);
+    if (stockIssue) {
+      setSubmitError(stockIssue);
+      showToast("Revisa el carrito", "destructive", stockIssue);
       return;
     }
 
@@ -112,8 +129,7 @@ export function usePaymentScreen(tenantSlug?: string) {
       setYappyModalVisible(true);
     } catch (error) {
       const apiError = error as ApiError;
-      const message =
-        apiError.message ?? "No pudimos procesar el pago. Intenta nuevamente.";
+      const message = getOrderSubmitErrorMessage(apiError);
       setSubmitError(message);
       showToast("Error al pagar", "destructive", message);
     }
@@ -122,9 +138,13 @@ export function usePaymentScreen(tenantSlug?: string) {
   const handleYappyCreatePayment = useCallback(
     async (aliasYappy: string): Promise<YappyPaymentParams> => {
       if (!pendingOrder) throw new Error("No hay orden pendiente");
+      if (!pendingOrder.viewToken) {
+        throw new Error("No hay token de confirmacion para esta orden");
+      }
 
       const result = await yappyMutation.mutateAsync({
         orderId: pendingOrder.orderId,
+        viewToken: pendingOrder.viewToken,
         amount: pendingOrder.total,
         aliasYappy,
       });
@@ -174,6 +194,20 @@ export function usePaymentScreen(tenantSlug?: string) {
     handleYappyError,
     handleYappyDismiss,
   };
+}
+
+function getOrderSubmitErrorMessage(error: ApiError): string {
+  switch (error.code) {
+    case "PRODUCT_UNAVAILABLE":
+      return "Uno de los productos ya no esta disponible.";
+    case "INSUFFICIENT_STOCK":
+      return "No hay stock suficiente para completar la orden.";
+    case "INVALID_SHIPPING_METHOD":
+    case "INVALID_SHIPPING_LOCATION":
+      return "El metodo de envio seleccionado ya no esta disponible.";
+    default:
+      return error.message ?? "No pudimos procesar el pago. Intenta nuevamente.";
+  }
 }
 
 function buildAvailableMethods(tenantProvider?: string) {

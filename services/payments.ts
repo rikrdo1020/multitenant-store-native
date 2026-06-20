@@ -3,6 +3,7 @@ import type { ApiResponse, CreatePaymentResult } from '@/types';
 
 interface CreatePaymentPayload {
   orderId: string;
+  viewToken: string;
   amount: number;
   aliasYappy?: string;
 }
