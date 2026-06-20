@@ -21,6 +21,7 @@ export default function AdminLayout() {
     >
       <Drawer.Screen name="dashboard" options={{ title: 'Dashboard' }} />
       <Drawer.Screen name="products" options={{ title: 'Productos' }} />
+      <Drawer.Screen name="banners" options={{ title: 'Banners' }} />
       <Drawer.Screen name="orders/index" options={{ title: 'Pedidos', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="orders/[id]" options={{ title: 'Detalle del Pedido', drawerItemStyle: { display: 'none' } }} />
       <Drawer.Screen name="categories" options={{ title: 'Categorias' }} />

@@ -5,6 +5,7 @@ import type {
   SalesPoint,
   TopProduct,
   CustomerMetrics,
+  LowStockProduct,
   AnalyticsQuery,
   SalesQuery,
   TopProductsQuery,
@@ -38,6 +39,17 @@ export const analyticsService = {
   getCustomers: async (tenantSlug: string, params?: AnalyticsQuery): Promise<CustomerMetrics> => {
     const response = await api.get<ApiResponse<CustomerMetrics>>('/analytics/customers', {
       params,
+      headers: { 'x-tenant-id': tenantSlug },
+    });
+    return response.data.data;
+  },
+
+  getLowStock: async (
+    tenantSlug: string,
+    threshold = 5,
+  ): Promise<LowStockProduct[]> => {
+    const response = await api.get<ApiResponse<LowStockProduct[]>>('/analytics/low-stock', {
+      params: { threshold },
       headers: { 'x-tenant-id': tenantSlug },
     });
     return response.data.data;

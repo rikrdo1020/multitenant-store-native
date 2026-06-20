@@ -186,6 +186,41 @@ export interface Product {
   updatedAt?: string;
 }
 
+export interface StoreBanner {
+  documentId: string;
+  title: string;
+  subtitle?: string | null;
+  imageUrl?: string | null;
+  ctaText?: string | null;
+  ctaUrl?: string | null;
+  order: number;
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface StoreBannerPayload {
+  title: string;
+  subtitle?: string;
+  imageUrl?: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  order?: number;
+  active?: boolean;
+}
+
+export interface StoreHomeData {
+  tenant: Tenant & {
+    settings?: {
+      currency?: string;
+    } | null;
+  };
+  featuredProducts: Product[];
+  categories: Category[];
+  latestProducts: Product[];
+  banners: StoreBanner[];
+}
+
 export type ProductDescription =
   | string
   | {
@@ -214,6 +249,7 @@ export interface Category {
   slug: string;
   name: string;
   image?: string;
+  images?: string[];
 }
 
 export interface Brand {
@@ -445,10 +481,12 @@ export interface ProductFilters {
   category?: string;
   brand?: string;
   type?: string;
+  featured?: boolean;
   minPrice?: number;
   maxPrice?: number;
   search?: string;
   sort?: "price_asc" | "price_desc" | "newest" | "name_asc" | "name_desc";
+  stockStatus?: "in_stock" | "low_stock" | "out_of_stock";
   page?: number;
   pageSize?: number;
 }
@@ -699,6 +737,34 @@ export interface CustomerMetrics {
   newCustomers: number;
   returning: number;
   avgTicket: number;
+}
+
+export interface LowStockProduct {
+  documentId: string;
+  productId: string;
+  name: string;
+  slug: string;
+  image: string | null;
+  stock: number;
+  reservedStock: number;
+  availableStock: number;
+  stockStatus: "in_stock" | "low_stock" | "out_of_stock";
+}
+
+export interface RecentOrder {
+  documentId: string;
+  orderId: string;
+  orderNumber: string;
+  customer: {
+    name?: string | null;
+    email?: string | null;
+  };
+  total: number;
+  status: OrderStatus;
+  orderStatus: OrderStatus;
+  paymentStatus: "pending" | "paid" | "failed" | string;
+  paymentMethod?: string | null;
+  createdAt: string;
 }
 
 export interface AnalyticsQuery {

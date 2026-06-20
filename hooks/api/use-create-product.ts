@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '@/services/products';
 import { useTenantStore } from '@/stores/use-tenant-store';
 import type { CreateProductPayload } from '@/types';
+import { invalidateProductDependentQueries } from './product-query-invalidation';
 
 export function useCreateProduct() {
   const queryClient = useQueryClient();
@@ -12,8 +13,7 @@ export function useCreateProduct() {
     mutationFn: (payload: CreateProductPayload) =>
       productService.createProduct(slug!, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      invalidateProductDependentQueries(queryClient, slug);
     },
   });
 }

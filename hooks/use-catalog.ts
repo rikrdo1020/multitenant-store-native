@@ -6,16 +6,28 @@ import type { ProductFilters } from "@/types";
 
 const PAGE_SIZE = 20;
 
-export function useCatalog(tenantSlug?: string) {
+interface CatalogInitialFilters {
+  category?: string;
+  featured?: boolean;
+  sort?: ProductFilters["sort"];
+}
+
+export function useCatalog(
+  tenantSlug?: string,
+  initialFilters: CatalogInitialFilters = {},
+) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<
     string | undefined
-  >();
+  >(initialFilters.category);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>();
-  const [sort, setSort] = useState<ProductFilters["sort"]>(undefined);
+  const [sort, setSort] = useState<ProductFilters["sort"]>(initialFilters.sort);
   const [minPrice, setMinPrice] = useState<number | undefined>();
   const [maxPrice, setMaxPrice] = useState<number | undefined>();
+  const [featured, setFeatured] = useState<boolean | undefined>(
+    initialFilters.featured,
+  );
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -25,6 +37,12 @@ export function useCatalog(tenantSlug?: string) {
     };
   }, []);
 
+  useEffect(() => {
+    setSelectedCategory(initialFilters.category);
+    setFeatured(initialFilters.featured);
+    setSort(initialFilters.sort);
+  }, [initialFilters.category, initialFilters.featured, initialFilters.sort]);
+
   const handleSearchChange = useCallback((text: string) => {
     setSearch(text);
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -33,6 +51,7 @@ export function useCatalog(tenantSlug?: string) {
 
   const handleCategorySelect = useCallback((id: string | undefined) => {
     setSelectedCategory(id);
+    setFeatured(undefined);
   }, []);
 
   const handleApplyFilters = useCallback(
@@ -46,13 +65,26 @@ export function useCatalog(tenantSlug?: string) {
       setSelectedBrand(filters.brand);
       setMinPrice(filters.minPrice);
       setMaxPrice(filters.maxPrice);
+      setFeatured(undefined);
     },
     [],
   );
 
+  const clearFilters = useCallback(() => {
+    setSearch("");
+    setDebouncedSearch("");
+    setSelectedCategory(undefined);
+    setSelectedBrand(undefined);
+    setSort(undefined);
+    setMinPrice(undefined);
+    setMaxPrice(undefined);
+    setFeatured(undefined);
+  }, []);
+
   const filters: Omit<ProductFilters, "page"> = {
     category: selectedCategory,
     brand: selectedBrand,
+    featured,
     search: debouncedSearch || undefined,
     sort,
     minPrice,
@@ -70,10 +102,12 @@ export function useCatalog(tenantSlug?: string) {
     selectedCategory,
     handleCategorySelect,
     selectedBrand,
+    featured,
     sort,
     minPrice,
     maxPrice,
     handleApplyFilters,
+    clearFilters,
     products: productsQuery.data?.pages.flatMap((p) => p.data) ?? [],
     meta: productsQuery.data?.pages.at(-1)?.meta,
     categories: categoriesQuery.data ?? [],

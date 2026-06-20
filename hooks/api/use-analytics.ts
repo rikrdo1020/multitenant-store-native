@@ -49,6 +49,20 @@ export function useAnalyticsTopProducts(days: DateRange = 30, limit = 5) {
   });
 }
 
+export function useAnalyticsLowStock(threshold = 5, limit?: number) {
+  const { tenant } = useTenantStore();
+
+  return useQuery({
+    queryKey: ['analytics', 'low-stock', tenant?.slug, threshold, limit ?? 'all'],
+    queryFn: async () => {
+      const products = await analyticsService.getLowStock(tenant!.slug, threshold);
+      return limit ? products.slice(0, limit) : products;
+    },
+    enabled: !!tenant?.slug,
+    staleTime: 60_000,
+  });
+}
+
 export function useAnalyticsCustomers(days: DateRange = 30) {
   const { tenant } = useTenantStore();
   const params = rangeParams(days);

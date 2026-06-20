@@ -6,6 +6,7 @@ import type {
   AdminOrderFilters,
   PaginationMeta,
   OrderStatus,
+  RecentOrder,
 } from "@/types";
 
 export interface OrderListResult {
@@ -111,6 +112,17 @@ export const orderService = {
       headers: { "x-tenant-id": tenantSlug },
     });
     return { data: response.data.data, meta: response.data.meta! };
+  },
+
+  getRecentOrders: async (
+    tenantSlug: string,
+    limit = 10,
+  ): Promise<RecentOrder[]> => {
+    const response = await api.get<ApiResponse<RecentOrder[]>>("/orders/recent", {
+      params: { limit },
+      headers: { "x-tenant-id": tenantSlug },
+    });
+    return response.data.data;
   },
 
   getAdminOrder: async (
