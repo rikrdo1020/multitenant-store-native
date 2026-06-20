@@ -14,3 +14,14 @@ export function useAdminOrders(filters?: AdminOrderFilters) {
     placeholderData: keepPreviousData,
   });
 }
+
+export function useRecentOrders(limit = 8) {
+  const { tenant } = useTenantStore();
+
+  return useQuery({
+    queryKey: ['admin-orders', 'recent', tenant?.slug, limit],
+    queryFn: () => orderService.getRecentOrders(tenant!.slug, limit),
+    enabled: !!tenant?.slug,
+    staleTime: 60_000,
+  });
+}

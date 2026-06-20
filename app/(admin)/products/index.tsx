@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScreenWrapper } from "@/components/shared/ScreenWrapper";
 import { Text } from "@/components/ui/Text";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +15,11 @@ import { ProductListItem } from "@/components/admin/ProductListItem";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useAdminProducts } from "@/hooks/api/use-admin-products";
 import { useDeleteProduct } from "@/hooks/api/use-delete-product";
+import {
+  CRITICAL_STOCK_FILTER,
+  filterAdminProductsByStockStatus,
+  isCriticalStockFilter,
+} from "@/lib/admin-product-filters";
 import { useTenantStore } from "@/stores/use-tenant-store";
 import type { Product, ProductFilters } from "@/types";
 import { Plus } from "lucide-react-native";
@@ -31,12 +36,17 @@ const SORT_OPTIONS: { label: string; value: SortOption }[] = [
 
 export default function AdminProductsScreen() {
   const router = useRouter();
+  const { stockStatus } = useLocalSearchParams<{
+    stockStatus?: ProductFilters["stockStatus"];
+  }>();
   const { tenant } = useTenantStore();
   const [sort, setSort] = useState<SortOption>("name_asc");
   const { data, isLoading, isRefetching, refetch, error } = useAdminProducts({
     sort,
+    ...(stockStatus ? { pageSize: 100 } : {}),
   });
   const deleteProduct = useDeleteProduct();
+  const criticalStockFilterActive = isCriticalStockFilter(stockStatus);
 
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
@@ -59,7 +69,16 @@ export default function AdminProductsScreen() {
     });
   };
 
-  const products = data?.data ?? [];
+  const toggleCriticalStockFilter = () => {
+    router.replace(
+      criticalStockFilterActive
+        ? "/(admin)/products"
+        : (`/(admin)/products?stockStatus=${CRITICAL_STOCK_FILTER}` as never),
+    );
+  };
+
+  const allProducts = data?.data ?? [];
+  const products = filterAdminProductsByStockStatus(allProducts, stockStatus);
 
   if (!tenant) {
     return (
@@ -120,7 +139,14 @@ export default function AdminProductsScreen() {
     <ScreenWrapper>
       <View className="flex-1 p-4">
         <View className="mb-4 flex-row items-center justify-between">
-          <Text variant="h1">Productos</Text>
+          <View className="min-w-0 flex-1">
+            <Text variant="h1">Productos</Text>
+            {criticalStockFilterActive && (
+              <Text variant="small" className="text-muted-foreground">
+                Mostrando productos con stock crítico
+              </Text>
+            )}
+          </View>
           <TouchableOpacity
             onPress={() => router.push("/(admin)/products/new")}
             className="flex-row items-center gap-1.5 rounded-lg bg-primary px-3 py-2"
@@ -150,7 +176,31 @@ export default function AdminProductsScreen() {
               </Text>
             </TouchableOpacity>
           ))}
+          <TouchableOpacity
+            onPress={toggleCriticalStockFilter}
+            className={`rounded-full border px-4 py-2.5 ${criticalStockFilterActive ? "border-primary bg-primary" : "border-border bg-background"}`}
+          >
+            <Text
+              variant="body"
+              className={`text-sm font-medium ${criticalStockFilterActive ? "text-primary-foreground" : "text-foreground"}`}
+            >
+              Stock crítico
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
+
+        {criticalStockFilterActive && (
+          <View className="mb-3 flex-row items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
+            <Text variant="small" className="font-medium text-foreground">
+              Filtro: stock crítico
+            </Text>
+            <TouchableOpacity onPress={() => router.replace("/(admin)/products")}>
+              <Text variant="small" className="font-semibold text-foreground">
+                Limpiar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <FlatList
           data={products}

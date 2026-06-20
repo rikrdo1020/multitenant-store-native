@@ -14,10 +14,21 @@ import { CartIconButton } from '@/components/storefront/CartIconButton';
 import { useCatalog } from '@/hooks/use-catalog';
 import { useCartCount } from '@/hooks/use-cart-count';
 import { useTenantStore } from '@/stores/use-tenant-store';
+import type { ProductFilters } from '@/types';
 
 export default function ProductsScreen() {
   const router = useRouter();
-  const { tenantSlug } = useLocalSearchParams<{ tenantSlug: string }>();
+  const {
+    tenantSlug,
+    category,
+    featured,
+    sort: routeSort,
+  } = useLocalSearchParams<{
+    tenantSlug: string;
+    category?: string;
+    featured?: string;
+    sort?: ProductFilters['sort'];
+  }>();
   const { tenant } = useTenantStore();
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [filterVisible, setFilterVisible] = useState(false);
@@ -44,9 +55,21 @@ export default function ProductsScreen() {
     fetchNextPage,
     isError,
     refetch,
-  } = useCatalog(tenantSlug);
+    clearFilters,
+  } = useCatalog(tenantSlug, {
+    category,
+    featured: featured === 'true' ? true : undefined,
+    sort: routeSort,
+  });
 
-  const hasActiveFilters = !!(sort || selectedBrand || minPrice !== undefined || maxPrice !== undefined);
+  const hasActiveFilters = !!(
+    sort ||
+    selectedBrand ||
+    selectedCategory ||
+    featured ||
+    minPrice !== undefined ||
+    maxPrice !== undefined
+  );
 
   if (!tenantSlug || isLoading) return <LoadingScreen />;
 
@@ -125,9 +148,7 @@ export default function ProductsScreen() {
               variant="ghost"
               size="sm"
               onPress={() => {
-                handleSearchChange('');
-                handleCategorySelect(undefined);
-                handleApplyFilters({});
+                clearFilters();
               }}
             >
               Limpiar filtros

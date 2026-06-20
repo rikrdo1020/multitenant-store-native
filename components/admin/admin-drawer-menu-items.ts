@@ -2,6 +2,7 @@ import {
   Bell,
   Building2,
   Grid3X3,
+  Images,
   LayoutDashboard,
   Package,
   Settings,
@@ -15,6 +16,7 @@ import type { DrawerMenuItem } from '@/components/admin/drawer-menu-types';
 export const adminDrawerMenuItems = [
   { label: 'Dashboard', href: '/(admin)/dashboard', icon: LayoutDashboard },
   { label: 'Productos', href: '/(admin)/products', icon: Package },
+  { label: 'Banners', href: '/(admin)/banners', icon: Images },
   { label: 'Pedidos', href: '/(admin)/orders', icon: ShoppingCart },
   { label: 'Categorias', href: '/(admin)/categories', icon: Grid3X3 },
   { label: 'Marcas', href: '/(admin)/brands', icon: Building2 },

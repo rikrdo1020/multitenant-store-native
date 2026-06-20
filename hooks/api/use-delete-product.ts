@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { productService } from '@/services/products';
 import { useTenantStore } from '@/stores/use-tenant-store';
+import { invalidateProductDependentQueries } from './product-query-invalidation';
 
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
@@ -10,8 +11,7 @@ export function useDeleteProduct() {
   return useMutation({
     mutationFn: (id: string) => productService.deleteProduct(slug!, id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      invalidateProductDependentQueries(queryClient, slug);
     },
   });
 }

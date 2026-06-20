@@ -79,6 +79,7 @@ export function useAdminProductEditScreen() {
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
   const nameValue = form.watch('name');
+  const isFeaturedSelected = form.watch('isFeatured');
 
   useEffect(() => {
     if (isNew) {
@@ -156,6 +157,7 @@ export function useAdminProductEditScreen() {
     goBack: router.back,
     isLoading: !isNew && productQuery.isLoading,
     isNew,
+    isFeaturedSelected,
     isSubmitting: createProduct.isPending || updateProduct.isPending,
     options,
     pickImage,
