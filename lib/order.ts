@@ -76,6 +76,22 @@ export function formatSelectedOptions(selectedOptions?: Record<string, string>):
     .join(' / ');
 }
 
+export function getCartStockIssue(items: CartItem[]): string | null {
+  const unavailableItem = items.find(
+    (item) => item.stockStatus === 'out_of_stock' || item.stock <= 0,
+  );
+  if (unavailableItem) {
+    return `${unavailableItem.name} ya no tiene stock disponible.`;
+  }
+
+  const overLimitItem = items.find((item) => item.quantity > item.stock);
+  if (overLimitItem) {
+    return `${overLimitItem.name} solo tiene ${overLimitItem.stock} disponible${overLimitItem.stock === 1 ? '' : 's'}.`;
+  }
+
+  return null;
+}
+
 function cleanCustomerData(customerData: CustomerFormData): CustomerFormData {
   return {
     name: customerData.name,

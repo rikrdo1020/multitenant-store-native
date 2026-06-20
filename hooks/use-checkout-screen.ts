@@ -9,6 +9,7 @@ import {
   getCheckoutSubmitErrorMessage,
 } from '@/lib/checkout-feedback';
 import { useCartPricing } from '@/hooks/use-cart-pricing';
+import { getCartStockIssue } from '@/lib/order';
 import { mapSavedAddressToCheckoutValues } from '@/lib/customer-address';
 import {
   getSelectedShippingLocation,
@@ -195,6 +196,12 @@ export function useCheckoutScreen(tenantSlug?: string) {
 
     if (items.length === 0) {
       showCheckoutError('Tu carrito esta vacio.');
+      return;
+    }
+
+    const stockIssue = getCartStockIssue(items);
+    if (stockIssue) {
+      showCheckoutError(stockIssue, 'Actualiza el carrito antes de continuar.');
       return;
     }
 

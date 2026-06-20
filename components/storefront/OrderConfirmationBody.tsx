@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, XCircle } from 'lucide-react-native';
 import { OrderConfirmationDescription } from '@/components/storefront/OrderConfirmationDescription';
+import { OrderConfirmationFailure } from '@/components/storefront/OrderConfirmationFailure';
 import { OrderConfirmationState } from '@/components/storefront/OrderConfirmationState';
 import type { OrderConfirmationViewModel } from '@/hooks/use-order-confirmation-screen';
 
@@ -11,6 +12,7 @@ export function OrderConfirmationBody({
   confirmation,
 }: OrderConfirmationBodyProps) {
   const order = confirmation.order;
+  const confirmedTotal = order?.pricingBreakdown?.total ?? order?.total;
 
   if (confirmation.isUnavailable || !order) {
     return (
@@ -30,7 +32,7 @@ export function OrderConfirmationBody({
         icon={CheckCircle2}
         iconColor="#16a34a"
         title="Pedido confirmado"
-        description={<OrderConfirmationDescription orderId={order.orderId} success />}
+        description={<OrderConfirmationDescription orderId={order.orderId} total={confirmedTotal} success />}
         actions={[{ label: 'Seguir comprando', onPress: confirmation.goToProducts }]}
       />
     );
@@ -38,24 +40,10 @@ export function OrderConfirmationBody({
 
   if (confirmation.isFailed) {
     return (
-      <OrderConfirmationState
-        icon={XCircle}
-        iconColor="#dc2626"
-        title="Pago no completado"
-        description={
-          <OrderConfirmationDescription
-            orderId={order.orderId}
-            message={confirmation.failureMessage}
-          />
-        }
-        actions={[
-          { label: 'Intentar de nuevo', onPress: confirmation.goBackToPayment },
-          {
-            label: 'Volver a la tienda',
-            variant: 'outline',
-            onPress: confirmation.goToProducts,
-          },
-        ]}
+      <OrderConfirmationFailure
+        confirmation={confirmation}
+        orderId={order.orderId}
+        total={confirmedTotal}
       />
     );
   }
@@ -66,7 +54,7 @@ export function OrderConfirmationBody({
         icon={CheckCircle2}
         iconColor="#16a34a"
         title="Pedido recibido"
-        description={<OrderConfirmationDescription orderId={order.orderId} cash />}
+        description={<OrderConfirmationDescription orderId={order.orderId} total={confirmedTotal} cash />}
         actions={[{ label: 'Volver a la tienda', onPress: confirmation.goToProducts }]}
       />
     );
@@ -77,7 +65,7 @@ export function OrderConfirmationBody({
       icon={Clock}
       iconColor="#2563eb"
       title="Solicitud enviada"
-      description={<OrderConfirmationDescription orderId={order.orderId} pending />}
+      description={<OrderConfirmationDescription orderId={order.orderId} total={confirmedTotal} pending />}
       actions={[{ label: 'Volver a la tienda', onPress: confirmation.goToProducts }]}
     />
   );

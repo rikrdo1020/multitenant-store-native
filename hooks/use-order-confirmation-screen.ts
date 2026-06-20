@@ -4,7 +4,7 @@ import { orderService } from '@/services/orders';
 import type { Order } from '@/types';
 
 const FAILED_STATUSES = new Set(['failed', 'cancelled', 'rejected', 'expired']);
-const SUCCESS_STATUSES = new Set(['paid', 'dispatched']);
+const SUCCESS_STATUSES = new Set(['paid', 'processing', 'ready', 'shipped', 'delivered', 'dispatched']);
 
 interface UseOrderConfirmationScreenParams {
   tenantSlug?: string;

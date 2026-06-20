@@ -61,6 +61,7 @@ export default function TenantLayout() {
       <Tabs.Screen name="checkout" options={{ href: null }} />
       <Tabs.Screen name="orders/index" options={{ href: null }} />
       <Tabs.Screen name="orders/[id]" options={{ href: null }} />
+      <Tabs.Screen name="track" options={{ href: null }} />
     </TabsWithId>
   );
 }

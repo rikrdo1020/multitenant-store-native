@@ -156,6 +156,9 @@ export interface Product {
   price: number;
   discountPrice?: number;
   stock: number;
+  reservedStock?: number;
+  availableStock?: number;
+  stockStatus?: "in_stock" | "low_stock" | "out_of_stock";
   images: string[];
   description?: ProductDescription;
   category?: Category;
@@ -322,6 +325,8 @@ export interface CartItem {
   selectedOptions?: Record<string, string>;
   image?: string;
   stock: number;
+  availableStock?: number;
+  stockStatus?: "in_stock" | "low_stock" | "out_of_stock";
   type?: string;
 }
 
@@ -347,6 +352,10 @@ export interface ShippingAddressData {
 export type OrderStatus =
   | "pending"
   | "paid"
+  | "processing"
+  | "ready"
+  | "shipped"
+  | "delivered"
   | "cancelled"
   | "failed"
   | "rejected"
@@ -356,8 +365,18 @@ export type OrderDisplayStatus = OrderStatus | "dispatched";
 
 export interface OrderStatusHistory {
   status: OrderStatus;
-  timestamp: string;
+  createdAt?: string;
+  timestamp?: string;
   note?: string;
+  changedBy?: string;
+}
+
+export interface OrderPricingBreakdown {
+  subtotal: number;
+  discount: number;
+  shippingCost: number;
+  tax: number;
+  total: number;
 }
 
 export interface Order {
@@ -389,8 +408,12 @@ export interface Order {
   shippingMethodId?: string;
   shippingLocationId?: string;
   shippingCost?: number;
+  pricingBreakdown?: OrderPricingBreakdown;
   paymentMethod?: string;
   confirmationNumber?: string;
+  trackingNumber?: string;
+  trackingCarrier?: string;
+  trackingUrl?: string;
   dispatched?: boolean;
   paymentStatus?: string;
   total: number;

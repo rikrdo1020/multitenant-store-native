@@ -18,6 +18,14 @@ export interface OrderListParams {
   pageSize?: number;
 }
 
+export interface UpdateOrderStatusPayload {
+  status: OrderStatus;
+  trackingNumber?: string;
+  trackingCarrier?: string;
+  trackingUrl?: string;
+  adminNote?: string;
+}
+
 export const orderService = {
   createOrder: async (
     tenantSlug: string,
@@ -69,6 +77,31 @@ export const orderService = {
     return response.data.data;
   },
 
+  getOrderByViewToken: async (
+    tenantSlug: string,
+    viewToken: string,
+  ): Promise<Order> => {
+    const response = await api.get<ApiResponse<Order>>(
+      `/orders/track/${viewToken}`,
+      {
+        headers: { "x-tenant-id": tenantSlug },
+      },
+    );
+
+    return response.data.data;
+  },
+
+  trackOrderByEmail: async (
+    tenantSlug: string,
+    data: { orderId: string; email: string },
+  ): Promise<Order> => {
+    const response = await api.post<ApiResponse<Order>>("/orders/track", data, {
+      headers: { "x-tenant-id": tenantSlug },
+    });
+
+    return response.data.data;
+  },
+
   getAdminOrders: async (
     tenantSlug: string,
     filters?: AdminOrderFilters,
@@ -93,11 +126,21 @@ export const orderService = {
   updateOrderStatus: async (
     tenantSlug: string,
     orderId: string,
-    status: OrderStatus,
+    statusOrPayload: OrderStatus | UpdateOrderStatusPayload,
   ): Promise<Order> => {
+    const payload =
+      typeof statusOrPayload === "string"
+        ? { orderStatus: statusOrPayload }
+        : {
+            orderStatus: statusOrPayload.status,
+            ...(statusOrPayload.trackingNumber ? { trackingNumber: statusOrPayload.trackingNumber } : {}),
+            ...(statusOrPayload.trackingCarrier ? { trackingCarrier: statusOrPayload.trackingCarrier } : {}),
+            ...(statusOrPayload.trackingUrl ? { trackingUrl: statusOrPayload.trackingUrl } : {}),
+            ...(statusOrPayload.adminNote ? { adminNote: statusOrPayload.adminNote } : {}),
+          };
     const response = await api.put<ApiResponse<Order>>(
       `/orders/${orderId}/status`,
-      { orderStatus: status },
+      payload,
       { headers: { "x-tenant-id": tenantSlug } },
     );
     return response.data.data;

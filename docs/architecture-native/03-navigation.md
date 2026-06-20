@@ -141,6 +141,8 @@ Expo Router handles deep links automatically.
 | `multitenant://store/{tenantSlug}` | Store home |
 | `multitenant://store/{tenantSlug}/products/{slug}` | Product detail |
 | `multitenant://store/{tenantSlug}/checkout/confirmation?orderId=XXX&viewToken=YYY` | Order confirmation |
+| `multitenant://track?tenantSlug={tenantSlug}&orderId=XXX&token=YYY` | Public order tracking |
+| `multitenant://track?tenantSlug={tenantSlug}&orderId=XXX` | Public order tracking form prefilled by order ID |
 | `multitenant://admin/orders/{id}` | Admin order detail |
 | `https://{tenantSlug}.multitenant.app/products/{slug}` | Web product detail |
 

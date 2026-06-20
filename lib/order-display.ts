@@ -17,6 +17,7 @@ export interface OrderTotals {
   subtotal: number;
   shippingCost: number;
   discount: number;
+  tax: number;
   total: number;
 }
 
@@ -29,6 +30,30 @@ const STATUS_DISPLAY: Record<OrderDisplayStatus, OrderStatusDisplay> = {
   },
   paid: {
     label: 'Pagada',
+    badgeClassName: 'border-emerald-200 bg-emerald-50',
+    textClassName: 'text-emerald-800',
+    dotClassName: 'bg-emerald-500',
+  },
+  processing: {
+    label: 'En preparacion',
+    badgeClassName: 'border-sky-200 bg-sky-50',
+    textClassName: 'text-sky-800',
+    dotClassName: 'bg-sky-500',
+  },
+  ready: {
+    label: 'Preparada',
+    badgeClassName: 'border-indigo-200 bg-indigo-50',
+    textClassName: 'text-indigo-800',
+    dotClassName: 'bg-indigo-500',
+  },
+  shipped: {
+    label: 'Enviada',
+    badgeClassName: 'border-blue-200 bg-blue-50',
+    textClassName: 'text-blue-800',
+    dotClassName: 'bg-blue-500',
+  },
+  delivered: {
+    label: 'Entregada',
     badgeClassName: 'border-emerald-200 bg-emerald-50',
     textClassName: 'text-emerald-800',
     dotClassName: 'bg-emerald-500',
@@ -89,7 +114,17 @@ export function getOrderItemCount(order: Pick<Order, 'items'>): number {
   return order.items.reduce((total, item) => total + item.quantity, 0);
 }
 
-export function getOrderTotals(order: Pick<Order, 'items' | 'shippingCost' | 'total'>): OrderTotals {
+export function getOrderTotals(order: Pick<Order, 'items' | 'shippingCost' | 'total' | 'pricingBreakdown'>): OrderTotals {
+  if (order.pricingBreakdown) {
+    return {
+      subtotal: order.pricingBreakdown.subtotal,
+      shippingCost: order.pricingBreakdown.shippingCost,
+      discount: order.pricingBreakdown.discount,
+      tax: order.pricingBreakdown.tax,
+      total: order.pricingBreakdown.total,
+    };
+  }
+
   const subtotal = order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
   const shippingCost = order.shippingCost ?? 0;
   const discount = Math.max(0, subtotal + shippingCost - order.total);
@@ -98,6 +133,7 @@ export function getOrderTotals(order: Pick<Order, 'items' | 'shippingCost' | 'to
     subtotal,
     shippingCost,
     discount,
+    tax: 0,
     total: order.total,
   };
 }
@@ -113,7 +149,10 @@ export function getOrderTimeline(status: OrderDisplayStatus): OrderTimelineStep[
   const flow: { key: OrderDisplayStatus; label: string }[] = [
     { key: 'pending', label: 'Orden recibida' },
     { key: 'paid', label: 'Pago confirmado' },
-    { key: 'dispatched', label: 'Despachada' },
+    { key: 'processing', label: 'En preparacion' },
+    { key: 'ready', label: 'Preparada' },
+    { key: 'shipped', label: 'Enviada' },
+    { key: 'delivered', label: 'Entregada' },
   ];
   const currentIndex = Math.max(0, flow.findIndex((step) => step.key === status));
 

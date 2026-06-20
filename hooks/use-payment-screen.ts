@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useCreateOrder } from "@/hooks/api/use-create-order";
 import { useShippingMethods } from "@/hooks/api/use-shipping-methods";
 import { useTenant } from "@/hooks/api/use-tenant";
-import { buildCreateOrderPayload } from "@/lib/order";
+import { buildCreateOrderPayload, getCartStockIssue } from "@/lib/order";
 import { showToast } from "@/lib/toast";
 import { paymentService } from "@/services/payments";
 import { useCartStore } from "@/stores/use-cart-store";
@@ -99,6 +99,13 @@ export function usePaymentScreen(tenantSlug?: string) {
       return;
     }
 
+    const stockIssue = getCartStockIssue(items);
+    if (stockIssue) {
+      setSubmitError(stockIssue);
+      showToast("Revisa el carrito", "destructive", stockIssue);
+      return;
+    }
+
     setSubmitError(null);
 
     try {
@@ -122,8 +129,7 @@ export function usePaymentScreen(tenantSlug?: string) {
       setYappyModalVisible(true);
     } catch (error) {
       const apiError = error as ApiError;
-      const message =
-        apiError.message ?? "No pudimos procesar el pago. Intenta nuevamente.";
+      const message = getOrderSubmitErrorMessage(apiError);
       setSubmitError(message);
       showToast("Error al pagar", "destructive", message);
     }
@@ -188,6 +194,20 @@ export function usePaymentScreen(tenantSlug?: string) {
     handleYappyError,
     handleYappyDismiss,
   };
+}
+
+function getOrderSubmitErrorMessage(error: ApiError): string {
+  switch (error.code) {
+    case "PRODUCT_UNAVAILABLE":
+      return "Uno de los productos ya no esta disponible.";
+    case "INSUFFICIENT_STOCK":
+      return "No hay stock suficiente para completar la orden.";
+    case "INVALID_SHIPPING_METHOD":
+    case "INVALID_SHIPPING_LOCATION":
+      return "El metodo de envio seleccionado ya no esta disponible.";
+    default:
+      return error.message ?? "No pudimos procesar el pago. Intenta nuevamente.";
+  }
 }
 
 function buildAvailableMethods(tenantProvider?: string) {
