@@ -36,7 +36,7 @@ export function ManageStoreScreenContent() {
 
   return (
     <ScreenWrapper>
-      <ManageStoreHeader onBack={store.goBack} onSettings={store.goToStoreSettings} />
+      <ManageStoreHeader onBack={store.goBack} onSettings={store.goToStoreConfig} />
       <ScrollView contentContainerClassName="gap-5 px-6 py-6" keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <ManageStoreLogoField logoUri={displayLogo} onPress={store.pickLogo} />
         <ManageStoreForm store={store} />

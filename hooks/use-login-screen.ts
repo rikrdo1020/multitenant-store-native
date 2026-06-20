@@ -25,6 +25,8 @@ export function useLoginScreen() {
         router.replace('/marketplace');
       } else if (user.role === 'superadmin') {
         router.replace('/(superadmin)/dashboard');
+      } else if (!user.onboardingCompleted) {
+        router.replace('/(auth)/welcome');
       } else {
         router.replace('/(admin)/dashboard');
       }

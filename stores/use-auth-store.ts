@@ -12,6 +12,7 @@ interface AuthStore {
   isLoading: boolean;
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   setAccessToken: (token: string) => void;
+  setUser: (user: User) => void;
   clearAuth: () => void;
   setLoading: (loading: boolean) => void;
 }
@@ -39,6 +40,7 @@ export const useAuthStore = create<AuthStore>()(
       setAuth: (user, accessToken, refreshToken) =>
         set({ user, accessToken, refreshToken, isAuthenticated: true, isLoading: false }),
       setAccessToken: (token) => set({ accessToken: token }),
+      setUser: (user) => set({ user }),
       clearAuth: () =>
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, isLoading: false }),
       setLoading: (loading) => set({ isLoading: loading }),

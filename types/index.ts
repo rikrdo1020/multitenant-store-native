@@ -4,6 +4,7 @@ export interface User {
   name: string;
   role: "superadmin" | "admin" | "manager" | "customer";
   phone?: string;
+  onboardingCompleted?: boolean;
 }
 
 export type TeamRole = "admin" | "manager";
@@ -34,6 +35,8 @@ export interface CreatePaymentResult {
   token?: string;
 }
 
+export type TenantPlan = 'FREE' | 'PRO';
+
 export interface Tenant {
   documentId: string;
   slug: string;
@@ -43,6 +46,10 @@ export interface Tenant {
   primaryColor?: string;
   currency?: string;
   provider?: string;
+  plan?: TenantPlan;
+  whatsappPhone?: string;
+  yappyPhone?: string;
+  yappyName?: string;
 }
 
 export interface TenantSettings {
@@ -60,6 +67,8 @@ export interface UpdateTenantPayload {
   description?: string;
   logo?: string;
   primaryColor?: string;
+  yappyPhone?: string;
+  yappyName?: string;
 }
 
 export interface UpdateSettingsPayload {

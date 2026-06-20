@@ -14,6 +14,8 @@ export const YAPPY_CDN_URL =
 
 export const DEFAULT_CURRENCY = "USD";
 
+export const ADMIN_URL = process.env.EXPO_PUBLIC_ADMIN_URL ?? "";
+
 export const STORAGE_KEYS = {
   AUTH: "mt_auth",
   TENANT: "mt_active_tenant",

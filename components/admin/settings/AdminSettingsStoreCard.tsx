@@ -53,24 +53,21 @@ export function AdminSettingsStoreCard({ settings }: AdminSettingsStoreCardProps
 }
 
 function StoreActions({ settings }: AdminSettingsStoreCardProps) {
-  const hasActions =
+  const hasAnyAction =
     settings.canOpenStorefront || settings.canEditStoreProfile || settings.canEditStoreSettings;
 
-  if (!hasActions) return null;
+  if (!hasAnyAction) return null;
 
   return (
     <View className="border-t border-border px-3 py-2">
       {settings.canOpenStorefront && (
         <AdminSettingsAction icon={Store} label="Ver tienda" onPress={settings.goToStorefront} />
       )}
-      {settings.canEditStoreProfile && (
-        <AdminSettingsAction label="Editar perfil de tienda" onPress={settings.goToManageStore} />
-      )}
-      {settings.canEditStoreSettings && (
+      {(settings.canEditStoreProfile || settings.canEditStoreSettings) && (
         <AdminSettingsAction
           icon={Settings}
-          label="Configuracion de tienda"
-          onPress={settings.goToStoreSettings}
+          label="Configurar tienda"
+          onPress={settings.goToStoreConfig}
         />
       )}
     </View>

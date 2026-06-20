@@ -16,7 +16,7 @@ export function useRegisterScreen() {
     try {
       setLoading(true);
       await register(data);
-      router.replace('/');
+      router.replace('/(auth)/welcome');
     } catch {
       form.setError('root', { message: 'No fue posible crear la cuenta. Intenta de nuevo.' });
     } finally {

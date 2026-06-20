@@ -86,6 +86,29 @@ export const editStoreSchema = z.object({
   description: z.string().max(500, 'Maximo 500 caracteres').optional(),
 });
 
+export const onboardingProductSchema = z.object({
+  name: z.string().min(2, 'Minimo 2 caracteres').max(100, 'Maximo 100 caracteres'),
+  price: z.coerce.number({ invalid_type_error: 'Ingresa un precio' }).positive('Debe ser mayor a 0'),
+  stock: z.coerce.number().int('Debe ser entero').min(0, 'No puede ser negativo').optional(),
+  description: z.string().max(500, 'Maximo 500 caracteres').optional(),
+});
+
+export const onboardingShippingSchema = z.object({
+  name: z.string().min(3, 'Minimo 3 caracteres').max(80, 'Maximo 80 caracteres'),
+  type: z.enum(['delivery_zone', 'pickup_point', 'third_party']),
+  basePrice: z.coerce.number({ invalid_type_error: 'Ingresa un precio' }).min(0, 'No puede ser negativo'),
+});
+
+// Panama mobile numbers: 6xxx-xxxx or 6xxxxxxx
+const panamanianPhone = z
+  .string()
+  .regex(/^6\d{3}-?\d{4}$/, 'Número panameño inválido (ej: 6000-0000)');
+
+export const yappySettingsSchema = z.object({
+  yappyPhone: panamanianPhone,
+  yappyName: z.string().min(2, 'Mínimo 2 caracteres').max(100, 'Máximo 100 caracteres'),
+});
+
 export const storeSettingsSchema = z.object({
   currency: z.string().min(2, 'Requerido'),
   taxRate: z.coerce
@@ -112,3 +135,6 @@ export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 export type CreateStoreFormData = z.infer<typeof createStoreSchema>;
 export type EditStoreFormData = z.infer<typeof editStoreSchema>;
 export type StoreSettingsFormData = z.infer<typeof storeSettingsSchema>;
+export type OnboardingProductFormData = z.infer<typeof onboardingProductSchema>;
+export type OnboardingShippingFormData = z.infer<typeof onboardingShippingSchema>;
+export type YappySettingsFormData = z.infer<typeof yappySettingsSchema>;

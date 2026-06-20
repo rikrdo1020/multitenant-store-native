@@ -18,6 +18,8 @@ interface CheckoutSummaryColumnProps {
   hasShippingMethods: boolean;
   submitError: string | null;
   onRetryPricing: () => void;
+  actionLabel: string;
+  actionNote: string;
   onSubmit: () => void;
 }
 
@@ -34,6 +36,8 @@ export function CheckoutSummaryColumn({
   hasShippingMethods,
   submitError,
   onRetryPricing,
+  actionLabel,
+  actionNote,
   onSubmit,
 }: CheckoutSummaryColumnProps) {
   return (
@@ -59,7 +63,7 @@ export function CheckoutSummaryColumn({
         onRetryPricing={onRetryPricing}
         shippingCost={selectedMethod ? shippingCost : undefined}
         shippingLabel="Selecciona envio"
-        actionLabel="Continuar al pago"
+        actionLabel={actionLabel}
         actionLoading={isSubmitting}
         actionDisabled={isSubmitting || isShippingLoading || isPricingLoading || !hasShippingMethods}
         actionError={submitError}
@@ -68,7 +72,7 @@ export function CheckoutSummaryColumn({
 
       <View className="rounded-md bg-secondary px-3 py-3">
         <Text variant="xs" className="leading-5">
-          El pago se confirma en el siguiente paso. No vaciamos el carrito hasta que el pago quede confirmado.
+          {actionNote}
         </Text>
       </View>
     </>

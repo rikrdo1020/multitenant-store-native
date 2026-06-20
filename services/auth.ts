@@ -36,6 +36,7 @@ export async function register(data: {
   password: string;
   phone: string;
 }): Promise<User> {
+  useTenantStore.getState().setTenant(null);
   const response = await api.post<ApiResponse<LoginResponse>>(
     "/auth/register",
     data,
@@ -67,6 +68,7 @@ export async function logout(): Promise<void> {
     // Ignore errors on logout
   }
   await clearTokens();
+  useTenantStore.getState().setTenant(null);
   useAuthStore.getState().clearAuth();
 }
 
@@ -106,6 +108,10 @@ export async function registerInvite(data: {
     data,
   );
   return response.data.data;
+}
+
+export async function completeOnboarding(): Promise<void> {
+  await api.post("/auth/complete-onboarding");
 }
 
 export function getAuthErrorMessage(error: unknown, fallback: string): string {
